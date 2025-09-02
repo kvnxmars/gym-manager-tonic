@@ -4,3 +4,5 @@
 
 //api/login/: yoda
 //api/logout/: yoda
+
+//api/signup: kevin
