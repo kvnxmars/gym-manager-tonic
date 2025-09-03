@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 //Define User schema
-const UserSchema = new Schema({
+const checkInSchema = new Schema({
     studentNumber: { 
         type: String,
         required: true
