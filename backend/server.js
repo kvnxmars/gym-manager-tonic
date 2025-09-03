@@ -31,7 +31,7 @@ app.listen(PORT, () => {
 });
 
 
-//push changes to remote repo: aaa.plug
+//push changes
 
 //api/login/: yoda
 //api/logout/: yoda
