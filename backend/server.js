@@ -1,16 +1,35 @@
-//basic server setup
-const express = require('express');
-const app = express();
-const PORT = 3000;
 
-//middleware to parse JSON bodies
+//import libraries
+ 
+const connectionstring = "mongodb+srv://dbGenericUser:tonic-mongoose@fitnwu-cluster.nbdlox7.mongodb.net/";
+const express = require("express");
+const mongoose = require("mongoose");
+const bcryot = require("bcryptjs"); //for password hashing
+const cors = require("cors"); //to handle cross-origin requests
+const PORT = 5000; //Server port
+
+
+
+
+const app = express();
 app.use(express.json());
 
-app.get('/', (req,res) => res.send('API Running!'));
-app.use('/api/auth', require('./routes/auth')); //Auth routes
+// Connect to MongoDB
+mongoose.connect(connectionstring, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => console.log("✅ MongoDB connected"))
+  .catch(err => console.error("❌ MongoDB error:", err));
 
-app.listen(PORT, () => console.log('Server running on port ${PORT}'));
+// Import routes
+import authRoutes from './routes/auth.js';
+app.use('/api', authRoutes); // Use auth routes
 
+// Start server
+
+app.listen(PORT, () => {
+    console.log(`✅ Server running on http://localhost:${PORT}`);
+});
 //api/signup: kevin
 /*app.post('/api/signup', (req, res) => {
     const { username, password } = req.body;
@@ -27,6 +46,9 @@ app.listen(PORT, () => console.log('Server running on port ${PORT}'));
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });*/
+
+
+//push changes to github
 
 //api/login/: yoda
 //api/logout/: yoda
