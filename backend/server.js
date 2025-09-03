@@ -1,18 +1,15 @@
-
 //import libraries
  
 const connectionstring = "mongodb+srv://dbGenericUser:tonic-mongoose@fitnwu-cluster.nbdlox7.mongodb.net/";
 const express = require("express");
 const mongoose = require("mongoose");
-const bcryot = require("bcryptjs"); //for password hashing
-const cors = require("cors"); //to handle cross-origin requests
-const PORT = 5000; //Server port
-
-
-
+const bcrypt = require("bcryptjs"); // fixed typo
+const cors = require("cors");
+const PORT = 5000;
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // Connect to MongoDB
 mongoose.connect(connectionstring, {
@@ -22,34 +19,28 @@ mongoose.connect(connectionstring, {
   .catch(err => console.error("❌ MongoDB error:", err));
 
 // Import routes
-import authRoutes from './routes/auth.js';
+const authRoutes = require('./routes/auth');
 app.use('/api', authRoutes); // Use auth routes
 
-// Start server
+// api/signup: kevin
+app.post('/api/signup', (req, res) => {
+    // Set dummy values if not provided
+    const studentNumber = req.body.studentNumber || "41503619";
+    const password = req.body.password || "123456";
 
-app.listen(PORT, () => {
-    console.log(`✅ Server running on http://localhost:${PORT}`);
-});
-//api/signup: kevin
-/*app.post('/api/signup', (req, res) => {
-    const { username, password } = req.body;
-
-    //Basic validation
-    if (!username || !password) {
-        return res.status(400).json({ message: 'Username and password are required.' });
+    // Basic validation
+    if (!studentNumber || !password) {
+        return res.status(400).json({ message: 'StudentNumber and password are required.' });
     }
 
-    //TODO: Add user to database (mocked here)
+    // TODO: Add user to database (mocked here)
     res.status(201).json({ message: 'User signed up successfully.' });
 });
 
+// Start server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});*/
-
-
-//push changes to github
-
+    console.log(`✅ Server running on http://localhost:${PORT}`);
+});
 //api/login/: yoda
 //api/logout/: yoda
 

@@ -12,5 +12,8 @@
   "type": "commonjs",
   "devDependencies": {
     "concurrently": "^9.2.0"
+  },
+  "dependencies": {
+    "curl": "^0.1.4"
   }
 }
