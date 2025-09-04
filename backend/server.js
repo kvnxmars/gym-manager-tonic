@@ -4,7 +4,7 @@
 const connectionstring = "mongodb+srv://dbGenericUser:tonic-mongoose@fitnwu-cluster.nbdlox7.mongodb.net/";
 const express = require("express");
 const mongoose = require("mongoose");
-const bcryot = require("bcryptjs"); //for password hashing
+const bcrypt = require("bcryptjs"); //for password hashing
 const cors = require("cors"); //to handle cross-origin requests
 
 
@@ -32,6 +32,7 @@ app.listen(PORT, () => {
 
 
 //push changes
+
 
 //api/login/: yoda
 //api/logout/: yoda
