@@ -1,25 +1,44 @@
 const express = require('express'); //Express framework
 const router = express.Router(); //API router instance
+const bcrypt = require('bcryptjs'); //For password hashing
+const { Student } = require('../models/Students'); //User model
 
 //@route POST api/signup
 //@desc Register a new user
 router.post('/signup', async (req, res) => {
-    const {studentNumber, password} = req.body;
-    console.log('Attempting to sign up user:', studentNumber);
+    try 
+    {
+        const {studentNumber, password, name, email } = req.body;
+    
+        // Basic validation
+        if (!studentNumber || !password || !name || !name.first || !name.last || !email) {
+            return res.status(400).json({ msg: 'Please enter all fields' });
+        }
 
-    //hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
-    console.log('Hashed password:', hashedPassword);
+        //check if user exists
+        const existingUser = await Student.findOne({ studentNumber });
+        if (existingUser) {
+            return res.status(400).json({ message: "Student already exists"});
+        }   
 
-    //save user to database (mocked here)
-    // Mock database array
-    if (!global.mockUsers) {
-        global.mockUsers = [];
+        //hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        //Create new student
+        const newStudent = new Student({
+            studentNumber,
+            password: hashedPassword,
+            name,
+            email
+        });
+
+        await newStudent.save();
+        res.status(201).json({ message: "Student registered successfully" });
+    } catch (err) {
+        console.error('Signup error:', err);
+        res.status(500).send('Server error');
     }
-    global.mockUsers.push({ studentNumber, password: hashedPassword });
-
-    //mock response
-    res.status(201).json({message: 'User signed up successfully.'});
 });
 
 module.exports = router; //Export the router to be used in server.js

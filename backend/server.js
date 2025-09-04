@@ -6,13 +6,15 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs"); // fixed typo
 const cors = require("cors");
 const PORT = 5000;
+const dotenv = require('dotenv');//to hide sensitive info
+dotenv.config(); //load .env variables
 
 const app = express();
 app.use(express.json());
 app.use(cors());
 
 // Connect to MongoDB
-mongoose.connect(connectionstring, {
+mongoose.connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 }).then(() => console.log("✅ MongoDB connected"))
@@ -22,20 +24,6 @@ mongoose.connect(connectionstring, {
 const authRoutes = require('./routes/auth');
 app.use('/api', authRoutes); // Use auth routes
 
-// api/signup: kevin
-app.post('/api/signup', (req, res) => {
-    // Set dummy values if not provided
-    const studentNumber = req.body.studentNumber || "41503619";
-    const password = req.body.password || "123456";
-
-    // Basic validation
-    if (!studentNumber || !password) {
-        return res.status(400).json({ message: 'StudentNumber and password are required.' });
-    }
-
-    // TODO: Add user to database (mocked here)
-    res.status(201).json({ message: 'User signed up successfully.' });
-});
 
 // Start server
 app.listen(PORT, () => {
