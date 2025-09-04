@@ -1,9 +1,12 @@
+
+// Import libraries
 const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
 
 const app = express();
+
 
 // Middleware
 app.use(cors());
@@ -143,6 +146,7 @@ app.post("/api/checkout", async (req, res) => {
     console.error("Check-out error:", err);
     res.status(500).json({ message: "Server error during check-out" });
   }
+
 });
 
 // Gym occupancy
@@ -163,6 +167,7 @@ app.get("/api/checkins/:studentNumber", async (req, res) => {
     const student = await Student.findOne({ studentNumber });
     if (!student) return res.status(404).json({ message: "Student not found" });
 
+
     const history = await CheckIn.find({ studentId: student._id }).sort({ checkInTime: -1 });
     res.json({ history });
   } catch (err) {
@@ -173,6 +178,7 @@ app.get("/api/checkins/:studentNumber", async (req, res) => {
 
 // Logout
 app.post("/api/logout", (req, res) => res.json({ message: "Logout successful" }));
+
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ message: "Endpoint not found" }));
