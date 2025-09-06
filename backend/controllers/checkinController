@@ -1,0 +1,23 @@
+const CheckIn = require("../models/CheckIns");
+const Student = require("../models/Student");
+
+// Create a new check-in
+exports.createCheckIn = async (req, res) => {
+  try {
+    const { studentNumber, checkInTime, checkOutTime } = req.body;
+
+    const student = await Student.findOne({ studentNumber });
+    if (!student) return res.status(404).json({ message: "Student not found." });
+
+    const newCheckIn = new CheckIn({
+      studentId: student._id,
+      checkInTime,
+      checkOutTime,
+    });
+
+    await newCheckIn.save();
+    res.status(201).json({ message: "Check-in recorded.", checkIn: newCheckIn });
+  } catch (err) {
+    res.status(500).json({ message: "Error recording check-in." });
+  }
+};

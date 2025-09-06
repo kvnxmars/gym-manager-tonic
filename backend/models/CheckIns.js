@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 
-// CheckIn schema
 
 const checkInSchema = new mongoose.Schema({
   studentId: { 
@@ -22,5 +21,7 @@ const checkInSchema = new mongoose.Schema({
   }
 });
 
+
 module.exports = mongoose.models.CheckIn || mongoose.model('CheckIn', checkInSchema) // Create CheckIn model
+
 
