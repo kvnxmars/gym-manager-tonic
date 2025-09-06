@@ -1,24 +1,18 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
-// Import our auth pages
-import SignUpPage from "./pages/SignupPage";
-//import SignInPage from "./pages/SignInPage";
-import LoginPage from "./pages/LoginPage";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import SignIn from "./pages/LoginPage";
+import SignUp from "./pages/SignupPage";
+import StudentDashboard from "./pages/StudentDashboard"; // ✅
+import StaffQRScanner from "./pages/StaffQRScanner"; // ✅
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Default route → redirect to signin */}
-        <Route path="/" element={<Navigate to="/signin" />} />
-
-        {/* Auth routes */}
-        <Route path="/signin" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-
-        {/* Fallback for unknown routes → go to signin */}
-        <Route path="*" element={<Navigate to="/signin" />} />
+        <Route path="/" element={<SignIn />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} /> {/* ✅ */}
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/staff-qr" element={<StaffQRScanner />} />   {/* ✅ new route */}
       </Routes>
     </Router>
   );

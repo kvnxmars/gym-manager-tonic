@@ -50,8 +50,8 @@ export default function SignInPage() {
       localStorage.setItem("student", JSON.stringify(data.student));
 
       // Redirect to dashboard (once created)
-      alert("Login successful! 🎉");
-      navigate("/dashboard");
+      //alert("Login successful! 🎉");
+      navigate("/student-dashboard");
     } catch (err) {
       setError(err.message);
     } finally {

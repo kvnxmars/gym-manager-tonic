@@ -191,4 +191,23 @@ body {
     display: flex;
     border-radius: 0 24px 24px 0;
   }
+
+  .result-box, .status-box {
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 12px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.result-box {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.status-box {
+  background-color: #e6f7ff;
+  color: #0077cc;
+}
+
 }
