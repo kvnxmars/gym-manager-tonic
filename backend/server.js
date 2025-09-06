@@ -80,20 +80,22 @@ app.post("/api/login", async (req, res) => {
     const isMatch = await bcrypt.compare(password, student.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    res.json({
-      message: "Login successful",
-      student: {
-        id: student._id,
-        studentNumber: student.studentNumber,
-        name: student.name,
-        email: student.email,
-        membershipStatus: student.membershipStatus,
-      },
-    });
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error during login" });
-  }
+        res.status(200).json({ 
+            message: "Login successful!",
+            student: {
+                id: student._id,
+                studentNumber: student.studentNumber,
+                name: student.name,
+                email: student.email,
+                membershipStatus: student.membershipStatus
+            }
+        });
+
+    } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({ message: "An error occurred during login." });
+        setError(err.message);
+    }
 });
 
 // Check-in
