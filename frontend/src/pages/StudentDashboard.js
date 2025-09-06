@@ -115,7 +115,7 @@ const StudentDashboard = () => {
                 borderRadius: "4px",
                 cursor: "pointer"
               }}
-              onClick={() => navigate("/staff-qr")}
+              onClick={() => navigate("/qr-scanner")}
             >
               Go to Staff QR Scanner
             </button>
