@@ -58,7 +58,7 @@ export default function SignUpPage() {
 
       // Success → go to signin page
       alert("Signup successful! Please sign in.");
-      navigate("/signin");
+      navigate("/");
     } catch (err) {
       // Show error message in UI
       setError(err.message);
@@ -161,7 +161,7 @@ export default function SignUpPage() {
 
           {/* Switch to Signin */}
           <p className="switch-link">
-            Already have an account? <Link to="/signin">Sign in</Link>
+            Already have an account? <Link to="/">Sign in</Link>
           </p>
         </div>
       </div>
