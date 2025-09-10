@@ -1,59 +1,38 @@
+// src/pages/LoginPage.js
 import React, { useState } from "react";
-import "../styles/Auth.css"; // shared CSS
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import "../styles/Auth.css";
 
-// Backend API base URL (adjust if needed)
-const API_URL = "http://localhost:5000/api";
-
-export default function SignInPage() {
-  const navigate = useNavigate();
-
-  // Form state for login
-  const [formData, setFormData] = useState({
-    studentNumber: "",
-    password: "",
-  });
-
-  // UI state
-  const [showPassword, setShowPassword] = useState(false);
+const LoginPage = () => {
+  const [studentNumber, setStudentNumber] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Update form state
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  // Handle login submit
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    setLoading(true);
 
     try {
-      // Send POST request to backend /signin
-      const res = await fetch(`${API_URL}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+      const res = await axios.post("http://localhost:5000/api/login", {
+        studentNumber,
+        password,
       });
 
-      const data = await res.json();
+      // Save user in localStorage
+      localStorage.setItem("user", JSON.stringify(res.data));
 
-      // If login failed
-      if (!res.ok) {
-        throw new Error(data.message || "Signin failed");
+      // Navigate based on role
+      if (res.data.role === "student") {
+        navigate("/student-dashboard");
+      } else if (res.data.role === "staff") {
+        navigate("/staff-dashboard");
       }
-
-      // Save token + student info in localStorage (so PWA can persist login)
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("student", JSON.stringify(data.student));
-
-      // Redirect to dashboard (once created)
-      //alert("Login successful! 🎉");
-      navigate("/student-dashboard");
     } catch (err) {
-      setError(err.message);
+      setError(err.response?.data?.message || "Login failed. Try again.");
     } finally {
       setLoading(false);
     }
@@ -63,55 +42,37 @@ export default function SignInPage() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-card-form">
-          <h2 className="title">Fit@NWU Signin</h2>
-
-          {/* Signin form */}
-          <form className="form" onSubmit={handleSubmit}>
-            {/* Student Number */}
+          <h1 className="title">Sign In</h1>
+          <form onSubmit={handleLogin} className="form">
             <input
-              className="input"
               type="text"
-              name="studentNumber"
               placeholder="Student Number"
-              value={formData.studentNumber}
-              onChange={handleChange}
-              required
+              value={studentNumber}
+              onChange={(e) => setStudentNumber(e.target.value)}
+              className="input"
             />
-
-            {/* Password with emoji toggle */}
-            <div className="input-container">
-              <input
-                className="input"
-                type={showPassword ? "text" : "password"}
-                name="password"
-                placeholder="Password 🔑"
-                value={formData.password}
-                onChange={handleChange}
-                required
-              />
-              <span
-                className="icon"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? "🙈" : "👁️"}
-              </span>
-            </div>
-
-            {/* Error message */}
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="input"
+            />
             {error && <p className="error-text">{error}</p>}
-
-            {/* Submit button */}
-            <button className="submit-btn" type="submit" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+            <button type="submit" disabled={loading} className="submit-btn">
+              {loading ? "Loading..." : "Sign In"}
             </button>
           </form>
-
-          {/* Switch to Signup */}
           <p className="switch-link">
-            Don’t have an account? <Link to="/signup">Sign up</Link>
+            Don’t have an account?{" "}
+            <a href="/signup" className="link">
+              Create Account
+            </a>
           </p>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default LoginPage;

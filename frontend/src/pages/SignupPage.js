@@ -1,14 +1,14 @@
+// src/pages/SignupPage.js
 import React, { useState } from "react";
-import "../styles/Auth.css"; // Import our shared CSS
 import { Link, useNavigate } from "react-router-dom";
+import "../styles/Auth.css";
 
-// Backend API base URL (adjust if your server runs elsewhere)
 const API_URL = "http://localhost:5000/api";
 
-export default function SignUpPage() {
+export default function SignupPage() {
   const navigate = useNavigate();
 
-  // Form state (all signup fields)
+  // Signup form state
   const [formData, setFormData] = useState({
     studentNumber: "",
     firstName: "",
@@ -18,31 +18,29 @@ export default function SignUpPage() {
     confirmPassword: "",
   });
 
-  // UI state (show/hide password toggle, error messages, loading)
+  // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Update form state when input changes
-  const handleChange = (e) => {
+  // Update form
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
-  // Handle form submit (send signup request to backend)
+  // Submit signup form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Quick check: password and confirm must match
+    // Ensure password match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
     }
 
     setLoading(true);
-    setError(""); // clear previous error
+    setError("");
 
     try {
-      // Send POST request to backend /signup endpoint
       const res = await fetch(`${API_URL}/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,19 +49,14 @@ export default function SignUpPage() {
 
       const data = await res.json();
 
-      // If response is not ok → throw error
-      if (!res.ok) {
-        throw new Error(data.message || "Signup failed");
-      }
+      if (!res.ok) throw new Error(data.message || "Signup failed");
 
-      // Success → go to signin page
       alert("Signup successful! Please sign in.");
-      navigate("/");
+      navigate("/"); // go to login
     } catch (err) {
-      // Show error message in UI
       setError(err.message);
     } finally {
-      setLoading(false); // always stop loading spinner
+      setLoading(false);
     }
   };
 
@@ -73,9 +66,7 @@ export default function SignUpPage() {
         <div className="auth-card-form">
           <h2 className="title">Fit@NWU Signup</h2>
 
-          {/* Signup form */}
           <form className="form" onSubmit={handleSubmit}>
-            {/* Student Number */}
             <input
               className="input"
               type="text"
@@ -86,7 +77,6 @@ export default function SignUpPage() {
               required
             />
 
-            {/* First Name */}
             <input
               className="input"
               type="text"
@@ -97,7 +87,6 @@ export default function SignUpPage() {
               required
             />
 
-            {/* Last Name */}
             <input
               className="input"
               type="text"
@@ -108,7 +97,6 @@ export default function SignUpPage() {
               required
             />
 
-            {/* Email */}
             <input
               className="input"
               type="email"
@@ -119,7 +107,7 @@ export default function SignUpPage() {
               required
             />
 
-            {/* Password field with emoji toggle */}
+            {/* Password with toggle */}
             <div className="input-container">
               <input
                 className="input"
@@ -130,7 +118,6 @@ export default function SignUpPage() {
                 onChange={handleChange}
                 required
               />
-              {/* Toggle button (👁️/🙈) */}
               <span
                 className="icon"
                 onClick={() => setShowPassword(!showPassword)}
@@ -139,7 +126,6 @@ export default function SignUpPage() {
               </span>
             </div>
 
-            {/* Confirm Password */}
             <input
               className="input"
               type={showPassword ? "text" : "password"}
@@ -150,16 +136,13 @@ export default function SignUpPage() {
               required
             />
 
-            {/* Error message */}
             {error && <p className="error-text">{error}</p>}
 
-            {/* Submit button */}
             <button className="submit-btn" type="submit" disabled={loading}>
               {loading ? "Signing up..." : "Sign Up"}
             </button>
           </form>
 
-          {/* Switch to Signin */}
           <p className="switch-link">
             Already have an account? <Link to="/">Sign in</Link>
           </p>

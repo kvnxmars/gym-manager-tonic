@@ -74,22 +74,33 @@ app.post("/api/signup", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   try {
     const { studentNumber, password } = req.body;
+
+    if (!studentNumber || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     const student = await Student.findOne({ studentNumber });
-    if (!student) return res.status(401).json({ message: "Invalid credentials" });
+    if (!student) 
+      return res.status(401).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, student.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    if (!isMatch) 
+      return res.status(401).json({ message: "Invalid credentials" });
 
-        res.status(200).json({ 
-            message: "Login successful!",
-            student: {
-                id: student._id,
-                studentNumber: student.studentNumber,
-                name: student.name,
-                email: student.email,
-                membershipStatus: student.membershipStatus
-            }
-        });
+    const role = studentNumber.toLowerCase().startsWith('s') ? 'staff' : 'student';
+
+    // If login is successful, return student info (excluding password)
+     return res.status(200).json({
+        message: "Student login successful!",
+        role,
+        student: {
+          id: student._id,
+          studentNumber: student.studentNumber,
+          name: student.name,
+          email: student.email,
+          membershipStatus: student.membershipStatus
+        } });
+      
 
     } catch (error) {
         console.error("Login error:", error);
