@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Search, QrCode, Heart, Settings, Home, Clock, Users } from "lucide-react";
-import "../styles/StudentDashboard.css";
+
 
 // Mock API calls - replace with your actual API
 const API_URL = "http://localhost:5000/api";
@@ -29,16 +29,21 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Mock data for demo - replace with actual API calls
-        setStudent({
-          name: { first: "Kevin", last: "Mbolongwe" },
-          studentNumber: "12345678"
+        // fetch student profile
+        const studentRes = await fetch(`${API_URL}/signup`);
+        const studentData = await studentRes.json();
+        setStudent(studentData.student);
+
+        
+        
+        // Generate QR data using login info
+    
+        const qrValue = JSON.stringify({
+          studentNumber: "12345678",
+          name: "Kevin Mbolongwe",
+          timestamp: Date.now()
         });
-        setOccupancy(24);
-        setCheckins([
-          { _id: 1, checkInTime: new Date().toISOString(), isActive: false },
-          { _id: 2, checkInTime: new Date(Date.now() - 86400000).toISOString(), isActive: false }
-        ]);
+        setQrData(qrValue);
         
         // Uncomment and modify these when your backend is ready:
         /*
@@ -47,8 +52,8 @@ const StudentDashboard = () => {
         setStudent(profileData.student);
 
         const qrRes = await fetch(`${API_URL}/student/qr/${profileData.student.studentNumber}`);
-        const qrData = await qrRes.json();
-        setQrData(qrData.qrData);
+        const qrResponse = await qrRes.json();
+        setQrData(qrResponse.qrData);
 
         const occupancyRes = await fetch(`${API_URL}/gym/occupancy`);
         const occupancyData = await occupancyRes.json();
@@ -56,7 +61,7 @@ const StudentDashboard = () => {
 
         const checkinsRes = await fetch(`${API_URL}/checkins/${profileData.student.studentNumber}`);
         const checkinsData = await checkinsRes.json();
-        setCheckins(checkinsData.history?.slice(0, 5) || []);
+        setCheckins(checkinsData.checkIns?.slice(0, 5) || []);
         */
       } catch (err) {
         console.error("Error loading dashboard:", err);
@@ -71,10 +76,14 @@ const StudentDashboard = () => {
   const handleAddWorkout = async () => {
     if (!workoutName.trim()) return;
     try {
-      
+      // Mock for demo - replace with actual API call
+      const newWorkout = { name: workoutName, id: Date.now() };
+      setWorkoutTemplates([...workoutTemplates, newWorkout]);
+      setWorkoutName("");
+      setShowTemplateModal(false);
       
       // Uncomment when backend is ready:
-      
+      /*
       const res = await fetch(`${API_URL}/workouts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,18 +94,88 @@ const StudentDashboard = () => {
       });
       const data = await res.json();
       setWorkoutTemplates([...workoutTemplates, data]);
-      
+      setWorkoutName("");
+      setShowTemplateModal(false);
+      */
     } catch (err) {
       console.error("Error adding workout:", err);
     }
   };
 
+  // Generate QR Code as SVG
+  const generateQRCode = (text) => {
+    const size = 200;
+    const qrSize = 21; // Standard QR code is 21x21 modules for version 1
+    const moduleSize = size / qrSize;
+    
+    // Simple pattern generator for demo (replace with actual QR code library)
+    const pattern = [];
+    for (let i = 0; i < qrSize; i++) {
+      pattern[i] = [];
+      for (let j = 0; j < qrSize; j++) {
+        // Create a pseudo-random pattern based on text and position
+        const hash = (text.charCodeAt((i + j) % text.length) + i * j) % 3;
+        pattern[i][j] = hash < 1;
+      }
+    }
+
+    // Add finder patterns (corners)
+    const addFinderPattern = (startRow, startCol) => {
+      for (let i = 0; i < 7; i++) {
+        for (let j = 0; j < 7; j++) {
+          if (startRow + i < qrSize && startCol + j < qrSize) {
+            pattern[startRow + i][startCol + j] = 
+              i === 0 || i === 6 || j === 0 || j === 6 || 
+              (i >= 2 && i <= 4 && j >= 2 && j <= 4);
+          }
+        }
+      }
+    };
+
+    addFinderPattern(0, 0);
+    addFinderPattern(0, qrSize - 7);
+    addFinderPattern(qrSize - 7, 0);
+
+    return (
+      <svg width={size} height={size} className="border">
+        {pattern.map((row, i) =>
+          row.map((cell, j) => (
+            cell && (
+              <rect
+                key={`${i}-${j}`}
+                x={j * moduleSize}
+                y={i * moduleSize}
+                width={moduleSize}
+                height={moduleSize}
+                fill="#000"
+              />
+            )
+          ))
+        )}
+      </svg>
+    );
+  };
+
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center', 
+        minHeight: '100vh', 
+        backgroundColor: '#f9fafb' 
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: '3rem',
+            height: '3rem',
+            border: '2px solid #e5e7eb',
+            borderTop: '2px solid #2563eb',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 1rem'
+          }}></div>
+          <p style={{ color: '#4b5563' }}>Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -134,10 +213,20 @@ const StudentDashboard = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
             <h3 className="text-lg font-semibold mb-4">Your QR Code</h3>
-            <div className="w-48 h-48 bg-gray-100 rounded-lg mx-auto mb-4 flex items-center justify-center">
-              <QrCode className="w-32 h-32 text-gray-400" />
+            <div className="w-48 h-48 mx-auto mb-4 flex items-center justify-center bg-white p-4 rounded-lg border">
+              {qrData ? (
+                generateQRCode(qrData)
+              ) : (
+                <QrCode className="w-32 h-32 text-gray-400" />
+              )}
             </div>
+            <p className="text-sm text-gray-600 mb-2">
+              <strong>Student:</strong> {student?.name?.first} {student?.name?.last}
+            </p>
             <p className="text-sm text-gray-600 mb-4">
+              <strong>Number:</strong> {student?.studentNumber}
+            </p>
+            <p className="text-xs text-gray-500 mb-4">
               Show this code at the gym entrance
             </p>
             <button
@@ -338,6 +427,13 @@ const StudentDashboard = () => {
           </button>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };

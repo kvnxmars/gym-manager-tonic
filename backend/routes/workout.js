@@ -13,7 +13,18 @@ router.post("/", async (req, res) => {
   }
 });
 
+// POST api/workouts - save a template workout
+router.post("/template", async (req, res) => {
+  try {
+    const workout = new Workout(req.body);  
+    const savedWorkout = await workout.save();
+    res.status(201).json(savedWorkout);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
+// 
 // GET /api/workouts/:studentNumber → get all workouts for a student
 router.get("/:studentNumber", async (req, res) => {
   try {
