@@ -20,7 +20,7 @@ const StaffDashboard = () => {
         setOccupancy(occRes.data.currentOccupancy);
 
         // Get recent check-ins (for now hardcoded student)
-        const checkinRes = await axios.get("{API_URL}/checkins");
+        const checkinRes = await axios.get("http://localhost:5000/api/checkins/12345678");
         setRecentCheckins(checkinRes.data.checkIns.slice(0, 5));
       } catch (error) {
         console.error("Error loading staff insights:", error);
@@ -116,4 +116,3 @@ const StaffDashboard = () => {
 };
 
 export default StaffDashboard;
-
