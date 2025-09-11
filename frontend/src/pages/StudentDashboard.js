@@ -3,7 +3,7 @@ import { QRCodeCanvas } from "qrcode.react";
 import { useNavigate } from "react-router-dom";
 import "../styles/dashboard.css";
 
-const API_URL = "http://localhost:5000/api"; // Adjust if needed
+const API_URL = "http://localhost:5000/api"; // official backend URL
 
 const MIN_CHECKOUT_MINUTES = 2; // Minimum minutes before checkout
 

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../styles/dashboard.css"; // note: capitalized to match earlier
 import { Html5QrcodeScanner } from "html5-qrcode";
+const API_URL = "http://localhost:5000/api"; // official backend URL
 
 const StaffDashboard = () => {
   const [occupancy, setOccupancy] = useState(0);
@@ -15,11 +16,11 @@ const StaffDashboard = () => {
     const fetchData = async () => {
       try {
         // Get gym occupancy
-        const occRes = await axios.get("http://localhost:5000/api/gym/occupancy");
+        const occRes = await axios.get("{API_URL}/occupancy");
         setOccupancy(occRes.data.currentOccupancy);
 
         // Get recent check-ins (for now hardcoded student)
-        const checkinRes = await axios.get("http://localhost:5000/api/checkins/12345678");
+        const checkinRes = await axios.get("{API_URL}/checkins");
         setRecentCheckins(checkinRes.data.checkIns.slice(0, 5));
       } catch (error) {
         console.error("Error loading staff insights:", error);
@@ -115,3 +116,4 @@ const StaffDashboard = () => {
 };
 
 export default StaffDashboard;
+

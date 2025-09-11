@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
+require("dotenv").config();
 
 const app = express();
 
@@ -26,7 +27,9 @@ mongoose
 const Student = require("./models/Student");
 const CheckIn = require("./models/CheckIns");
 
-// ================== ROUTES ================== //
+// Routes
+const workoutRoutes = require("./routes/workoutRoutes");
+app.use("/api/workouts", workoutRoutes);
 
 // Health check
 app.get("/", (req, res) => res.json({ message: "Backend is running 🚀" }));
