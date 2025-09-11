@@ -25,14 +25,15 @@ const ClassBookingSchema = new mongoose.Schema({
      campus: {
         type: String,
         enum: {
-            values: ['Potch', 'Val', 'Maf'],
+            values: ['Potch', 'Vanderbijlpark', 'Mahikeng'],
             message: 'Campus must be Potch, Val, or Maf'
         },
         required: [true, 'Campus is required']
     },
     availability: {
         type: Boolean,
-        required: [true, 'Availability is required']
+        required: true,
+        default: false
     },
     spaceLeft: {
         type: Number,

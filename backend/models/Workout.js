@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { ExerciseSchema } = require('./Exercise'); //import Exercise schema
 
 
 // Workout schema
@@ -11,17 +12,16 @@ const WorkoutSchema = new mongoose.Schema({
         minlength: [2, 'Workout type must be at least 2 characters'],
         maxlength: [50, 'Workout type cannot exceed 50 characters']
     },
-     WorkouteName: {
+     WorkoutName: {
         type: String,
         required: [true, 'Workout name is required'],
         trim: true,
         minlength: [2, 'Workout name must be at least 2 characters'],
         maxlength: [50, 'Workout name cannot exceed 50 characters']
     },
-    sets: {
-        type: Number,
-        required: [true, 'Number of sets is required'],
-        min: [1, 'Sets must be at least 1']
+    date: {
+        type: Date.now,
+        required: true,
     },
     
     exercises: {

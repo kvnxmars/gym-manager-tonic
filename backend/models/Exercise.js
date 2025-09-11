@@ -12,7 +12,7 @@ const ExerciseSchema = new mongoose.Schema({
     },
     muscleGroup: {
         type: String,
-        required: [true, 'Muscle group is required'],
+        required: true,
         trim: true,
         minlength: [2, 'Muscle group must be at least 2 characters'],
         maxlength: [50, 'Muscle group cannot exceed 50 characters']
