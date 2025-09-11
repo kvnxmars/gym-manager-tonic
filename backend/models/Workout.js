@@ -20,8 +20,9 @@ const WorkoutSchema = new mongoose.Schema({
         maxlength: [50, 'Workout name cannot exceed 50 characters']
     },
     date: {
-        type: Date.now,
+        type: Date,
         required: true,
+        default: Date.now
     },
     
     exercises: {
