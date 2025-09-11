@@ -13,10 +13,11 @@ router.post("/", async (req, res) => {
   }
 });
 
-// GET /api/workouts/:userId → get all workouts for a student
-router.get("/:userId", async (req, res) => {
+
+// GET /api/workouts/:studentNumber → get all workouts for a student
+router.get("/:studentNumber", async (req, res) => {
   try {
-    const workouts = await Workout.find({ userId: req.params.userId }).sort({ date: -1 });
+    const workouts = await Workout.find({ studentNumber: req.params.studentNumber }).sort({ date: -1 });
     res.json(workouts);
   } catch (err) {
     res.status(500).json({ error: err.message });
