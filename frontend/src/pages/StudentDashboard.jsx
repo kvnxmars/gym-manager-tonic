@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Search, QrCode, Heart, Settings, Home, Clock, Users } from "lucide-react";
-
+import "../styles/StudentDashboard.css"; // note: capitalized to match earlier
 
 // Mock API calls - replace with your actual API
 const API_URL = "http://localhost:5000/api";
@@ -39,8 +39,8 @@ const StudentDashboard = () => {
         // Generate QR data using login info
     
         const qrValue = JSON.stringify({
-          studentNumber: "12345678",
-          name: "Kevin Mbolongwe",
+          studentNumber: studentData.student.studentNumber,
+          name: studentData.student.name.first + " " + studentData.student.name.last,
           timestamp: Date.now()
         });
         setQrData(qrValue);
@@ -82,8 +82,8 @@ const StudentDashboard = () => {
       setWorkoutName("");
       setShowTemplateModal(false);
       
-      // Uncomment when backend is ready:
-      /*
+      //
+      
       const res = await fetch(`${API_URL}/workouts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -96,7 +96,7 @@ const StudentDashboard = () => {
       setWorkoutTemplates([...workoutTemplates, data]);
       setWorkoutName("");
       setShowTemplateModal(false);
-      */
+      alert("Workout template created!");
     } catch (err) {
       console.error("Error adding workout:", err);
     }
@@ -129,8 +129,8 @@ const StudentDashboard = () => {
               (i >= 2 && i <= 4 && j >= 2 && j <= 4);
           }
         }
-      }
-    };
+    }
+  };
 
     addFinderPattern(0, 0);
     addFinderPattern(0, qrSize - 7);
@@ -198,15 +198,15 @@ const StudentDashboard = () => {
         </div>
         
         <div className="flex items-center space-x-3">
-          <button
+              <button
             onClick={() => setShowQR(!showQR)}
             className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
-          >
+              >
             <QrCode className="w-5 h-5 text-gray-700" />
-          </button>
+              </button>
           <div className="w-8 h-8 bg-blue-600 rounded-full"></div>
         </div>
-      </div>
+              </div>
 
       {/* QR Code Overlay */}
       {showQR && (
