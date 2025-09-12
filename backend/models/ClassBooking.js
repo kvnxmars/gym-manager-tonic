@@ -25,7 +25,7 @@ const ClassBookingSchema = new mongoose.Schema({
      campus: {
         type: String,
         enum: {
-            values: ['Potch', 'Vanderbijlpark', 'Mahikeng'],
+            values: ['Potchefstroom', 'Vanderbijlpark', 'Mahikeng'],
             message: 'Campus must be Potch, Val, or Maf'
         },
         required: [true, 'Campus is required']
@@ -40,6 +40,15 @@ const ClassBookingSchema = new mongoose.Schema({
         required: [true, 'Space left is required'],
         min: [0, 'Space left cannot be negative'],
         max: [50, 'Space left cannot exceed 100']
+    },
+
+    studentNumber: {
+    type: String,
+    required: true
+  },
+    bookedAt: {
+        type: Date,
+        default: Date.now
     }
 });
 

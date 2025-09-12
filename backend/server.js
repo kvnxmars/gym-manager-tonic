@@ -5,6 +5,10 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
+
+app.use(cookieParser()); // enable cookie parsing
 
 const app = express();
 
@@ -74,43 +78,102 @@ app.post("/api/signup", async (req, res) => {
 });
 
 // Login
-app.post("/api/login", async (req, res) => {
+app.post("/api/student/login", async (req, res) => {
   try {
     const { studentNumber, password } = req.body;
-
-    if (!studentNumber || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
     const student = await Student.findOne({ studentNumber });
-    if (!student) 
-      return res.status(401).json({ message: "Invalid credentials" });
 
-    const isMatch = await bcrypt.compare(password, student.password);
-    if (!isMatch) 
-      return res.status(401).json({ message: "Invalid credentials" });
-
-    const role = studentNumber.toLowerCase().startsWith('s') ? 'staff' : 'student';
-
-    // If login is successful, return student info (excluding password)
-     return res.status(200).json({
-        message: "Student login successful!",
-        role,
-        student: {
-          id: student._id,
-          studentNumber: student.studentNumber,
-          name: student.name,
-          email: student.email,
-          membershipStatus: student.membershipStatus
-        } });
-      
-
-    } catch (error) {
-        console.error("Login error:", error);
-        res.status(500).json({ message: "An error occurred during login." });
-        setError(err.message);
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
     }
+
+    const validPassword = await bcrypt.compare(password, student.password);
+    if (!validPassword) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // ✅ Generate JWT
+    const token = jwt.sign(
+      { id: student._id, studentNumber: student.studentNumber },
+      JWT_SECRET,
+      { expiresIn: "1h" } // adjust expiry as needed
+    );
+
+    // ✅ Send token in HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+
+    res.json({ message: "Login successful" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
+app.post("/api/student/login", async (req, res) => {
+  try {
+    const { studentNumber, password } = req.body;
+    const student = await Student.findOne({ studentNumber });
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    const validPassword = await bcrypt.compare(password, student.password);
+    if (!validPassword) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    // ✅ Generate JWT
+    const token = jwt.sign(
+      { id: student._id, studentNumber: student.studentNumber },
+      JWT_SECRET,
+      { expiresIn: "1h" } // adjust expiry as needed
+    );
+
+    // ✅ Send token in HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 1000, // 1 hour
+    });
+
+    res.json({ message: "Login successful" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+function authMiddleware(req, res, next) {
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ message: "Not authenticated" });
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    req.user = decoded; // { id, studentNumber }
+    next();
+  } catch (err) {
+    return res.status(403).json({ message: "Invalid token" });
+  }
+}
+
+app.get("/api/student/me", authMiddleware, async (req, res) => {
+  try {
+    const student = await Student.findById(req.user.id).select("-password");
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    res.json({ student });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 
 // Check-in
 app.post("/api/checkin", async (req, res) => {
@@ -193,7 +256,15 @@ app.get("/api/checkins/:studentNumber", async (req, res) => {
 });
 
 // Logout
-app.post("/api/logout", (req, res) => res.json({ message: "Logout successful" }));
+app.post("/api/student/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.json({ message: "Logged out successfully" });
+});
+
 
 
 // 404 handler

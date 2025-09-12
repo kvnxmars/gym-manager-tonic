@@ -37,16 +37,16 @@ const WorkoutSchema = new mongoose.Schema({
 
     isTemplate: {
         type: Boolean,
+        required: true,
         default: false
     },
-
+    
     createdAt: {
         type: Date,
         default: Date.now
-    },
+    }
+    
 
-    updatedAt: Date
 });
 
 module.exports = mongoose.models.Workout || mongoose.model('Workout', WorkoutSchema);
-
