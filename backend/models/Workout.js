@@ -33,7 +33,20 @@ const WorkoutSchema = new mongoose.Schema({
     exercises: {
         type: [ExerciseSchema], // Array of exercise subdocuments
         validate: [arr => arr.length > 0, 'At least one exercise is required']
+    },
+
+    isTemplate: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    
+    createdAt: {
+        type: Date,
+        default: Date.now
     }
+    
+
 });
 
 module.exports = mongoose.models.Workout || mongoose.model('Workout', WorkoutSchema);
