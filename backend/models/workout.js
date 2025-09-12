@@ -5,6 +5,11 @@ const { ExerciseSchema } = require('./Exercise'); //import Exercise schema
 // Workout schema
 // Represents a workout session containing multiple exercises
 const WorkoutSchema = new mongoose.Schema({
+    
+    studentNumber: {
+    type: String,
+    required: true
+  },
     workoutType: {
         type: String,
         required: [true, 'Workout type is required'],
@@ -28,7 +33,20 @@ const WorkoutSchema = new mongoose.Schema({
     exercises: {
         type: [ExerciseSchema], // Array of exercise subdocuments
         validate: [arr => arr.length > 0, 'At least one exercise is required']
-    }
+    },
+
+    isTemplate: {
+        type: Boolean,
+        default: false
+    },
+
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+
+    updatedAt: Date
 });
 
 module.exports = mongoose.models.Workout || mongoose.model('Workout', WorkoutSchema);
+

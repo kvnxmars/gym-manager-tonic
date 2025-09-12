@@ -5,6 +5,11 @@ const { ExerciseSchema } = require('./Exercise'); //import Exercise schema
 // Workout schema
 // Represents a workout session containing multiple exercises
 const WorkoutSchema = new mongoose.Schema({
+    
+    studentNumber: {
+    type: String,
+    required: true
+  },
     workoutType: {
         type: String,
         required: [true, 'Workout type is required'],
