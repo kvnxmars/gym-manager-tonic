@@ -28,7 +28,7 @@ const Student = require("./models/Student");
 const CheckIn = require("./models/CheckIns");
 
 // Routes
-const workoutRoutes = require("./routes/workoutRoutes");
+const workoutRoutes = require("./models/workoutRoutes.js");
 app.use("/api/workouts", workoutRoutes);
 
 // Health check
