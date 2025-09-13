@@ -42,4 +42,5 @@ const classBookingSchema = new mongoose.Schema({
 }
 });
 
-module.exports = mongoose.model('ClassBooking', classBookingSchema);
+
+module.exports = mongoose.models.ClassBooking || mongoose.model('ClassBooking', ClassBookingSchema);

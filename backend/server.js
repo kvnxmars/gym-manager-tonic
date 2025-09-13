@@ -1,4 +1,3 @@
-
 // Import libraries
 const express = require("express");
 const mongoose = require("mongoose");
@@ -7,7 +6,6 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-
 
 // Middleware
 app.use(cors());
@@ -23,13 +21,17 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
 
-  //models
+//models
 const Student = require("./models/Student");
 const CheckIn = require("./models/CheckIns");
 
 // Routes
 const workoutRoutes = require("./routes/workoutRoutes");
+const classRoutes = require("./routes/classBookingRoutes"); // Corrected the import path to match your file name
 app.use("/api/workouts", workoutRoutes);
+app.use("/api/classes", classRoutes);
+
+// ================== ROUTES ================== //
 
 // Health check
 app.get("/", (req, res) => res.json({ message: "Backend is running 🚀" }));
@@ -154,6 +156,8 @@ app.post("/api/login", async (req, res) => {
     const isMatch = await bcrypt.compare(password, student.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
+
+
         return res.status(200).json({ 
             message: "Login successful!",
             student: {
@@ -170,6 +174,7 @@ app.post("/api/login", async (req, res) => {
         res.status(500).json({ message: "An error occurred during login." });
         setError(err.message);
     }
+
 });
 
 // Check-in
@@ -222,7 +227,6 @@ app.post("/api/checkout", async (req, res) => {
     console.error("Check-out error:", err);
     res.status(500).json({ message: "Server error during check-out" });
   }
-
 });
 
 // Gym occupancy
@@ -243,7 +247,6 @@ app.get("/api/checkins/:studentNumber", async (req, res) => {
     const student = await Student.findOne({ studentNumber });
     if (!student) return res.status(404).json({ message: "Student not found" });
 
-
     const history = await CheckIn.find({ studentId: student._id }).sort({ checkInTime: -1 });
     res.json({ history });
   } catch (err) {
@@ -255,43 +258,10 @@ app.get("/api/checkins/:studentNumber", async (req, res) => {
 // Logout
 app.post("/api/logout", (req, res) => res.json({ message: "Logout successful" }));
 
-app.get("/api/classes", async (req, res) => {
-  try {
-    const { campus } = req.query;
-    
-    const classesData = {
-      Potchefstroom: [
-        { name: "Yoga", time: "08:00", instructor: "Sarah", capacity: 20, enrolled: 15 },
-        { name: "Pilates", time: "10:00", instructor: "Mike", capacity: 15, enrolled: 12 },
-        { name: "CrossFit", time: "18:00", instructor: "John", capacity: 25, enrolled: 20 }
-      ],
-      Vaal: [
-        { name: "Body Pump", time: "09:00", instructor: "Lisa", capacity: 20, enrolled: 18 },
-        { name: "Spin", time: "17:00", instructor: "Tom", capacity: 15, enrolled: 10 },
-        { name: "Yoga", time: "19:00", instructor: "Anna", capacity: 20, enrolled: 16 }
-      ],
-      Mafikeng: [
-        { name: "Zumba", time: "08:30", instructor: "Maria", capacity: 30, enrolled: 25 },
-        { name: "Kickboxing", time: "16:00", instructor: "David", capacity: 20, enrolled: 14 },
-        { name: "Yoga", time: "18:30", instructor: "Emma", capacity: 20, enrolled: 11 }
-      ]
-    };
-
-    const classes = classesData[campus] || classesData.Potchefstroom;
-    
-    res.json({
-      message: "Classes retrieved successfully",
-      campus: campus || "Potchefstroom",
-      classes
-    });
-  } catch (err) {
-    console.error("Classes fetch error:", err);
-    res.status(500).json({ message: "Server error fetching classes" });
-  }
-});
 
 // logout
 app.post("/api/logout", (req, res) => res.json({ message: "Logout successful" }));
+
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ message: "Endpoint not found" }));
@@ -299,4 +269,3 @@ app.use((req, res) => res.status(404).json({ message: "Endpoint not found" }));
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
-// ================== END ================== //
