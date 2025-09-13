@@ -36,6 +36,68 @@ app.use("/api/classes", classRoutes);
 // Health check
 app.get("/", (req, res) => res.json({ message: "Backend is running 🚀" }));
 
+//get student profile by student number
+app.get("/api/student/:studentNumber", async (req, res) => {
+  try {
+    const {studentNumber} = req.params;
+    const student = await Student.findOne({studentNumber}).select('-password');
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+  
+
+  res.json({
+    message: "Student profile fetched successfully",
+    student: {
+      studentNumber: student.studentNumber,
+      name: student.name,
+      email: student.email,
+      membershipStatus: student.membershipStatus
+    }
+  });
+  } catch (err) {
+    console.error("Fetch profile error:", err);
+    res.status(500).json({ message: "Server error fetching profile" });
+  }
+})
+
+
+//generate qr code data for student
+app.get("/api/student/qr/:studentNumber", async (req, res) => {
+  try {
+    const {studentNumber} = req.params; //student number as request parameter
+    const student = await Student.findOne({studentNumber}).select('-password'); //find student by student number, do not show password
+
+    if (!student) {
+      return res.status(404).json({message: "Student not found"}); //if student not found, return 404
+    }
+  
+
+  const qrData = JSON.stringify({
+    studentNumber: student.studentNumber,
+    name: `${student.name?.first} ${student.name?.last}`,
+    email: student.email,
+    timestamp: Date.now(),
+    id: student._id
+  });
+
+  res.json({
+    message:"QR data generated successfully",
+    qrData: qrData,
+    student: {
+      studentNumber: student.studentNumber,
+      name: student.name
+    }
+  });
+} catch (err) {
+    console.error("QR generation error:", err);
+    res.status(500).json({message: "Server error generating QR data" });
+}
+  });
+
+  
+
 // Signup
 app.post("/api/signup", async (req, res) => {
   try {
@@ -79,26 +141,40 @@ app.post("/api/signup", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   try {
     const { studentNumber, password } = req.body;
+    
+    // Validate input
+    if (!studentNumber || !password) {
+        return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // Find student by student number
     const student = await Student.findOne({ studentNumber });
-    if (!student) return res.status(401).json({ message: "Invalid credentials" });
+    
+    if (!student) 
+      return res.status(401).json({ message: "Invalid credentials" });
 
     const isMatch = await bcrypt.compare(password, student.password);
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    res.status(200).json({
-      message: "Login successful!",
-      student: {
-        id: student._id,
-        studentNumber: student.studentNumber,
-        name: student.name,
-        email: student.email,
-        membershipStatus: student.membershipStatus,
-      },
-    });
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "An error occurred during login." });
-  }
+
+
+        return res.status(200).json({ 
+            message: "Login successful!",
+            student: {
+                id: student._id,
+                studentNumber: student.studentNumber,
+                name: student.name,
+                email: student.email,
+                membershipStatus: student.membershipStatus
+            }
+        });
+
+    } catch (error) {
+        console.error("Login error:", error);
+        res.status(500).json({ message: "An error occurred during login." });
+        setError(err.message);
+    }
+
 });
 
 // Check-in
@@ -181,6 +257,11 @@ app.get("/api/checkins/:studentNumber", async (req, res) => {
 
 // Logout
 app.post("/api/logout", (req, res) => res.json({ message: "Logout successful" }));
+
+
+// logout
+app.post("/api/logout", (req, res) => res.json({ message: "Logout successful" }));
+
 
 // 404 handler
 app.use((req, res) => res.status(404).json({ message: "Endpoint not found" }));
