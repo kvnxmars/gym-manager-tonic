@@ -4,6 +4,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 const cors = require("cors");
+const bookingRoutes = require("./models/bookingRoutes");
 require("dotenv").config();
 
 const app = express();
@@ -13,6 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
+app.use("/api/bookings", bookingRoutes);
 
 // MongoDB connection
 const connectionstring =
