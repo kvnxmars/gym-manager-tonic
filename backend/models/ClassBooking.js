@@ -3,9 +3,7 @@ const mongoose = require('mongoose');
 // Helper regex for class name validation (letters, numbers, spaces)
 const classNameRegex = /^[A-Za-z0-9 ]{2,50}$/;
 
-const mongoose = require('mongoose');
-
-const classBookingSchema = new mongoose.Schema({
+const ClassBookingSchema = new mongoose.Schema({
   studentId: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'Student', 
