@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, QrCode, Heart, Settings, Home, Clock, Users } from "lucide-react";
 import "../styles/StudentDashboard.css"; // note: capitalized to match earlier
 
@@ -6,6 +7,7 @@ import "../styles/StudentDashboard.css"; // note: capitalized to match earlier
 const API_URL = "http://localhost:5000/api";
 
 const StudentDashboard = () => {
+  const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [qrData, setQrData] = useState(null);
   const [checkins, setCheckins] = useState([]);
@@ -255,11 +257,13 @@ const StudentDashboard = () => {
           </div>
 
           {/* Today's Goal Card */}
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-2xl border border-blue-200 mb-6">
+          <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-2xl border border-blue-200 mb-6"
+          >
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-gray-900 mb-1">Today's Goal:</h3>
                 <p className="text-blue-700 font-medium">Achieve a PR!</p>
+                   
               </div>
               <div className="text-blue-400">
                 <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
@@ -413,7 +417,10 @@ const StudentDashboard = () => {
             <Home className="w-6 h-6 mb-1" />
             <span className="text-xs">Home</span>
           </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
+          <button className="flex flex-col items-center py-2 text-gray-400"
+          onClick={() => navigate("/workout")}>
+
+            
             <span className="text-xl mb-1">💪</span>
             <span className="text-xs">Workouts</span>
           </button>
