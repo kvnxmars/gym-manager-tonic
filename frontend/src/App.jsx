@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ReactDOM from 'react-dom/client';
 import SignIn from "./pages/LoginPage";
 import SignUp from "./pages/SignupPage";
 import Workout from './pages/Workout';
@@ -18,5 +19,7 @@ function App() {
     </Router>
   );
 }
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
 
 export default App;

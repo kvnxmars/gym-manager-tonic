@@ -1,38 +1,59 @@
-// src/pages/LoginPage.js
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import "../styles/Auth.css";
+import "../styles/Auth.css"; // shared CSS
+import { Link, useNavigate } from "react-router-dom";
 
-const LoginPage = () => {
-  const [studentNumber, setStudentNumber] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+// Backend API base URL (adjust if needed)
+const API_URL = "http://localhost:5000/api";
+
+export default function SignInPage() {
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  // Form state for login
+  const [formData, setFormData] = useState({
+    studentNumber: "",
+    password: "",
+  });
+
+  // UI state
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // Update form state
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  // Handle login submit
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
     setLoading(true);
+    setError("");
 
     try {
-      const res = await axios.post("http://localhost:5000/api/login", {
-        studentNumber,
-        password,
+      // Send POST request to backend /signin
+      const res = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
       });
 
-      // Save user in localStorage
-      localStorage.setItem("user", JSON.stringify(res.data));
+      const data = await res.json();
 
-      // Navigate based on role
-      if (res.data.role === "student") {
-        navigate("/student-dashboard");
-      } else if (res.data.role === "staff") {
-        navigate("/staff-dashboard");
+      // If login failed
+      if (!res.ok) {
+        throw new Error(data.message || "Signin failed");
       }
+
+      // Save token + student info in localStorage (so PWA can persist login)
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("student", JSON.stringify(data.student));
+
+      // Redirect to dashboard (once created)
+      //alert("Login successful! 🎉");
+      navigate("/student-dashboard");
     } catch (err) {
-      setError(err.response?.data?.message || "Login failed. Try again.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
@@ -42,37 +63,55 @@ const LoginPage = () => {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-card-form">
-          <h1 className="title">Sign In</h1>
-          <form onSubmit={handleLogin} className="form">
+          <h2 className="title">Fit@NWU Signin</h2>
+
+          {/* Signin form */}
+          <form className="form" onSubmit={handleSubmit}>
+            {/* Student Number */}
             <input
+              className="input"
               type="text"
+              name="studentNumber"
               placeholder="Student Number"
-              value={studentNumber}
-              onChange={(e) => setStudentNumber(e.target.value)}
-              className="input"
+              value={formData.studentNumber}
+              onChange={handleChange}
+              required
             />
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="input"
-            />
+
+            {/* Password with emoji toggle */}
+            <div className="input-container">
+              <input
+                className="input"
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password 🔑"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <span
+                className="icon"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? "🙈" : "👁️"}
+              </span>
+            </div>
+
+            {/* Error message */}
             {error && <p className="error-text">{error}</p>}
-            <button type="submit" disabled={loading} className="submit-btn">
-              {loading ? "Loading..." : "Sign In"}
+
+            {/* Submit button */}
+            <button className="submit-btn" type="submit" disabled={loading}>
+              {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
+
+          {/* Switch to Signup */}
           <p className="switch-link">
-            Don’t have an account?{" "}
-            <a href="/signup" className="link">
-              Create Account
-            </a>
+            Don’t have an account? <Link to="/signup">Sign up</Link>
           </p>
         </div>
       </div>
     </div>
   );
-};
-
-export default LoginPage;
+}
