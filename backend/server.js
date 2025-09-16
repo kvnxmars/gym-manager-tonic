@@ -26,7 +26,7 @@ const Student = require("./models/Student");
 const CheckIn = require("./models/CheckIns");
 
 // Routes
-const workoutRoutes = require("./routes/workoutRoutes");
+const workoutRoutes = require("./routes/workout");
 const classRoutes = require("./routes/classBookingRoutes"); // Corrected the import path to match your file name
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/classes", classRoutes);
