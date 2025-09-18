@@ -1,6 +1,8 @@
 const express = require("express");
 const { createCheckIn } = require("../controllers/checkInController");
 const router = express.Router();
+const studentSchema = require("../models/Student");
+
 
 // Check-in
 router.post("/checkin", async (req, res) => {
