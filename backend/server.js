@@ -26,7 +26,7 @@ const Student = require("./models/Student");
 const CheckIn = require("./models/CheckIns");
 
 // ================== ROUTES ================== //
-/*const authRoutes = require("./routes/auth");
+const authRoutes = require("./routes/auth");
 const accessRoutes = require("./routes/access");
 const studentRoutes = require("./routes/student")
 const classRoutes = require("./routes/class"); // Corrected the import path to match your file name
@@ -38,9 +38,9 @@ app.use("/api/access", accessRoutes);
 app.use("/api/workouts", workoutRoutes);
 app.use("/api/classes", classRoutes);
 app.use("/api/student", studentRoutes);
-app.use("/api/gym", occupancyRoute);*/
+app.use("/api/gym", occupancyRoute);
 
-app.post("/api/login", async (req, res) => {
+/*app.post("/api/login", async (req, res) => {
   try {
     const { studentNumber, password } = req.body;
 
@@ -74,7 +74,7 @@ app.post("/api/login", async (req, res) => {
     console.error("Login error:", error);
     res.status(500).json({ message: "An error occurred during login." });
   }
-});
+});*/
 
 
 
