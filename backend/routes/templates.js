@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const WorkoutTemplate = require("../models/WorkoutTemplate");
+const exerciseSchema = require("../models/Exercise");;
 
 
 // =========================
@@ -8,7 +9,7 @@ const WorkoutTemplate = require("../models/WorkoutTemplate");
 // =========================
 
 // POST /api/workout-templates → create a new template
-router.post("/", async (req, res) => {
+router.post("/create", async (req, res) => {
   try {
     const template = new WorkoutTemplate(req.body);
     const savedTemplate = await template.save();

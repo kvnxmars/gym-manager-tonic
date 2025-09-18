@@ -32,6 +32,7 @@ const studentRoutes = require("./routes/student")
 const classRoutes = require("./routes/class"); // Corrected the import path to match your file name
 const workoutRoutes = require("./routes/workout");
 const occupancyRoute = require("./routes/gym")
+const templateRoutes = require("./routes/templates");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/access", accessRoutes);
@@ -39,6 +40,7 @@ app.use("/api/workouts", workoutRoutes);
 app.use("/api/classes", classRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/gym", occupancyRoute);
+app.use("/api/templates", templateRoutes);
 
 /*app.post("/api/login", async (req, res) => {
   try {
