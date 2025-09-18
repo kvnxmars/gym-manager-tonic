@@ -94,4 +94,4 @@ const ExerciseSchema = new mongoose.Schema({
     
     
 });
-   module.exports = mongoose.models.Exercise || mongoose.model('Exercise', ExerciseSchema);
+   module.exports = ExerciseSchema;

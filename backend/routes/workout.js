@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Workout = require("../models/Workout");
+const workoutController = require("../controllers/workoutController");
 
 // POST /api/workouts → log a workout
 router.post("/", async (req, res) => {
@@ -22,5 +23,8 @@ router.get("/:userId", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+// Define a GET route for fetching workout statistics for a specific student
+router.get('/stats/:studentNumber', workoutController.getWorkoutStats);
 
 module.exports = router;
