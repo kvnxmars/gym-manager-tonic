@@ -49,7 +49,7 @@ const exerciseSessionSchema = new mongoose.Schema({
     type: String, 
     default: '' 
 },
-  completedSets: [completedSetSchema]
+  completedSets: [completeSetSchema]
 });
 
 const workoutSessionSchema = new mongoose.Schema({
