@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, QrCode, Heart, Settings, Home, Clock, Users } from "lucide-react";
-import "../styles/StudentDashboard.css"; // note: capitalized to match earlier
+import QRCode from "react-qr-code";
+import "../styles/StudentDashboard.css";
 
 // Mock API calls - replace with your actual API
 const API_URL = "http://localhost:5000/api";
@@ -13,12 +14,14 @@ const StudentDashboard = () => {
   const [checkins, setCheckins] = useState([]);
   const [occupancy, setOccupancy] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showQR, setShowQR] = useState(false);
 
   // Workout template state
   const [workoutName, setWorkoutName] = useState("");
   const [workoutTemplates, setWorkoutTemplates] = useState([]);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState(null); // ⭐ NEW: State to hold template being edited
   const [workoutStats, setWorkoutStats] = useState(null);
 
   // Campus classes state
@@ -27,7 +30,6 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Get student data from localStorage (set during login)
         const storedStudent = localStorage.getItem('student');
         if (!storedStudent) {
           console.error("No student data found. Please log in.");
@@ -37,8 +39,8 @@ const StudentDashboard = () => {
 
         const studentData = JSON.parse(storedStudent);
         setStudent(studentData);
+        setError(null);
 
-        // Fetch additional data
         await Promise.all([
           fetchQRData(studentData.studentNumber),
           fetchOccupancy(),
@@ -50,6 +52,7 @@ const StudentDashboard = () => {
 
       } catch (err) {
         console.error("Error loading dashboard:", err);
+        setError("Failed to load dashboard data. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -60,7 +63,7 @@ const StudentDashboard = () => {
 
   const fetchQRData = async (studentNumber) => {
     try {
-      const response = await fetch(`${API_URL}/student/qr/${studentNumber}`);
+      const response = await fetch(`${API_URL}/access/qr/${studentNumber}`);
       if (response.ok) {
         const data = await response.json();
         setQrData(data.qrData);
@@ -113,7 +116,14 @@ const StudentDashboard = () => {
       const response = await fetch(`${API_URL}/workouts/stats/${studentNumber}`);
       if (response.ok) {
         const data = await response.json();
-        setWorkoutStats(data.stats);
+        if (data.stats) {
+          setWorkoutStats(data.stats);
+        } else {
+          console.error("API returned invalid stats data.");
+          setWorkoutStats(null);
+        }
+      } else {
+        console.error("Failed to fetch workout stats");
       }
     } catch (error) {
       console.error("Stats fetch error:", error);
@@ -136,13 +146,13 @@ const StudentDashboard = () => {
     if (!workoutName.trim() || !student) return;
     
     try {
-      const response = await fetch(`${API_URL}/workouts/template`, {
+      const response = await fetch(`${API_URL}/templates/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           studentNumber: student.studentNumber,
           name: workoutName.trim(),
-          exercises: [] // Empty template to start with
+          exercises: []
         })
       });
 
@@ -162,11 +172,39 @@ const StudentDashboard = () => {
     }
   };
 
+  const handleEditTemplate = async () => { // ⭐ NEW: Handle template update
+    if (!editingTemplate || !editingTemplate.name.trim()) return;
+
+    try {
+      const response = await fetch(`${API_URL}/templates/${editingTemplate._id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editingTemplate.name.trim() })
+      });
+
+      if (response.ok) {
+        const updatedTemplate = await response.json();
+        setWorkoutTemplates(workoutTemplates.map(t =>
+          t._id === updatedTemplate.template._id ? updatedTemplate.template : t
+        ));
+        setEditingTemplate(null);
+        setShowTemplateModal(false);
+        alert("Workout template updated successfully!");
+      } else {
+        const error = await response.json();
+        alert(`Error: ${error.error || 'Failed to update template'}`);
+      }
+    } catch (err) {
+      console.error("Error updating template:", err);
+      alert("Failed to update workout template. Please try again.");
+    }
+  };
+
   const handleDeleteTemplate = async (templateId) => {
     if (!confirm("Are you sure you want to delete this template?")) return;
 
     try {
-      const response = await fetch(`${API_URL}/workouts/template/${templateId}`, {
+      const response = await fetch(`${API_URL}/templates/${templateId}`, {
         method: 'DELETE'
       });
 
@@ -181,56 +219,16 @@ const StudentDashboard = () => {
       alert("Failed to delete template. Please try again.");
     }
   };
+  
+  const openEditModal = (template) => { // ⭐ NEW: Function to open the modal in edit mode
+    setEditingTemplate(template);
+    setShowTemplateModal(true);
+  };
 
-  // Generate QR Code as SVG
-  const generateQRCode = (text) => {
-    const size = 200;
-    const qrSize = 21;
-    const moduleSize = size / qrSize;
-    
-    const pattern = [];
-    for (let i = 0; i < qrSize; i++) {
-      pattern[i] = [];
-      for (let j = 0; j < qrSize; j++) {
-        const hash = (text.charCodeAt((i + j) % text.length) + i * j) % 3;
-        pattern[i][j] = hash < 1;
-      }
-    }
-
-    const addFinderPattern = (startRow, startCol) => {
-      for (let i = 0; i < 7; i++) {
-        for (let j = 0; j < 7; j++) {
-          if (startRow + i < qrSize && startCol + j < qrSize) {
-            pattern[startRow + i][startCol + j] = 
-              i === 0 || i === 6 || j === 0 || j === 6 || 
-              (i >= 2 && i <= 4 && j >= 2 && j <= 4);
-          }
-        }
-      }
-    };
-
-    addFinderPattern(0, 0);
-    addFinderPattern(0, qrSize - 7);
-    addFinderPattern(qrSize - 7, 0);
-
-    return (
-      <svg width={size} height={size} className="border">
-        {pattern.map((row, i) =>
-          row.map((cell, j) => (
-            cell && (
-              <rect
-                key={`${i}-${j}`}
-                x={j * moduleSize}
-                y={i * moduleSize}
-                width={moduleSize}
-                height={moduleSize}
-                fill="#000"
-              />
-            )
-          ))
-        )}
-      </svg>
-    );
+  const handleModalClose = () => { // ⭐ NEW: Function to reset modal state on close
+    setShowTemplateModal(false);
+    setWorkoutName("");
+    setEditingTemplate(null);
   };
 
   if (loading) {
@@ -239,6 +237,16 @@ const StudentDashboard = () => {
         <div className="text-center">
           <div className="w-12 h-12 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-gray-600">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="text-center">
+          <p className="text-red-600 text-lg font-medium">{error}</p>
         </div>
       </div>
     );
@@ -298,7 +306,12 @@ const StudentDashboard = () => {
             <h3 className="text-lg font-semibold mb-4">Your QR Code</h3>
             <div className="w-48 h-48 mx-auto mb-4 flex items-center justify-center bg-white p-4 rounded-lg border">
               {qrData ? (
-                generateQRCode(qrData)
+                <QRCode 
+                  value={qrData}
+                  size={192}
+                  style={{ height: "auto", maxWidth: "100%", width: "100%" }}
+                  viewBox={`0 0 192 192`}
+                />
               ) : (
                 <QrCode className="w-32 h-32 text-gray-400" />
               )}
@@ -437,7 +450,7 @@ const StudentDashboard = () => {
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-gray-900">My Workout Templates</h3>
             <button
-              onClick={() => setShowTemplateModal(true)}
+              onClick={() => { setShowTemplateModal(true); setEditingTemplate(null); }} // ⭐ Open new template modal
               className="text-blue-600 text-sm font-medium"
             >
               + New
@@ -448,8 +461,8 @@ const StudentDashboard = () => {
             <p className="text-gray-500 text-center py-4">No templates yet. Create your first one!</p>
           ) : (
             <div className="space-y-2">
-              {workoutTemplates.map((template, idx) => (
-                <div key={template._id || idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              {workoutTemplates.map((template) => (
+                <div key={template._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center space-x-3">
                     <span className="text-lg">🏋️</span>
                     <div>
@@ -462,7 +475,7 @@ const StudentDashboard = () => {
                   <div className="flex space-x-2">
                     <button 
                       className="text-gray-400 hover:text-gray-600 p-1"
-                      onClick={() => alert("Edit functionality coming soon!")}
+                      onClick={() => openEditModal(template)} // ⭐ Call the new function
                     >
                       ✏️
                     </button>
@@ -536,33 +549,42 @@ const StudentDashboard = () => {
       {showTemplateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
-            <h3 className="text-lg font-semibold mb-4">Create Workout Template</h3>
+            <h3 className="text-lg font-semibold mb-4">
+              {editingTemplate ? 'Edit Workout Template' : 'Create Workout Template'}
+            </h3>
             <input
               type="text"
               placeholder="Enter workout name..."
-              value={workoutName}
-              onChange={(e) => setWorkoutName(e.target.value)}
+              value={editingTemplate ? editingTemplate.name : workoutName}
+              onChange={(e) => {
+                if (editingTemplate) {
+                  setEditingTemplate({ ...editingTemplate, name: e.target.value });
+                } else {
+                  setWorkoutName(e.target.value);
+                }
+              }}
               className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               autoFocus
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
-                  handleAddWorkout();
+                  if (editingTemplate) {
+                    handleEditTemplate();
+                  } else {
+                    handleAddWorkout();
+                  }
                 }
               }}
             />
             <div className="flex space-x-3">
               <button
-                onClick={handleAddWorkout}
-                disabled={!workoutName.trim()}
+                onClick={editingTemplate ? handleEditTemplate : handleAddWorkout}
+                disabled={!workoutName.trim() && (!editingTemplate || !editingTemplate.name.trim())}
                 className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
               >
-                Save
+                {editingTemplate ? 'Save Changes' : 'Save'}
               </button>
               <button
-                onClick={() => {
-                  setShowTemplateModal(false);
-                  setWorkoutName("");
-                }}
+                onClick={handleModalClose}
                 className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
               >
                 Cancel

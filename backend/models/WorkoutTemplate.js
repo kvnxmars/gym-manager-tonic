@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
-const { create, updateMany } = require('./Student');
+// Make sure this is the schema, not the model!
+const exerciseSchema = require('./Exercise'); // Should export a schema
 
 // WorkoutTemplate schema
-// Represents a workout template containing multiple exercises
 const WorkoutTemplateSchema = new mongoose.Schema({
     studentNumber: {
         type: String,
@@ -13,18 +13,16 @@ const WorkoutTemplateSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    exercises: 
-        [exerciseSchema],
-    createdAt: 
-    { 
-        type: Date, default: Date.now 
-    },
-    updateAt: 
-    { 
+    exercises: [exerciseSchema], // This must be a schema, not a model
+    createdAt: { 
         type: Date, 
         default: Date.now 
-    
+    },
+    updateAt: { 
+        type: Date, 
+        default: Date.now 
     }
 });
 
-module.exports = mongoose.model('WorkoutTemplate', workoutTemplateSchema);
+// Fix export name to match schema variable
+module.exports = mongoose.model('WorkoutTemplate', WorkoutTemplateSchema);
