@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import './WorkoutApp.css';
+import '../../../styles/WorkoutApp.css';
+
+//** Connect the API calls properly (use backend as a reference) */
+//** Fix the start workoiut session page, and instead of MOCK variables, show ACTUAL workouts from student number */
+//** Add functionality to add/edit/delete templates and exercises */
+//** Add functionality to save workout session */
+//** link student number from login to fetch templates */
+//**use backend source code as reference, code from
+// server.js, routes/templates, and use models to save and track workouts */
 
 const WorkoutApp = () => {
   const [view, setView] = useState('start');
@@ -160,14 +168,11 @@ const WorkoutApp = () => {
   };
 
   const StartScreen = () => (
+    
     <div className="workout-app">
-      <div className="status-bar">
-        <span className="device-name">iPhone 16 Pro Max</span>
-        <div className="status-indicators">
-          <span className="signal">•••</span>
-          <span className="battery">🔋</span>
+        <div className="status-bar">
+        <span className="device-name">Fit@NWU</span>
         </div>
-      </div>
       
       <div className="app-content">
         {/* Start Workout Section */}
@@ -216,11 +221,9 @@ const WorkoutApp = () => {
   const WorkoutScreen = () => (
     <div className="workout-app">
       <div className="status-bar">
-        <span className="device-name">iPhone 16 Pro Max</span>
-        <div className="status-indicators">
-          <span className="signal">•••</span>
-          <span className="battery">🔋</span>
-        </div>
+        <span className="device-name">Fit@NWU</span>
+        
+        
       </div>
 
       <div className="workout-header">
