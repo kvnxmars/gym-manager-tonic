@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, QrCode, Heart, Settings, Home, Clock, Users } from "lucide-react";
 import QRCode from "react-qr-code";
-import "../styles/StudentDashboard.css";
+import "../../styles/StudentDashboard.css";
 
 // Mock API calls - replace with your actual API
 const API_URL = "http://localhost:5000/api";

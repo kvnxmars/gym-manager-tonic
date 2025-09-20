@@ -1,7 +1,7 @@
 /* eslint-disable */
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import "../styles/Auth.css";
+import "../../styles/Auth.css";
 
 const API_URL = "http://localhost:5000/api";
 

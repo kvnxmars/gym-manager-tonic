@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../styles/Auth.css"; // shared CSS
+import "../../styles/Auth.css"; // shared CSS
 import { Link, useNavigate } from "react-router-dom";
 
 // Backend API base URL (adjust if needed)

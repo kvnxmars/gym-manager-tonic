@@ -2,7 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ReactDOM from 'react-dom/client';
 import SignIn from "./pages/Auth/LoginPage";
 import SignUp from "./pages/Auth/SignupPage";
-import Workout from './pages/Workout/Workout';
+import Workout from './pages/Workout/components/WorkoutApp';
 import StudentDashboard from "./pages/HomePages/StudentDashboard"; // ✅
 import StaffDashboard from "./pages/HomePages/StaffDashboard"; // ✅
 

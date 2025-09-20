@@ -1,7 +1,7 @@
 // src/pages/StaffDashboard.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "../styles/dashboard.css"; // note: capitalized to match earlier
+import "../../styles/dashboard.css"; // note: capitalized to match earlier
 import { Html5QrcodeScanner } from "html5-qrcode";
 const API_URL = "http://localhost:5000/api"; // official backend URL
 

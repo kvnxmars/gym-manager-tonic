@@ -4,6 +4,7 @@ import { AddTemplatePage } from './AddTemplate';
 import { WorkoutPage } from './WorkoutPage';
 import { useWorkoutTemplates } from '../hooks/useWorkoutTemplates';
 import { useWorkoutSession } from '../hooks/useWorkoutSession';
+import { useExerciseManagement } from '../hooks/useExerciseManagement';
 import '../../../styles/Workout.css';
 
 const Workout = () => {
@@ -18,8 +19,6 @@ const Workout = () => {
     setNewTemplateName,
     editingTemplate,
     setEditingTemplate,
-    templateExercises,
-    setTemplateExercises,
     fetchWorkoutTemplates,
     handleAddTemplate,
     handleDeleteTemplate,
@@ -29,7 +28,7 @@ const Workout = () => {
 
   // Workout session management
   const {
-    currentWorkout, 
+    currentWorkout,
     workoutInProgress,
     exercises,
     newExerciseName,
@@ -40,6 +39,21 @@ const Workout = () => {
     handleFinishWorkout
   } = useWorkoutSession();
 
+  // Exercise management for templates
+  const {
+    templateExercises,
+    setTemplateExercises,
+    showAddExercise,
+    setShowAddExercise,
+    newExercise,
+    setNewExercise,
+    handleAddExerciseToTemplate,
+    handleRemoveExerciseFromTemplate,
+    handleSetChange,
+    handleNewExerciseSetChange,
+    resetExerciseForm
+  } = useExerciseManagement();
+
   // Fetch templates on component mount
   useEffect(() => {
     fetchWorkoutTemplates();
@@ -47,6 +61,7 @@ const Workout = () => {
 
   const handleNavigateToStart = () => {
     resetTemplateForm();
+    resetExerciseForm();
     setView('start');
   };
 
@@ -65,10 +80,11 @@ const Workout = () => {
 
   const handleSaveTemplate = async () => {
     const success = editingTemplate 
-      ? await handleEditTemplate() 
-      : await handleAddTemplate();
+      ? await handleEditTemplate(templateExercises) 
+      : await handleAddTemplate(templateExercises);
     
     if (success) {
+      resetExerciseForm();
       setView('start');
     }
   };
@@ -99,9 +115,17 @@ const Workout = () => {
             setEditingTemplate={setEditingTemplate}
             templateExercises={templateExercises}
             setTemplateExercises={setTemplateExercises}
+            showAddExercise={showAddExercise}
+            setShowAddExercise={setShowAddExercise}
+            newExercise={newExercise}
+            setNewExercise={setNewExercise}
             loading={loading}
             onBack={handleNavigateToStart}
             onSave={handleSaveTemplate}
+            onAddExerciseToTemplate={handleAddExerciseToTemplate}
+            onRemoveExerciseFromTemplate={handleRemoveExerciseFromTemplate}
+            onSetChange={handleSetChange}
+            onNewExerciseSetChange={handleNewExerciseSetChange}
           />
         );
       
