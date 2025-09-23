@@ -572,10 +572,13 @@ const fetchCheckins = async (studentNumber) => {
           </button>
           <button className="flex flex-col items-center py-2 text-gray-400"
           onClick={() => navigate("/workout")}>
-
-            
             <span className="text-xl mb-1">💪</span>
             <span className="text-xs">Workouts</span>
+          </button>
+          <button className="flex flex-col items-center py-2 text-gray-400"
+          onClick={() => navigate("/class-bookings")}>
+            <span className="w-6 h-6 mb-1" />
+            <span className="text-xs">Classes</span>
           </button>
           <button className="flex flex-col items-center py-2 text-gray-400">
             <span className="text-xl mb-1">👤</span>

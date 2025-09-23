@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const ClassBooking = require("../models/ClassBooking");
 const Student = require("../models/Student");
+const campuses = require("../models/Campus");
+const classSchema = require("../models/Class");
+//const Booking = require("../models/Booking");
 
 //====CLASS BOOKING ROUTES====//
 
@@ -33,10 +36,10 @@ router.post("/create", async (req, res) => {
     }
 });
 
-// GET all available classes
-router.get("/", async (req, res) => {
+// GET all available classes for each campus
+router.get("/:campus", async (req, res) => {
     try {
-        const classes = await ClassBooking.find({});
+        const classes = await classSchema.find({});
         res.json({ classes });
     } catch (err) {
         console.error("Error fetching classes:", err);
@@ -44,8 +47,43 @@ router.get("/", async (req, res) => {
     }
 });
 
+// GET classes booked by a specific student
+router.get("/student/:studentId", async (req, res) => {
+    try {
+        const { studentId } = req.params;
+        const classes = await ClassBooking.find({ bookedStudents: studentId });
+        res.json({ classes });
+    } catch (err) {
+        console.error("Error fetching student's classes:", err);
+        res.status(500).json({ message: "Server error fetching student's classes" });
+    }
+});
+
+// GET campus from campusSchema
+router.get("/campuses", async (req, res) => {
+    try {
+        res.json({ campuses });
+    } catch (err) {
+        console.error("Error fetching campuses:", err);
+        res.status(500).json({ message: "Server error fetching campuses" });
+    }
+   
+});
+
+// GET campus-specific classes
+router.get("/campus/:campusName", async (req, res) => {
+    try {
+        const { campusName } = req.params;
+        const classes = await ClassBooking.find({ campus: campusName });
+        res.json({ classes });
+    } catch (err) {
+        console.error("Error fetching campus classes:", err);
+        res.status(500).json({ message: "Server error fetching campus classes" });
+    }
+});
+
 // POST to book a class
-router.post("/book", async (req, res) => {
+router.post("/book/:studentNumber", async (req, res) => {
     try {
         const { studentID, classID } = req.body;
         if (!studentID || !classID) {
@@ -80,15 +118,27 @@ router.post("/book", async (req, res) => {
     }
 });
 
-// DELETE to cancel a booking
-router.delete("/cancel", async (req, res) => {
+// GET all student bookings
+router.get("/bookings/:studentId", async (req, res) => {
     try {
-        const { studentId, classId } = req.body;
-        if (!studentId || !classId) {
-            return res.status(400).json({ message: "Student ID and Class ID are required" });
+        const { studentId } = req.params;
+        const bookings = await ClassBooking.find({ bookedStudents: studentId });
+        res.json({ bookings });
+    } catch (err) {
+        console.error("Error fetching bookings:", err);
+        res.status(500).json({ message: "Server error fetching bookings" });
+    }   
+});
+
+// DELETE to cancel a booking
+router.delete("/cancel/:bookingId", async (req, res) => {
+    try {
+        const { studentId, bookingId } = req.body;
+        if (!studentId || !bookingId) {
+            return res.status(400).json({ message: "Student ID and Booking ID are required" });
         }
 
-        const cls = await ClassBooking.findById(classId);
+        const cls = await Booking.findById(bookingId);
         if (!cls) {
             return res.status(404).json({ message: "Class not found" });
         }
