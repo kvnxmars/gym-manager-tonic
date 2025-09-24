@@ -29,55 +29,24 @@ const CheckIn = require("./models/CheckIns");
 const authRoutes = require("./routes/auth");
 const accessRoutes = require("./routes/access");
 const studentRoutes = require("./routes/student")
-const classRoutes = require("./routes/class"); // Corrected the import path to match your file name
+const classRoutes = require("./routes/classRoutes"); // Corrected the import path to match your file name
 const workoutRoutes = require("./routes/workout");
 const occupancyRoute = require("./routes/gym")
 const templateRoutes = require("./routes/templates");
+const bookingRoutes = require("./routes/booking");
+const campusRoutes = require("./routes/campus");
 
-app.use("/api/auth", authRoutes);
-app.use("/api/access", accessRoutes);
-app.use("/api/workouts", workoutRoutes);
-app.use("/api/classes", classRoutes);
-app.use("/api/student", studentRoutes);
-app.use("/api/gym", occupancyRoute);
-app.use("/api/templates", templateRoutes);
+// Use routes
 
-/*app.post("/api/login", async (req, res) => {
-  try {
-    const { studentNumber, password } = req.body;
-
-    if (!studentNumber || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const student = await Student.findOne({ studentNumber });
-    if (!student) return res.status(401).json({ message: "Invalid credentials" });
-
-    const isMatch = await bcrypt.compare(password, student.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
-
-    // ✅ Create JWT
-    const token = jwt.sign({ id: student._id, role: "student" }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    return res.status(200).json({
-      message: "Login successful!",
-      token,
-      student: {
-        id: student._id,
-        studentNumber: student.studentNumber,
-        name: student.name,
-        email: student.email,
-        membershipStatus: student.membershipStatus,
-      },
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "An error occurred during login." });
-  }
-});*/
-
+app.use("/api/auth", authRoutes); // Auth routes
+app.use("/api/access", accessRoutes); // Access control routes
+app.use("/api/workouts", workoutRoutes); // Workout routes
+app.use("/api/classes", classRoutes); // Class routes
+app.use("/api/student", studentRoutes); // student routes
+app.use("/api/gym", occupancyRoute); // Gym occupancy routes
+app.use("/api/templates", templateRoutes); // Workout template routes
+app.use("/api/booking", bookingRoutes); // Booking routes
+app.use("/api/campus", campusRoutes); // Campus routes
 
 
 // Health check

@@ -1,0 +1,838 @@
+/* Class Bookings App - iOS Style CSS */
+
+/* Reset and Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  background: #000;
+  overflow: hidden;
+}
+
+/* Main App Container */
+.booking-app {
+  width: 393px;
+  height: 852px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #C084FC 100%);
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Status Bar */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  height: 44px;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+  background: transparent;
+}
+
+.device-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #000;
+}
+
+.status-indicators {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.signal, .battery {
+  font-size: 12px;
+  color: #000;
+}
+
+/* App Header */
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px 20px 20px;
+  background: transparent;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #000;
+  text-align: center;
+  flex: 1;
+}
+
+.back-button, .profile-button {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  font-size: 18px;
+  color: #000;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.back-button:hover, .profile-button:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.05);
+}
+
+/* Date Selector */
+.date-selector {
+  padding: 0 20px 15px 20px;
+}
+
+.date-input {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  color: #000;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: #A855F7;
+  box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+}
+
+/* App Content */
+.app-content {
+  padding: 0 20px 100px 20px;
+  height: calc(100vh - 200px);
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.app-content::-webkit-scrollbar {
+  display: none;
+}
+
+/* Loading and Error States */
+.loading-spinner {
+  text-align: center;
+  padding: 40px 20px;
+  color: #000;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.error-message {
+  background: rgba(239, 68, 68, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  margin: 20px 0;
+}
+
+.error-message p {
+  color: #DC2626;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.retry-button {
+  background: #DC2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-button:hover {
+  background: #B91C1C;
+  transform: scale(1.05);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  margin: 20px 0;
+}
+
+.empty-icon {
+  font-size: 48px;
+  margin-bottom: 15px;
+}
+
+.empty-state h3 {
+  font-size: 20px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #4A5568;
+  font-size: 14px;
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+
+/* Campus Cards */
+.campuses-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.campus-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.campus-card:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.campus-icon {
+  font-size: 32px;
+  margin-right: 15px;
+  min-width: 50px;
+}
+
+.campus-info {
+  flex: 1;
+}
+
+.campus-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 4px;
+}
+
+.campus-location {
+  font-size: 14px;
+  color: #4A5568;
+  margin-bottom: 4px;
+}
+
+.campus-classes {
+  font-size: 12px;
+  color: #6B7280;
+  margin-bottom: 8px;
+}
+
+.facilities-tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.facility-tag {
+  background: rgba(168, 85, 247, 0.2);
+  color: #8B5CF6;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.arrow-icon {
+  font-size: 20px;
+  color: #9CA3AF;
+  margin-left: 10px;
+}
+
+/* Class Cards */
+.classes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.class-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.class-card:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: translateY(-2px);
+}
+
+.class-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.class-icon {
+  font-size: 28px;
+  margin-right: 12px;
+  min-width: 40px;
+}
+
+.class-icon.large {
+  font-size: 48px;
+  text-align: center;
+  margin: 0 0 15px 0;
+}
+
+.class-main-info {
+  flex: 1;
+}
+
+.class-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 4px;
+}
+
+.class-instructor {
+  font-size: 14px;
+  color: #4A5568;
+  margin-bottom: 8px;
+}
+
+.class-tags {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.class-tag {
+  background: rgba(34, 197, 94, 0.2);
+  color: #16A34A;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.class-time-info {
+  text-align: right;
+  min-width: 80px;
+}
+
+.class-time {
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+}
+
+.class-duration {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.class-details {
+  margin-bottom: 15px;
+}
+
+.class-location {
+  font-size: 12px;
+  color: #6B7280;
+  margin-bottom: 8px;
+}
+
+.class-description {
+  font-size: 14px;
+  color: #374151;
+  line-height: 1.4;
+  margin-bottom: 15px;
+}
+
+/* Capacity Bar */
+.class-capacity {
+  margin-bottom: 15px;
+}
+
+.capacity-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.available-spots {
+  font-size: 12px;
+  color: #16A34A;
+  font-weight: 600;
+}
+
+.total-capacity {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.capacity-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.capacity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #16A34A, #22C55E);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Buttons */
+.primary-button {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, #A855F7, #C084FC);
+  border: none;
+  border-radius: 15px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+}
+
+.primary-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(168, 85, 247, 0.4);
+}
+
+.book-button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #16A34A, #22C55E);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.book-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.book-button.full {
+  background: #9CA3AF;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.book-button.full:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Booking Confirmation */
+.booking-confirmation {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.booking-class-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 25px;
+  text-align: center;
+}
+
+.booking-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.booking-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-label {
+  font-size: 14px;
+  color: #4A5568;
+  font-weight: 600;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #000;
+  font-weight: 600;
+  text-align: right;
+}
+
+.booking-user-info {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border-radius: 15px;
+  padding: 20px;
+}
+
+.booking-user-info h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+  margin-bottom: 12px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background: rgba(168, 85, 247, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.user-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #000;
+}
+
+.user-id {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.booking-terms {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border-radius: 15px;
+  padding: 15px;
+}
+
+.terms-text {
+  font-size: 12px;
+  color: #4A5568;
+  line-height: 1.4;
+}
+
+/* Booking Actions */
+.booking-actions {
+  position: absolute;
+  bottom: 100px;
+  left: 20px;
+  right: 20px;
+  display: flex;
+  gap: 12px;
+}
+
+.cancel-booking-button {
+  flex: 1;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: #000;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-booking-button:hover {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.confirm-booking-button {
+  flex: 2;
+  padding: 14px;
+  background: linear-gradient(135deg, #16A34A, #22C55E);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.confirm-booking-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+}
+
+.confirm-booking-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* My Bookings */
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.booking-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.booking-header {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.booking-main-info {
+  flex: 1;
+  margin-right: 10px;
+}
+
+.booking-date {
+  font-size: 12px;
+  color: #6B7280;
+  margin-top: 4px;
+}
+
+.booking-status {
+  min-width: 80px;
+  text-align: right;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.confirmed {
+  background: rgba(34, 197, 94, 0.2);
+  color: #16A34A;
+}
+
+.status-badge.cancelled {
+  background: rgba(239, 68, 68, 0.2);
+  color: #DC2626;
+}
+
+.booking-details {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.booking-location, .booking-duration {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.cancel-button {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #EF4444, #F87171);
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancel-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 96px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0 20px 30px 20px;
+}
+
+.nav-item {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-item:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.nav-item.active {
+  background: linear-gradient(135deg, #A855F7, #C084FC);
+  border-color: #A855F7;
+  box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+}
+
+.nav-item:active {
+  transform: scale(0.95);
+}
+
+/* Responsive Design */
+@media (max-width: 414px) {
+  .booking-app {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+  }
+}
+
+@media (max-height: 700px) {
+  .app-content {
+    height: calc(100vh - 180px);
+  }
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.campus-card,
+.class-card,
+.booking-card {
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .page-title,
+  .class-name,
+  .campus-name,
+  .user-name,
+  .detail-value {
+    color: #fff;
+  }
+  
+  .back-button,
+  .profile-button,
+  .cancel-booking-button {
+    color: #fff;
+  }
+}
+
+/* Touch improvements for mobile */
+@media (hover: none) and (pointer: coarse) {
+  .campus-card:hover,
+  .class-card:hover,
+  .book-button:hover,
+  .primary-button:hover,
+  .confirm-booking-button:hover,
+  .cancel-button:hover,
+  .nav-item:hover,
+  .back-button:hover,
+  .profile-button:hover {
+    transform: none;
+  }
+  
+  .campus-card:active,
+  .class-card:active,
+  .book-button:active,
+  .primary-button:active,
+  .confirm-booking-button:active,
+  .cancel-button:active,
+  .nav-item:active,
+  .back-button:active,
+  .profile-button:active {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}

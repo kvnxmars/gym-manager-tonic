@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, QrCode, Heart, Settings, Home, Clock, Users } from "lucide-react";
 import QRCode from "react-qr-code";
-import "../styles/StudentDashboard.css";
+import "../../styles/StudentDashboard.css";
 
-// API configuration
+// Mock API calls - replace with your actual API
 const API_URL = "http://localhost:5000/api";
 
 const StudentDashboard = () => {
+  const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [qrData, setQrData] = useState(null);
   const [checkins, setCheckins] = useState([]);
@@ -42,7 +44,7 @@ const StudentDashboard = () => {
 
         await Promise.all([
           fetchQRData(studentData.studentNumber),
-          fetchOccupancy(),
+          //fetchOccupancy(),
           fetchCheckins(studentData.studentNumber),
           fetchWorkoutTemplates(studentData.studentNumber),
           fetchWorkoutStats(studentData.studentNumber),
@@ -67,28 +69,16 @@ const StudentDashboard = () => {
         const data = await response.json();
         setQrData(data.qrData);
       } else {
-        console.error("Failed to fetch QR data");
+        console.error("Failed to fetch QR data:" + response.statusText);
       }
     } catch (error) {
       console.error("QR fetch error:", error);
     }
   };
 
-  const fetchOccupancy = async () => {
+const fetchCheckins = async (studentNumber) => {
     try {
-      const response = await fetch(`${API_URL}/gym/occupancy`);
-      if (response.ok) {
-        const data = await response.json();
-        setOccupancy(data.currentOccupancy);
-      }
-    } catch (error) {
-      console.error("Occupancy fetch error:", error);
-    }
-  };
-
-  const fetchCheckins = async (studentNumber) => {
-    try {
-      const response = await fetch(`${API_URL}/checkins/${studentNumber}`);
+      const response = await fetch(`${API_URL}/access/checkin/${studentNumber}`);
       if (response.ok) {
         const data = await response.json();
         setCheckins(data.checkIns?.slice(0, 5) || []);
@@ -100,7 +90,7 @@ const StudentDashboard = () => {
 
   const fetchWorkoutTemplates = async (studentNumber) => {
     try {
-      const response = await fetch(`${API_URL}/workouts/templates/${studentNumber}`);
+      const response = await fetch(`${API_URL}/templates/${studentNumber}`);
       if (response.ok) {
         const data = await response.json();
         setWorkoutTemplates(data.templates || []);
@@ -491,26 +481,6 @@ const StudentDashboard = () => {
           )}
         </div>
 
-        {/* Gym Status */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">Gym Right Now</h3>
-          <div className="flex items-center space-x-2">
-            <Users className="w-5 h-5 text-blue-600" />
-            <span className="text-gray-700">{occupancy} students currently inside</span>
-          </div>
-          <div className="mt-3">
-            <div className="flex justify-between text-sm text-gray-600 mb-1">
-              <span>Capacity</span>
-              <span>{occupancy}/100</span>
-            </div>
-            <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                style={{ width: `${Math.min((occupancy / 100) * 100, 100)}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
 
         {/* Recent Check-ins */}
         {checkins.length > 0 && (
@@ -600,9 +570,15 @@ const StudentDashboard = () => {
             <Home className="w-6 h-6 mb-1" />
             <span className="text-xs">Home</span>
           </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
+          <button className="flex flex-col items-center py-2 text-gray-400"
+          onClick={() => navigate("/workout")}>
             <span className="text-xl mb-1">💪</span>
             <span className="text-xs">Workouts</span>
+          </button>
+          <button className="flex flex-col items-center py-2 text-gray-400"
+          onClick={() => navigate("/class-bookings")}>
+            <span className="w-6 h-6 mb-1" />
+            <span className="text-xs">Classes</span>
           </button>
           <button className="flex flex-col items-center py-2 text-gray-400">
             <span className="text-xl mb-1">👤</span>
@@ -614,6 +590,13 @@ const StudentDashboard = () => {
           </button>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 };
