@@ -33,6 +33,7 @@ const classRoutes = require("./routes/class"); // Corrected the import path to m
 const workoutRoutes = require("./routes/workout");
 const occupancyRoute = require("./routes/gym")
 const templateRoutes = require("./routes/templates");
+const adminRoutes = require("./routes/adminRoutes");
 
 app.use("/api/auth", authRoutes);
 app.use("/api/access", accessRoutes);
@@ -41,6 +42,7 @@ app.use("/api/classes", classRoutes);
 app.use("/api/student", studentRoutes);
 app.use("/api/gym", occupancyRoute);
 app.use("/api/templates", templateRoutes);
+app.use("/api/admin", adminRoutes);
 
 /*app.post("/api/login", async (req, res) => {
   try {
