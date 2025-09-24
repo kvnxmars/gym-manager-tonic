@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 
+//extract campus names/ID for validation
+const validCampusIds = campusData.campuses.map(campus => campus.id); 
+
 //class schema
 const classSchema = new mongoose.Schema({
     // Unique identifier for the class
@@ -23,6 +26,17 @@ const classSchema = new mongoose.Schema({
     date: {
         type: Date,
         required: true
+    },
+
+    capacity: {
+        type: Number,
+        required: true
+    },
+
+    campus: {
+        type: String,
+        required:true,
+        enum: validCampusIds
     },
 
     //class classification

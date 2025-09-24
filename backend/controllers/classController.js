@@ -41,13 +41,71 @@ class ClassController {
                 image = ""
             } = req.body;
 
+            console.log('Received request body:', req.body);
+
             //validate required fields
-            const requiredFields = { name, instructor, capacity, campus, time, duration, date, category };
-            const missingFields = requiredFields.filter(field => !req.body[field]);
+            const requiredFields = [ name, instructor, capacity, campus, time, duration, date, category ];
+            console.log('Received fields:', requiredFields);
+
+
+            const missingFields = requiredFields.filter(fieldName => {
+                const value = req.body[fieldName];
+                return !value || (typeof value === 'string' && value.trim() === '');
+            });
+            console.log('Missing fields:', missingFields);
 
             if (missingFields.length > 0) {
                 return res.status(400).json({ message: `Missing required fields: ${missingFields.join(", ")}` 
             });
+
+        }
+
+        //handle instructor - support both string and object formats
+        let instructorName;
+        let instructorDetails;
+
+        if (typeof instructor === 'string') {
+            instructorName = instructor;
+            instructorDetails = {
+                name: instructor,
+                contact: '',
+                specialty: 'Other',
+
+            };
+
+        } else if (typeof instructor === 'object' && instructor.name) {
+            instructorName = instructor.name;
+            instructorDetails = {
+                name: instructor.name,
+                contact: instructor.contact || '',
+                specialty: instructor.specialty || 'Other'
+            };
+        } else {
+            return res.status(400).json({
+                message: "Invalid instructor format. Provide either a string or object with 'name' property."
+            });
+        }
+
+        // Handle category - support both string and object formats
+        let categoryObj;
+        if (typeof category === 'string') {
+            categoryObj = {
+                primary: category,
+                level: 'Beginner',
+                intensity: 'Low'
+            };
+        } else if (typeof category === 'object') {
+            categoryObj = {
+                primary: category.primary || 'General',
+                level: category.level || 'Beginner',
+                intensity: category.intensity || 'Low'
+            };
+        } else {
+            categoryObj = {
+                primary: 'General',
+                level: 'Beginner',
+                intensity: 'Low'
+            };
         }
 
         //generate unique classId

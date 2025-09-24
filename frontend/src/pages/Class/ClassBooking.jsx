@@ -57,7 +57,7 @@ const ClassBookingsApp = () => {
     }
   ];*/
 
-  const mockClasses = {
+  /*const mockClasses = {
     'main': [
       {
         id: 'yoga-morning',
@@ -198,7 +198,7 @@ const ClassBookingsApp = () => {
         image: '🏀'
       }
     ]
-  };
+  };*/
 
   // API Configuration
   const API_BASE_URL = "http://localhost:5000/api";
@@ -222,13 +222,13 @@ const ClassBookingsApp = () => {
   const fetchClasses = async (date) => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/classes}`);
+      const response = await fetch(`${API_BASE_URL}/classes`);
       if (!response.ok) throw new Error('Failed to fetch classes');
       const data = await response.json();
       setClasses(data.classes || []);
     } catch (err) {
       setError(err.message);
-      setClasses(mockClasses[campusId] || []); // Fallback to mock data
+      //setClasses(mockClasses[campusId] || []); // Fallback to mock data
     } finally {
       setLoading(false);
     }

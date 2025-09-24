@@ -17,33 +17,27 @@ static async getAllCampuses(req, res) {
     }
 }
 
-    // GET /api/campus/:campusId
-    static async getCampusById(req, res) {
-        try {
-            const { campusId } = req.params;
-            
-            const campus = campusData.campuses.find(c => c.id === campusId);
-            if (!campus) {
-                return res.status(404).json({ message: "Campus not found" });
-            }
-
-            // Get detailed stats for this campus
-            const stats = await CampusController._getCampusStats(campus.name);
-            
-            res.json({ 
-                campus: {
-                    ...campus,
-                    ...stats
-                }
-            });
-        } catch (error) {
-            console.error("Error fetching campus:", error);
-            res.status(500).json({
-                message: "Server error fetching campus",
-                error: error.message
-            });
+    /// GET /api/campus/:campusId
+static async getCampusById(req, res) {
+    try {
+        const { campusId } = req.params;
+        
+        // Find the campus in the static data
+        const campus = campusData.campuses.find(c => c.id === campusId);
+        
+        if (!campus) {
+            return res.status(404).json({ message: "Campus not found" });
         }
+        
+        res.json({ campus });
+    } catch (error) {
+        console.error("Error fetching campus:", error);
+        res.status(500).json({
+            message: "Server error fetching campus",
+            error: error.message
+        });
     }
+}
 
     // GET /api/campus/:campusId/schedule
     static async getCampusSchedule(req, res) {

@@ -9,7 +9,7 @@ const workoutSessionSchema = new Schema(
     id: {
       type: Schema.Types.ObjectId,
       ref: "Student",
-      required: true,
+      //required: true,
       description: "Reference to the user who performed the workout",
     },
     studentNumber: {
