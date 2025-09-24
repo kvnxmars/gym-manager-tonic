@@ -21,7 +21,7 @@ const ClassBookingsApp = () => {
     studentNumber: '12345'
   });
 
-  // Mock data
+  /*// Mock data
   const mockCampuses = [
     {
       id: 'main',
@@ -55,7 +55,7 @@ const ClassBookingsApp = () => {
       image: '🏬',
       totalClasses: 23
     }
-  ];
+  ];*/
 
   const mockClasses = {
     'main': [
@@ -148,7 +148,6 @@ const ClassBookingsApp = () => {
         type: 'Dance',
         level: 'All Levels',
         description: 'Fun cardio dance workout',
-        price: 'Free',
         image: '💃'
       }
     ],
@@ -165,7 +164,6 @@ const ClassBookingsApp = () => {
         type: 'Sports',
         level: 'Intermediate',
         description: 'Improve your tennis game',
-        price: 'Free',
         image: '🎾'
       },
       {
@@ -180,7 +178,6 @@ const ClassBookingsApp = () => {
         type: 'Aquatics',
         level: 'All Levels',
         description: 'Low-impact water exercise',
-        price: 'Free',
         image: '🏊‍♀️'
       }
     ],
@@ -189,6 +186,7 @@ const ClassBookingsApp = () => {
         id: 'basketball-evening',
         name: 'Basketball Skills',
         instructor: 'Coach Johnson',
+        campus: 'Potchefstroom',
         time: '17:00',
         duration: 90,
         capacity: 16,
@@ -197,7 +195,6 @@ const ClassBookingsApp = () => {
         type: 'Sports',
         level: 'All Levels',
         description: 'Fundamental basketball skills',
-        price: 'Free',
         image: '🏀'
       }
     ]
@@ -210,13 +207,13 @@ const ClassBookingsApp = () => {
   const fetchCampuses = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/classes/campuses`);
+      const response = await fetch(`${API_BASE_URL}/campus/all`);
       if (!response.ok) throw new Error('Failed to fetch campuses');
       const data = await response.json();
       setCampuses(data.campuses || []);
     } catch (err) {
       setError(err.message);
-      setCampuses(mockCampuses); // Fallback to mock data
+      //setCampuses(mockCampuses); // Fallback to mock data
     } finally {
       setLoading(false);
     }
@@ -225,7 +222,7 @@ const ClassBookingsApp = () => {
   const fetchClasses = async (date) => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/classes${date ? `?date=${date}` : ''}`);
+      const response = await fetch(`${API_BASE_URL}/classes}`);
       if (!response.ok) throw new Error('Failed to fetch classes');
       const data = await response.json();
       setClasses(data.classes || []);
@@ -364,16 +361,9 @@ const ClassBookingsApp = () => {
               <div className="campus-icon">{campus.image}</div>
               <div className="campus-info">
                 <h3 className="campus-name">{campus.name}</h3>
-                <p className="campus-location">{campus.location}</p>
-                <p className="campus-classes">{campus.totalClasses} classes available</p>
-                <div className="facilities-tags">
-                  {campus.facilities.slice(0, 2).map(facility => (
-                    <span key={facility} className="facility-tag">{facility}</span>
-                  ))}
-                  {campus.facilities.length > 2 && (
-                    <span className="facility-tag">+{campus.facilities.length - 2}</span>
-                  )}
-                </div>
+                <p className="campus-location">{campus.city}</p>
+                {/*<p className="campus-classes">{campus.totalClasses} classes available</p>*/}
+                
               </div>
               <div className="arrow-icon">›</div>
             </div>
@@ -551,10 +541,7 @@ const ClassBookingsApp = () => {
                   <span className="detail-label">📍 Location</span>
                   <span className="detail-value">{selectedClass.location}, {selectedCampus?.name}</span>
                 </div>
-                <div className="booking-detail">
-                  <span className="detail-label">💰 Price</span>
-                  <span className="detail-value">{selectedClass.price}</span>
-                </div>
+                
                 <div className="booking-detail">
                   <span className="detail-label">👥 Available</span>
                   <span className="detail-value">

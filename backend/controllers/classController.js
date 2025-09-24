@@ -1,7 +1,9 @@
-const Class = require("../models/Class");
+//controllers/classController.js
+//const campusData =  '../../data/campusData'; // Static campus data
 const Student = require("../models/Student");
 const Booking = require("../models/Booking");
 const { saslprep } = require("@mongodb-js/saslprep");
+const Class = require("../models/Class");
 
 //====CLASS MANAGEMENT ROUTES====//
 

@@ -102,6 +102,7 @@ const bookingSchema = new mongoose.Schema({
             default: null,
             trim: true,
             maxlength: 500
+        }
     },
 
     // Attendance Tracking
@@ -135,7 +136,8 @@ const bookingSchema = new mongoose.Schema({
       leftEarlyAt: {
         type: Date,
         default: null,
-      },
+      }
+    },
 
     // User Experience
     feedback: {
@@ -165,7 +167,7 @@ const bookingSchema = new mongoose.Schema({
       submittedAt: {
         type: Date,
         default: null,
-      },
+      }
     },
 
     // Booking Modifications
@@ -198,8 +200,8 @@ const bookingSchema = new mongoose.Schema({
           type: String,
           default: null,
           trim: true,
-        },
-      },
+        }
+      }
     ],
 
     // System Fields
@@ -212,17 +214,11 @@ const bookingSchema = new mongoose.Schema({
       type: Date,
       required: true,
       default: Date.now,
-    },
-    },
-
-    // Enable timestamps for createdAt and updatedAt
+    }
+}, { // Enable automatic createdAt and updatedAt fields
     timestamps: true,
     // Enforce strict schema to throw errors for unknown fields
-    strict: "throw",
-  
-  }
-  
-
+    strict: "throw"
 });
 
 // Define indexes

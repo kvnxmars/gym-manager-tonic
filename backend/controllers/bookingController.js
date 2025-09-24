@@ -1,8 +1,18 @@
 const Class = require('../models/Class');
-const Campus = require('../models/Campus');
+//import { campuses } from '../../data/campusData'; // Static campus data
 
 class bookingController {
 
+    //GET /api/booking/all - Get all bookings (admin only)
+    static async getAllBookings(req, res) {
+        try {
+            const bookings = await Class.find().populate('bookedStudents').exec();
+            res.json({ bookings });
+        } catch (err) {
+            console.error("Error fetching all bookings:", err);
+            res.status(500).json({ message: "Server error fetching all bookings" });
+        }
+    }
     // GET /api/booking/student/:studentId - Get classes booked by a specific student
     static async getStudentClasses(req, res) {
         try {

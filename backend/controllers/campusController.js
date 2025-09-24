@@ -1,52 +1,28 @@
 const Class = require('../models/Class');
-const Campus = require('../models/Campus');
+//import { campusData } from '../../data/campusData'; // Static campus data
+const { campusData } = require('../data/campusData'); // Static campus data
 
 class CampusController {
 
     // GET /api/campus/all
-    static async getAllCampuses(req, res) {
-        try {
-            // Add real-time class count for each campus
-            const campusesWithStats = await Promise.all(
-                campusData.map(async (campus) => {
-                    const totalClasses = await Class.countDocuments({ 
-                        campus: campus.name,
-                        status: 'active'
-                    });
-                    
-                    const todayClasses = await Class.countDocuments({
-                        campus: campus.name,
-                        status: 'active',
-                        date: {
-                            $gte: new Date().setHours(0, 0, 0, 0),
-                            $lt: new Date().setHours(23, 59, 59, 999)
-                        }
-                    });
-
-                    return {
-                        ...campus,
-                        totalClasses,
-                        todayClasses
-                    };
-                })
-            );
-
-            res.json({ campuses: campusesWithStats });
-        } catch (error) {
-            console.error("Error fetching campuses:", error);
-            res.status(500).json({
-                message: "Server error fetching campuses",
-                error: error.message
-            });
-        }
+static async getAllCampuses(req, res) {
+    try {
+        res.json({ campuses: campusData.campuses });
+    } catch (error) {
+        console.error("Error loading campus data:", error);
+        res.status(500).json({
+            message: "Server error loading campus data",
+            error: error.message
+        });
     }
+}
 
     // GET /api/campus/:campusId
     static async getCampusById(req, res) {
         try {
             const { campusId } = req.params;
             
-            const campus = campusData.find(c => c.id === campusId);
+            const campus = campusData.campuses.find(c => c.id === campusId);
             if (!campus) {
                 return res.status(404).json({ message: "Campus not found" });
             }
@@ -130,65 +106,7 @@ class CampusController {
         }
     }
 
-    // GET /api/campus/:campusId/facilities
-    static async getCampusFacilities(req, res) {
-        try {
-            const { campusId } = req.params;
-            
-            const campus = campusData.find(c => c.id === campusId);
-            if (!campus) {
-                return res.status(404).json({ message: "Campus not found" });
-            }
-
-            // Get classes grouped by facility/location
-            const classesByFacility = await Class.aggregate([
-                { 
-                    $match: { 
-                        campus: campus.name, 
-                        status: 'active',
-                        date: { $gte: new Date() }
-                    } 
-                },
-                {
-                    $group: {
-                        _id: '$location',
-                        classes: { $push: '$ROOT' },
-                        totalClasses: { $sum: 1 },
-                        totalCapacity: { $sum: '$capacity' },
-                        totalBooked: { $sum: { $size: '$bookedStudents' } }
-                    }
-                },
-                { $sort: { _id: 1 } }
-            ]);
-
-            const facilitiesWithStats = campus.facilities.map(facility => {
-                const stats = classesByFacility.find(f => 
-                    f._id && f._id.toLowerCase().includes(facility.toLowerCase())
-                );
-                
-                return {
-                    name: facility,
-                    totalClasses: stats?.totalClasses || 0,
-                    totalCapacity: stats?.totalCapacity || 0,
-                    totalBooked: stats?.totalBooked || 0,
-                    utilizationRate: stats ? 
-                        ((stats.totalBooked / stats.totalCapacity) * 100).toFixed(1) : 0
-                };
-            });
-
-            res.json({ 
-                campus: campus.name,
-                facilities: facilitiesWithStats,
-                locations: classesByFacility
-            });
-        } catch (error) {
-            console.error("Error fetching campus facilities:", error);
-            res.status(500).json({
-                message: "Server error fetching campus facilities",
-                error: error.message
-            });
-        }
-    }
+     
 
     // GET /api/campus/analytics
     static async getCampusAnalytics(req, res) {
