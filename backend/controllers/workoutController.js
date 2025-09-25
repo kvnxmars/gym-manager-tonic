@@ -1,4 +1,4 @@
-const Workout = require('../models/Workout'); // Assuming you have this model
+const Workout = require('../models/WorkoutSession'); // Assuming you have this model
 const Template = require('../models/WorkoutTemplate'); // Assuming you have this model
 
 // This function will calculate and return the student's workout stats

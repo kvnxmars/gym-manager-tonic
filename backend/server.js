@@ -29,10 +29,11 @@ const CheckIn = require("./models/CheckIns");
 const authRoutes = require("./routes/auth");
 const accessRoutes = require("./routes/access");
 const studentRoutes = require("./routes/student")
-const classRoutes = require("./routes/class"); // Corrected the import path to match your file name
+const classRoutes = require("./routes/classRoutes"); // Corrected the import path to match your file name
 const workoutRoutes = require("./routes/workout");
 const occupancyRoute = require("./routes/gym")
 const templateRoutes = require("./routes/templates");
+<<<<<<< HEAD
 const adminRoutes = require("./routes/adminRoutes");
 
 app.use("/api/auth", authRoutes);
@@ -79,7 +80,22 @@ app.use("/api/admin", adminRoutes);
     res.status(500).json({ message: "An error occurred during login." });
   }
 });*/
+=======
+const bookingRoutes = require("./routes/booking");
+const campusRoutes = require("./routes/campus");
 
+// Use routes
+>>>>>>> c2df3582eee5afb46b159f56e907173a72217559
+
+app.use("/api/auth", authRoutes); // Auth routes
+app.use("/api/access", accessRoutes); // Access control routes
+app.use("/api/workouts", workoutRoutes); // Workout routes
+app.use("/api/classes", classRoutes); // Class routes
+app.use("/api/student", studentRoutes); // student routes
+app.use("/api/gym", occupancyRoute); // Gym occupancy routes
+app.use("/api/templates", templateRoutes); // Workout template routes
+app.use("/api/booking", bookingRoutes); // Booking routes
+app.use("/api/campus", campusRoutes); // Campus routes
 
 
 // Health check
