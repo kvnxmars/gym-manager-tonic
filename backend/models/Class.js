@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const { campusData }  = require('../data/campusData');
+
 
 //extract campus names/ID for validation
 const validCampusIds = campusData.campuses.map(campus => campus.id); 
