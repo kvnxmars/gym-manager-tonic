@@ -25,39 +25,35 @@ export default function SignInPage() {
   };
 
   // Handle login submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError("");
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError("");
 
-    try {
-      // Send POST request to backend /signin
-      const res = await fetch(`${API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+  try {
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: formData.studentNumber.includes("@") ? formData.studentNumber : undefined,
+        studentNumber: formData.studentNumber.includes("@") ? undefined : formData.studentNumber,
+        password: formData.password,
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Signin failed");
 
-      // If login failed
-      if (!res.ok) {
-        throw new Error(data.message || "Signin failed");
-      }
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("userRole", data.role);
 
-      // Save token + student info in localStorage (so PWA can persist login)
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("student", JSON.stringify(data.student));
-
-      // Redirect to dashboard (once created)
-      //alert("Login successful! 🎉");
-      navigate("/student-dashboard");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    navigate(data.role === "admin" ? "/admin-dashboard" : "/student-dashboard");
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="auth-container">

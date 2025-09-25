@@ -31,19 +31,14 @@ const accessRoutes = require("./routes/access");
 const studentRoutes = require("./routes/student")
 const classRoutes = require("./routes/classRoutes"); // Corrected the import path to match your file name
 const workoutRoutes = require("./routes/workout");
-const occupancyRoute = require("./routes/gym")
+const occupancyRoute = require("./routes/gym");
 const templateRoutes = require("./routes/templates");
-<<<<<<< HEAD
+const bookingRoutes = require("./routes/booking");
+const campusRoutes = require("./routes/campus");
+const adminAuth = require("./routes/adminAuth");
 const adminRoutes = require("./routes/adminRoutes");
 
-app.use("/api/auth", authRoutes);
-app.use("/api/access", accessRoutes);
-app.use("/api/workouts", workoutRoutes);
-app.use("/api/classes", classRoutes);
-app.use("/api/student", studentRoutes);
-app.use("/api/gym", occupancyRoute);
-app.use("/api/templates", templateRoutes);
-app.use("/api/admin", adminRoutes);
+
 
 /*app.post("/api/login", async (req, res) => {
   try {
@@ -80,13 +75,8 @@ app.use("/api/admin", adminRoutes);
     res.status(500).json({ message: "An error occurred during login." });
   }
 });*/
-=======
-const bookingRoutes = require("./routes/booking");
-const campusRoutes = require("./routes/campus");
 
 // Use routes
->>>>>>> c2df3582eee5afb46b159f56e907173a72217559
-
 app.use("/api/auth", authRoutes); // Auth routes
 app.use("/api/access", accessRoutes); // Access control routes
 app.use("/api/workouts", workoutRoutes); // Workout routes
