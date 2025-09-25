@@ -592,6 +592,76 @@ button {
   }
 }
 
+/* Responsive: Tablet */
+@media (max-width: 900px) {
+  .px-4 {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+  .py-4, .py-6 {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .gap-3 {
+    gap: 0.5rem;
+  }
+  .text-2xl {
+    font-size: 1.2rem;
+  }
+  .text-xl {
+    font-size: 1rem;
+  }
+}
+
+/* Responsive: Mobile */
+@media (max-width: 600px) {
+  .px-4 {
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+  }
+  .py-4, .py-6 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+  .gap-3 {
+    gap: 0.25rem;
+  }
+  .text-2xl {
+    font-size: 1rem;
+  }
+  .text-xl {
+    font-size: 0.9rem;
+  }
+  .text-lg {
+    font-size: 0.85rem;
+  }
+  .w-10, .h-10, .w-16, .h-16, .w-32, .h-32, .w-48, .h-48 {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+  }
+  .profile-icon, .workout-grid-item {
+    min-height: 60px;
+    font-size: 0.9rem;
+  }
+}
+
+/* Make grid and flex containers wrap on small screens */
+@media (max-width: 600px) {
+  .flex {
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 /* Custom Animations and Interactions */
 input:focus {
   outline: none;

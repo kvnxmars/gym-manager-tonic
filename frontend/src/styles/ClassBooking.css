@@ -774,6 +774,116 @@ body {
   }
 }
 
+/* Responsive: Tablet */
+@media (max-width: 900px) {
+  .booking-app {
+    width: 100vw;
+    height: 100vh;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 0;
+  }
+  .app-header,
+  .status-bar,
+  .date-selector,
+  .app-content,
+  .booking-actions,
+  .bottom-nav {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  .campus-card,
+  .class-card,
+  .booking-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+  .page-title {
+    font-size: 20px;
+  }
+}
+
+/* Responsive: Mobile */
+@media (max-width: 600px) {
+  .booking-app {
+    width: 100vw;
+    height: 100vh;
+    min-width: 0;
+    min-height: 0;
+    border-radius: 0;
+  }
+  .app-header,
+  .status-bar,
+  .date-selector,
+  .app-content,
+  .booking-actions,
+  .bottom-nav {
+    padding-left: 4px;
+    padding-right: 4px;
+  }
+  .campus-card,
+  .class-card,
+  .booking-card {
+    padding: 10px;
+    border-radius: 10px;
+  }
+  .page-title {
+    font-size: 16px;
+  }
+  .campus-name,
+  .class-name {
+    font-size: 15px;
+  }
+  .campus-location,
+  .class-instructor,
+  .class-time,
+  .class-duration,
+  .class-description,
+  .booking-date,
+  .booking-location,
+  .booking-duration,
+  .user-name {
+    font-size: 12px;
+  }
+  .campus-icon,
+  .class-icon,
+  .empty-icon {
+    font-size: 24px;
+    min-width: 32px;
+  }
+  .bottom-nav {
+    height: 70px;
+    padding-bottom: 10px;
+  }
+  .nav-item {
+    width: 44px;
+    height: 44px;
+    font-size: 18px;
+  }
+}
+
+/* Make flex and grid containers stack vertically on small screens */
+@media (max-width: 600px) {
+  .campuses-grid,
+  .classes-list,
+  .bookings-list,
+  .booking-confirmation,
+  .booking-details {
+    gap: 8px;
+  }
+  .booking-details {
+    flex-direction: column;
+  }
+  .class-header,
+  .booking-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .booking-main-info {
+    margin-right: 0;
+  }
+}
+
 /* Animations */
 @keyframes slideIn {
   from {

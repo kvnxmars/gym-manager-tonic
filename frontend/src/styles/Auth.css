@@ -1,11 +1,26 @@
-/* Import the Inter font */
+/* Import Inter font (NWU uses Inter) */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* NWU Theme Colors */
+:root {
+  --nwu-purple: #4B306A;
+  --nwu-gold: #FFD100;
+  --nwu-white: #FFFFFF;
+  --nwu-dark: #22223B;
+}
+
+body {
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
+  background: linear-gradient(135deg, var(--nwu-purple), var(--nwu-dark));
+  color: var(--nwu-dark);
+}
 
 /* Page background */
 body {
   margin: 0;
   font-family: 'Inter', sans-serif;
-  background: linear-gradient(to bottom right, #12100e, #2b2520, #251f1c);
+  background: linear-gradient(135deg, var(--nwu-purple), var(--nwu-dark));
+  color: var(--nwu-dark);
 }
 
 /* Wrapper */
@@ -14,7 +29,7 @@ body {
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  padding: 1rem;
+  padding: 2vw;
 }
 
 /* Card */
@@ -23,10 +38,20 @@ body {
   flex-direction: column;
   width: 100%;
   max-width: 900px;
-  border-radius: 24px;
+  min-width: 0;
+  border-radius: 2vw;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-  background: linear-gradient(200deg, #F0F0F0, #F8F8F8);
+  box-shadow: 0 25px 50px -12px rgba(75, 48, 106, 0.15);
+  background: var(--nwu-white);
+}
+
+.auth-card-image {
+  background: linear-gradient(135deg, var(--nwu-purple), var(--nwu-gold));
+  color: var(--nwu-white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Left branding side */
@@ -36,13 +61,14 @@ body {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  padding: 3rem;
+  padding: 5vw 3vw;
   text-align: center;
-  color: white;
-  background: linear-gradient(200deg, #5D54A8, #8B5CF6);
+  color: var(--nwu-white);
+  background: linear-gradient(135deg, var(--nwu-purple), var(--nwu-gold));
 }
 
 .auth-card-image .title {
+  color: var(--nwu-gold);
   font-size: 2.5rem;
   font-weight: 700;
   margin-bottom: 1rem;
@@ -58,20 +84,22 @@ body {
   padding: 0.75rem 2rem;
   border-radius: 9999px;
   font-weight: 600;
-  border: 2px solid white;
-  color: white;
+  border: 2px solid var(--nwu-gold);
+  color: var(--nwu-gold);
+  background: transparent;
   text-decoration: none;
   transition: transform 0.3s;
 }
 
 .auth-card-image .btn:hover {
-  transform: scale(1.05);
+  background: var(--nwu-gold);
+  color: var(--nwu-purple);
 }
 
 /* Right form side */
 .auth-card-form {
   flex: 1;
-  padding: 2rem;
+  padding: 2vw;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -82,7 +110,7 @@ body {
   font-weight: 700;
   text-align: center;
   margin-bottom: 2rem;
-  color: #2b2520;
+  color: var(--nwu-purple);
 }
 
 .auth-card-form .form {
@@ -102,7 +130,7 @@ body {
 }
 
 .auth-card-form .input:focus {
-  border-color: #8B5CF6;
+  border-color: var(--nwu-purple);
 }
 
 /* Password emoji toggle */
@@ -150,12 +178,12 @@ body {
 
 .auth-card-form .switch-link a {
   font-weight: 600;
-  color: #8B5CF6;
+  color: var(--nwu-purple);
   text-decoration: none;
 }
 
 .auth-card-form .switch-link a:hover {
-  text-decoration: underline;
+  color: var(--nwu-gold);
 }
 
 /* Buttons */
@@ -164,8 +192,8 @@ body {
   padding: 1rem;
   border-radius: 9999px;
   font-weight: 600;
-  color: white;
-  background: linear-gradient(to right, #A855F7, #8B5CF6);
+  color: var(--nwu-white);
+  background: linear-gradient(90deg, var(--nwu-purple), var(--nwu-gold));
   margin-top: 1rem;
   border: none;
   cursor: pointer;
@@ -178,36 +206,74 @@ body {
 
 .auth-card-form .submit-btn:disabled {
   background: #9CA3AF;
-  cursor: not-allowed;
+  color: #fff;
 }
 
-/* Responsive layout */
-@media (min-width: 768px) {
+/* Base: Use flexible units */
+.auth-container {
+  min-height: 100vh;
+  padding: 2vw;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 900px;
+  min-width: 0;
+  border-radius: 2vw;
+}
+
+.auth-card-form {
+  padding: 2vw;
+}
+
+.auth-card-image {
+  padding: 5vw 3vw;
+}
+
+/* Make containers and images fluid */
+.auth-card,
+.auth-card-form,
+.auth-card-image {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+}
+
+img, .auth-card-image {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive: Tablet and below */
+@media (max-width: 900px) {
+  .auth-container {
+    padding: 2vw 1vw;
+  }
   .auth-card {
-    flex-direction: row;
+    flex-direction: column;
+    max-width: 98vw;
+    border-radius: 3vw;
   }
-
   .auth-card-image {
-    display: flex;
-    border-radius: 0 24px 24px 0;
+    display: none;
   }
-
-  .result-box, .status-box {
-  margin-top: 20px;
-  padding: 15px;
-  border-radius: 12px;
-  text-align: center;
-  font-weight: bold;
+  .auth-card-form {
+    padding: 4vw 2vw;
+  }
 }
 
-.result-box {
-  background-color: #f0f0f0;
-  color: #333;
+/* Responsive: Mobile */
+@media (max-width: 600px) {
+  .auth-container {
+    padding: 1vw 0.5vw;
+  }
+  .auth-card-form .title {
+    font-size: 1.1rem;
+  }
+  .auth-card-form .input,
+  .auth-card-form .submit-btn {
+    padding: 0.7rem;
+    font-size: 1rem;
+  }
 }
 
-.status-box {
-  background-color: #e6f7ff;
-  color: #0077cc;
-}
-
-}

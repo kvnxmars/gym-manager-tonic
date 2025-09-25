@@ -437,6 +437,88 @@ body {
   }
 }
 
+/* Responsive: Tablet and Desktop */
+@media (min-width: 415px) {
+  .workout-app {
+    width: 100vw;
+    height: 100vh;
+    max-width: 600px;
+    max-height: 100vh;
+    margin: 0 auto;
+    border-radius: 24px;
+  }
+}
+
+/* Responsive: Small Tablets and Large Phones */
+@media (max-width: 600px) {
+  .workout-app {
+    width: 100vw;
+    height: 100vh;
+    border-radius: 0;
+    min-width: 0;
+    min-height: 0;
+  }
+  .app-content,
+  .workout-content {
+    padding: 10px;
+  }
+  .templates-grid {
+    grid-template-columns: 1fr;
+    padding: 0 5px;
+    gap: 10px;
+  }
+  .template-card {
+    padding: 20px 10px;
+    min-height: 90px;
+    font-size: 14px;
+  }
+  .section-title,
+  .workout-title {
+    font-size: 18px;
+  }
+  .primary-button,
+  .add-set-button {
+    padding: 12px;
+    font-size: 15px;
+  }
+  .nav-item {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+  .bottom-nav {
+    height: 70px;
+    padding-bottom: 8px;
+  }
+}
+
+/* Responsive: Very Small Devices */
+@media (max-width: 375px) {
+  .section-title,
+  .workout-title {
+    font-size: 16px;
+  }
+  .primary-button,
+  .add-set-button {
+    font-size: 13px;
+    padding: 10px;
+  }
+  .nav-item {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+}
+
+/* Ensure all content fits and scrolls if needed */
+.workout-app,
+.app-content,
+.workout-content {
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
 /* Animations */
 @keyframes slideIn {
   from {
