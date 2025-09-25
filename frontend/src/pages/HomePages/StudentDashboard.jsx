@@ -22,7 +22,7 @@ const StudentDashboard = () => {
   const [workoutName, setWorkoutName] = useState("");
   const [workoutTemplates, setWorkoutTemplates] = useState([]);
   const [showTemplateModal, setShowTemplateModal] = useState(false);
-  const [editingTemplate, setEditingTemplate] = useState(null); // ⭐ NEW: State to hold template being edited
+  const [editingTemplate, setEditingTemplate] = useState(null);
   const [workoutStats, setWorkoutStats] = useState(null);
 
   // Campus classes state
@@ -44,7 +44,6 @@ const StudentDashboard = () => {
 
         await Promise.all([
           fetchQRData(studentData.studentNumber),
-          //fetchOccupancy(),
           fetchCheckins(studentData.studentNumber),
           fetchWorkoutTemplates(studentData.studentNumber),
           fetchWorkoutStats(studentData.studentNumber),
@@ -76,7 +75,7 @@ const StudentDashboard = () => {
     }
   };
 
-const fetchCheckins = async (studentNumber) => {
+  const fetchCheckins = async (studentNumber) => {
     try {
       const response = await fetch(`${API_URL}/access/checkin/${studentNumber}`);
       if (response.ok) {
@@ -161,7 +160,7 @@ const fetchCheckins = async (studentNumber) => {
     }
   };
 
-  const handleEditTemplate = async () => { // ⭐ NEW: Handle template update
+  const handleEditTemplate = async () => {
     if (!editingTemplate || !editingTemplate.name.trim()) return;
 
     try {
@@ -209,12 +208,12 @@ const fetchCheckins = async (studentNumber) => {
     }
   };
   
-  const openEditModal = (template) => { // ⭐ NEW: Function to open the modal in edit mode
+  const openEditModal = (template) => {
     setEditingTemplate(template);
     setShowTemplateModal(true);
   };
 
-  const handleModalClose = () => { // ⭐ NEW: Function to reset modal state on close
+  const handleModalClose = () => {
     setShowTemplateModal(false);
     setWorkoutName("");
     setEditingTemplate(null);
@@ -222,10 +221,23 @@ const fetchCheckins = async (studentNumber) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <div className="w-12 h-12 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your dashboard...</p>
+      <div className="workout-app">
+        <div className="status-bar">
+          <span className="device-name">Fit@NWU</span>
+        </div>
+        <div className="app-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+          <div style={{ textAlign: 'center', color: '#888' }}>
+            <div style={{ 
+              width: '40px', 
+              height: '40px', 
+              border: '3px solid #f0f0f0', 
+              borderTop: '3px solid #007AFF', 
+              borderRadius: '50%', 
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px'
+            }}></div>
+            <p>Loading your dashboard...</p>
+          </div>
         </div>
       </div>
     );
@@ -233,9 +245,14 @@ const fetchCheckins = async (studentNumber) => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <p className="text-red-600 text-lg font-medium">{error}</p>
+      <div className="workout-app">
+        <div className="status-bar">
+          <span className="device-name">Fit@NWU</span>
+        </div>
+        <div className="app-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+          <div style={{ textAlign: 'center', color: '#ff4444' }}>
+            <p>{error}</p>
+          </div>
         </div>
       </div>
     );
@@ -243,80 +260,159 @@ const fetchCheckins = async (studentNumber) => {
 
   if (!student) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">Please log in to access your dashboard.</p>
-          <button 
-            onClick={() => window.location.href = '/login'}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Go to Login
-          </button>
+      <div className="workout-app">
+        <div className="status-bar">
+          <span className="device-name">Fit@NWU</span>
+        </div>
+        <div className="app-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '60vh' }}>
+          <div style={{ textAlign: 'center' }}>
+            <p style={{ color: '#888', marginBottom: '16px' }}>Please log in to access your dashboard.</p>
+            <button 
+              className="primary-button"
+              onClick={() => window.location.href = '/login'}
+            >
+              Go to Login
+            </button>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20 md:pb-0">
+    <div className="workout-app">
+      {/* Status Bar */}
+      <div className="status-bar">
+        <span className="device-name">Fit@NWU</span>
+        {student?.studentNumber && <span style={{ fontSize: '12px', color: '#888' }}>Student: {student.studentNumber}</span>}
+      </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="error-message">
+          {error}
+          <button onClick={() => setError(null)}>×</button>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="bg-white shadow-sm px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-white font-bold text-lg">F</span>
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold text-gray-900">
-              Welcome, {student?.name?.first} {student?.name?.last}
-            </h1>
-            <p className="text-sm text-gray-500">Fit@NWU - {student?.studentNumber}</p>
-          </div>
+      <div style={{ 
+        padding: '20px 20px 16px', 
+        borderBottom: '1px solid #eee',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <div>
+          <h1 style={{ 
+            fontSize: '24px', 
+            fontWeight: '700', 
+            color: '#333', 
+            margin: '0 0 4px 0' 
+          }}>
+            Welcome, {student?.name?.first}
+          </h1>
+          <p style={{ 
+            fontSize: '14px', 
+            color: '#888', 
+            margin: '0' 
+          }}>
+            {student?.name?.last}
+          </p>
         </div>
         
-        <div className="flex items-center space-x-3">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             onClick={() => setShowQR(!showQR)}
-            className="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+            style={{
+              background: '#f5f5f5',
+              border: 'none',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer'
+            }}
           >
-            <QrCode className="w-5 h-5 text-gray-700" />
+            <QrCode size={20} color="#666" />
           </button>
-          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-bold">
-              {student?.name?.first?.charAt(0)}{student?.name?.last?.charAt(0)}
-            </span>
+          <div style={{
+            background: '#007AFF',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontSize: '16px',
+            fontWeight: '600'
+          }}>
+            {student?.name?.first?.charAt(0)}{student?.name?.last?.charAt(0)}
           </div>
         </div>
       </div>
 
-      {/* QR Code Overlay */}
+      {/* QR Code Modal */}
       {showQR && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full text-center">
-            <h3 className="text-lg font-semibold mb-4">Your QR Code</h3>
-            <div className="w-48 h-48 mx-auto mb-4 flex items-center justify-center bg-white p-4 rounded-lg border">
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '24px',
+            maxWidth: '320px',
+            width: '100%',
+            textAlign: 'center'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '600', margin: '0 0 16px 0' }}>Your QR Code</h3>
+            <div style={{ 
+              width: '200px', 
+              height: '200px', 
+              margin: '0 auto 16px', 
+              padding: '16px',
+              border: '1px solid #eee',
+              borderRadius: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
               {qrData ? (
                 <QRCode 
                   value={qrData}
-                  size={192}
+                  size={168}
                   style={{ height: "auto", maxWidth: "100%", width: "100%" }}
-                  viewBox={`0 0 192 192`}
                 />
               ) : (
-                <QrCode className="w-32 h-32 text-gray-400" />
+                <QrCode size={100} color="#ccc" />
               )}
             </div>
-            <p className="text-sm text-gray-600 mb-2">
+            <p style={{ fontSize: '14px', color: '#666', margin: '0 0 8px 0' }}>
               <strong>Student:</strong> {student?.name?.first} {student?.name?.last}
             </p>
-            <p className="text-sm text-gray-600 mb-4">
+            <p style={{ fontSize: '14px', color: '#666', margin: '0 0 16px 0' }}>
               <strong>Number:</strong> {student?.studentNumber}
             </p>
-            <p className="text-xs text-gray-500 mb-4">
+            <p style={{ fontSize: '12px', color: '#999', margin: '0 0 20px 0' }}>
               Show this code at the gym entrance
             </p>
             <button
               onClick={() => setShowQR(false)}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+              className="primary-button"
+              style={{ width: '100%' }}
             >
               Close
             </button>
@@ -324,63 +420,120 @@ const fetchCheckins = async (studentNumber) => {
         </div>
       )}
 
-      <div className="px-4 py-6 space-y-6">
+      <div className="app-content">
         {/* Quick Stats */}
         {workoutStats && (
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-              <div className="text-2xl font-bold text-blue-600">{workoutStats.totalWorkouts}</div>
-              <div className="text-sm text-gray-600">Total Workouts</div>
-            </div>
-            <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-              <div className="text-2xl font-bold text-green-600">{workoutStats.weeklyWorkouts}</div>
-              <div className="text-sm text-gray-600">This Week</div>
-            </div>
-            <div className="bg-white rounded-xl p-4 text-center shadow-sm">
-              <div className="text-2xl font-bold text-purple-600">{workoutStats.totalTemplates}</div>
-              <div className="text-sm text-gray-600">Templates</div>
+          <div className="workout-section">
+            <h2 className="section-title">Your Stats</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '16px',
+                textAlign: 'center',
+                border: '1px solid #eee'
+              }}>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: '#007AFF' }}>
+                  {workoutStats.totalWorkouts}
+                </div>
+                <div style={{ fontSize: '12px', color: '#888' }}>Total Workouts</div>
+              </div>
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '16px',
+                textAlign: 'center',
+                border: '1px solid #eee'
+              }}>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: '#34C759' }}>
+                  {workoutStats.weeklyWorkouts}
+                </div>
+                <div style={{ fontSize: '12px', color: '#888' }}>This Week</div>
+              </div>
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '16px',
+                textAlign: 'center',
+                border: '1px solid #eee'
+              }}>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: '#AF52DE' }}>
+                  {workoutStats.totalTemplates}
+                </div>
+                <div style={{ fontSize: '12px', color: '#888' }}>Templates</div>
+              </div>
             </div>
           </div>
         )}
 
         {/* Start Your Workout */}
-        <div>
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Start Your Workout!</h2>
+        <div className="workout-section">
+          <h2 className="section-title">Start Your Workout!</h2>
           
           {/* Search Bar */}
-          <div className="relative mb-4">
-            <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 transform -translate-y-1/2" />
+          <div style={{ position: 'relative', marginBottom: '16px' }}>
+            <Search size={16} color="#999" style={{ 
+              position: 'absolute', 
+              left: '12px', 
+              top: '50%', 
+              transform: 'translateY(-50%)' 
+            }} />
             <input
               type="text"
               placeholder="Search workouts..."
-              className="w-full pl-10 pr-4 py-3 bg-gray-100 rounded-xl border-0 focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all"
+              style={{
+                width: '100%',
+                padding: '12px 12px 12px 40px',
+                background: '#f5f5f5',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '16px',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
             />
           </div>
 
           {/* Today's Goal Card */}
-          <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-2xl border border-blue-200 mb-6">
-            <div className="flex items-center justify-between">
+          <div style={{
+            background: 'linear-gradient(135deg, #007AFF 0%, #5AC8FA 100%)',
+            borderRadius: '12px',
+            padding: '20px',
+            marginBottom: '20px',
+            color: 'white'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <h3 className="font-semibold text-gray-900 mb-1">Today's Goal:</h3>
-                <p className="text-blue-700 font-medium">Achieve a PR!</p>
+                <h3 style={{ fontSize: '16px', fontWeight: '600', margin: '0 0 4px 0' }}>
+                  Today's Goal:
+                </h3>
+                <p style={{ fontSize: '14px', margin: '0', opacity: 0.9 }}>
+                  Achieve a PR!
+                </p>
               </div>
-              <div className="text-blue-400">
-                <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2L13.09 8.26L22 9L13.09 9.74L12 16L10.91 9.74L2 9L10.91 8.26L12 2Z"/>
-                </svg>
+              <div style={{ fontSize: '40px', opacity: 0.7 }}>
+                ⭐
               </div>
             </div>
           </div>
         </div>
 
         {/* Classes Section */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Classes</h3>
+        <div className="workout-section">
+          <div className="section-header">
+            <h2 className="section-title">Classes</h2>
             <select 
               value={selectedCampus} 
               onChange={(e) => setSelectedCampus(e.target.value)}
-              className="text-blue-600 text-sm font-medium bg-transparent border-none focus:ring-0"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#007AFF',
+                fontSize: '14px',
+                fontWeight: '500',
+                outline: 'none',
+                cursor: 'pointer'
+              }}
             >
               <option value="Potchefstroom">Potchefstroom</option>
               <option value="Vaal">Vaal</option>
@@ -389,88 +542,154 @@ const fetchCheckins = async (studentNumber) => {
           </div>
           
           {classes.length > 0 ? (
-            <div className="space-y-3">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {classes.slice(0, 2).map((classItem, index) => (
-                <div key={index} className="bg-gradient-to-r from-orange-100 to-orange-50 rounded-xl p-4 flex items-center space-x-4">
-                  <div className="w-16 h-16 bg-orange-200 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl">
-                      {classItem.name === 'Yoga' ? '🧘‍♀️' : 
-                       classItem.name === 'Zumba' ? '💃' : 
-                       classItem.name === 'CrossFit' ? '🏋️‍♂️' : '💪'}
-                    </span>
+                <div key={index} style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  border: '1px solid #eee',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '16px'
+                }}>
+                  <div style={{
+                    width: '48px',
+                    height: '48px',
+                    background: '#ff9500',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '20px'
+                  }}>
+                    {classItem.name === 'Yoga' ? '🧘‍♀️' : 
+                     classItem.name === 'Zumba' ? '💃' : 
+                     classItem.name === 'CrossFit' ? '🏋️‍♂️' : '💪'}
                   </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-gray-900">{classItem.name}</h4>
-                    <p className="text-sm text-gray-600">{classItem.time} • {classItem.instructor}</p>
-                    <p className="text-xs text-gray-500">{classItem.enrolled}/{classItem.capacity} enrolled</p>
+                  <div style={{ flex: 1 }}>
+                    <h4 style={{ fontSize: '16px', fontWeight: '600', margin: '0 0 4px 0' }}>
+                      {classItem.name}
+                    </h4>
+                    <p style={{ fontSize: '14px', color: '#888', margin: '0 0 2px 0' }}>
+                      {classItem.time} • {classItem.instructor}
+                    </p>
+                    <p style={{ fontSize: '12px', color: '#999', margin: '0' }}>
+                      {classItem.enrolled}/{classItem.capacity} enrolled
+                    </p>
                   </div>
-                  <Heart className="w-5 h-5 text-gray-400" />
+                  <Heart size={20} color="#ddd" />
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-gray-500 text-center py-4">No classes available for {selectedCampus}</p>
+            <p style={{ color: '#888', textAlign: 'center', padding: '20px 0' }}>
+              No classes available for {selectedCampus}
+            </p>
           )}
         </div>
 
         {/* Workouts Section */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">Workouts</h3>
-            <button className="text-blue-600 text-sm font-medium">See all</button>
+        <div className="workout-section">
+          <div className="section-header">
+            <h2 className="section-title">Workouts</h2>
+            <button style={{ background: 'none', border: 'none', color: '#007AFF', fontSize: '14px', cursor: 'pointer' }}>
+              See all
+            </button>
           </div>
           
-          <div className="grid grid-cols-3 gap-3">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '12px' }}>
             {[
-              { name: "Body Building", color: "bg-blue-100", emoji: "💪" },
-              { name: "Cardio", color: "bg-orange-100", emoji: "❤️" },
-              { name: "Pilates", color: "bg-purple-100", emoji: "🤸‍♀️" }
+              { name: "Body Building", color: "#007AFF", emoji: "💪" },
+              { name: "Cardio", color: "#FF9500", emoji: "❤️" },
+              { name: "Pilates", color: "#AF52DE", emoji: "🤸‍♀️" }
             ].map((workout, index) => (
-              <div key={index} className={`${workout.color} rounded-xl p-3 text-center cursor-pointer hover:scale-105 transition-transform`}>
-                <div className="text-2xl mb-1">{workout.emoji}</div>
-                <p className="text-xs font-medium text-gray-700">{workout.name}</p>
+              <div key={index} style={{
+                background: 'white',
+                border: '1px solid #eee',
+                borderRadius: '12px',
+                padding: '16px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                transition: 'transform 0.2s',
+                ':hover': { transform: 'scale(1.05)' }
+              }}>
+                <div style={{ fontSize: '24px', marginBottom: '8px' }}>
+                  {workout.emoji}
+                </div>
+                <p style={{ fontSize: '12px', fontWeight: '500', margin: '0', color: '#333' }}>
+                  {workout.name}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
         {/* My Workout Templates */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-lg font-semibold text-gray-900">My Workout Templates</h3>
+        <div className="workout-section">
+          <div className="section-header">
+            <h2 className="section-title">My Workout Templates</h2>
             <button
-              onClick={() => { setShowTemplateModal(true); setEditingTemplate(null); }} // ⭐ Open new template modal
-              className="text-blue-600 text-sm font-medium"
+              onClick={() => { setShowTemplateModal(true); setEditingTemplate(null); }}
+              className="add-button"
             >
               + New
             </button>
           </div>
           
           {workoutTemplates.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">No templates yet. Create your first one!</p>
+            <p style={{ color: '#888', textAlign: 'center', padding: '20px 0' }}>
+              No templates yet. Create your first one!
+            </p>
           ) : (
-            <div className="space-y-2">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {workoutTemplates.map((template) => (
-                <div key={template._id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <span className="text-lg">🏋️</span>
+                <div key={template._id} style={{
+                  background: 'white',
+                  border: '1px solid #eee',
+                  borderRadius: '12px',
+                  padding: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span style={{ fontSize: '20px' }}>🏋️</span>
                     <div>
-                      <span className="font-medium text-gray-900">{template.name}</span>
-                      <p className="text-xs text-gray-500">
+                      <span style={{ fontSize: '16px', fontWeight: '500', color: '#333' }}>
+                        {template.name}
+                      </span>
+                      <p style={{ fontSize: '12px', color: '#999', margin: '2px 0 0 0' }}>
                         {new Date(template.createdAt).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div style={{ display: 'flex', gap: '8px' }}>
                     <button 
-                      className="text-gray-400 hover:text-gray-600 p-1"
-                      onClick={() => openEditModal(template)} // ⭐ Call the new function
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: '8px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '16px'
+                      }}
+                      onClick={() => openEditModal(template)}
+                      title="Edit template"
                     >
                       ✏️
                     </button>
                     <button 
-                      className="text-gray-400 hover:text-red-500 p-1"
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: '8px',
+                        borderRadius: '6px',
+                        cursor: 'pointer',
+                        fontSize: '16px'
+                      }}
                       onClick={() => handleDeleteTemplate(template._id)}
+                      title="Delete template"
                     >
                       🗑️
                     </button>
@@ -481,16 +700,23 @@ const fetchCheckins = async (studentNumber) => {
           )}
         </div>
 
-
         {/* Recent Check-ins */}
         {checkins.length > 0 && (
-          <div className="bg-white rounded-2xl p-4 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Recent Check-ins</h3>
-            <div className="space-y-2">
+          <div className="workout-section">
+            <h2 className="section-title">Recent Check-ins</h2>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {checkins.map((checkin) => (
-                <div key={checkin._id} className="flex items-center space-x-3 p-2">
-                  <Clock className="w-4 h-4 text-gray-400" />
-                  <span className="text-sm text-gray-600 flex-1">
+                <div key={checkin._id} style={{
+                  background: 'white',
+                  border: '1px solid #eee',
+                  borderRadius: '12px',
+                  padding: '12px 16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px'
+                }}>
+                  <Clock size={16} color="#999" />
+                  <span style={{ fontSize: '14px', color: '#666', flex: 1 }}>
                     {new Date(checkin.checkInTime).toLocaleDateString()} at{" "}
                     {new Date(checkin.checkInTime).toLocaleTimeString([], {
                       hour: '2-digit',
@@ -498,12 +724,19 @@ const fetchCheckins = async (studentNumber) => {
                     })}
                   </span>
                   {checkin.isActive && (
-                    <span className="text-green-600 text-xs font-medium bg-green-100 px-2 py-1 rounded-full">
+                    <span style={{
+                      fontSize: '12px',
+                      color: '#34C759',
+                      background: '#E8F5E8',
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontWeight: '500'
+                    }}>
                       Active
                     </span>
                   )}
                   {checkin.checkOutTime && (
-                    <span className="text-gray-500 text-xs">
+                    <span style={{ fontSize: '12px', color: '#999' }}>
                       {Math.round((new Date(checkin.checkOutTime) - new Date(checkin.checkInTime)) / (1000 * 60))} min
                     </span>
                   )}
@@ -516,9 +749,31 @@ const fetchCheckins = async (studentNumber) => {
 
       {/* Workout Template Modal */}
       {showTemplateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-sm w-full">
-            <h3 className="text-lg font-semibold mb-4">
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '24px',
+            maxWidth: '320px',
+            width: '100%'
+          }}>
+            <h3 style={{ 
+              fontSize: '18px', 
+              fontWeight: '600', 
+              margin: '0 0 16px 0' 
+            }}>
               {editingTemplate ? 'Edit Workout Template' : 'Create Workout Template'}
             </h3>
             <input
@@ -532,7 +787,16 @@ const fetchCheckins = async (studentNumber) => {
                   setWorkoutName(e.target.value);
                 }
               }}
-              className="w-full p-3 border border-gray-300 rounded-lg mb-4 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              style={{
+                width: '100%',
+                padding: '12px',
+                border: '1px solid #ddd',
+                borderRadius: '8px',
+                fontSize: '16px',
+                marginBottom: '16px',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
               autoFocus
               onKeyPress={(e) => {
                 if (e.key === 'Enter') {
@@ -544,17 +808,27 @@ const fetchCheckins = async (studentNumber) => {
                 }
               }}
             />
-            <div className="flex space-x-3">
+            <div style={{ display: 'flex', gap: '12px' }}>
               <button
                 onClick={editingTemplate ? handleEditTemplate : handleAddWorkout}
                 disabled={!workoutName.trim() && (!editingTemplate || !editingTemplate.name.trim())}
-                className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+                className="primary-button"
+                style={{ flex: 1 }}
               >
                 {editingTemplate ? 'Save Changes' : 'Save'}
               </button>
               <button
                 onClick={handleModalClose}
-                className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+                style={{
+                  flex: 1,
+                  background: '#f5f5f5',
+                  color: '#333',
+                  border: 'none',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
               >
                 Cancel
               </button>
@@ -563,38 +837,178 @@ const fetchCheckins = async (studentNumber) => {
         </div>
       )}
 
-      {/* Mobile Navigation */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2 md:hidden">
-        <div className="flex justify-around">
-          <button className="flex flex-col items-center py-2 text-blue-600">
-            <Home className="w-6 h-6 mb-1" />
-            <span className="text-xs">Home</span>
-          </button>
-          <button className="flex flex-col items-center py-2 text-gray-400"
-          onClick={() => navigate("/workout")}>
-            <span className="text-xl mb-1">💪</span>
-            <span className="text-xs">Workouts</span>
-          </button>
-          <button className="flex flex-col items-center py-2 text-gray-400"
-          onClick={() => navigate("/class-bookings")}>
-            <span className="w-6 h-6 mb-1" />
-            <span className="text-xs">Classes</span>
-          </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
-            <span className="text-xl mb-1">👤</span>
-            <span className="text-xs">Profile</span>
-          </button>
-          <button className="flex flex-col items-center py-2 text-gray-400">
-            <Settings className="w-6 h-6 mb-1" />
-            <span className="text-xs">Settings</span>
-          </button>
-        </div>
+      {/* Bottom Navigation */}
+      <div className="bottom-nav">
+        <button className="nav-item active">
+          <Home size={20} />
+          <span>Home</span>
+        </button>
+        <button 
+          className="nav-item"
+          onClick={() => navigate("/workout")}
+        >
+          <span style={{ fontSize: '20px' }}>💪</span>
+          <span>Workouts</span>
+        </button>
+        <button 
+          className="nav-item"
+          onClick={() => navigate("/class-bookings")}
+        >
+          <Users size={20} />
+          <span>Classes</span>
+        </button>
+        <button className="nav-item">
+          <span style={{ fontSize: '20px' }}>👤</span>
+          <span>Profile</span>
+        </button>
+        <button className="nav-item">
+          <Settings size={20} />
+          <span>Settings</span>
+        </button>
       </div>
 
       <style jsx>{`
+        .workout-app {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          background: #f8f8f8;
+          min-height: 100vh;
+          padding-bottom: 80px;
+        }
+
+        .status-bar {
+          background: #000;
+          color: #fff;
+          padding: 8px 20px;
+          font-size: 14px;
+          font-weight: 500;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .app-content {
+          padding: 0 20px;
+        }
+
+        .workout-section {
+          margin-bottom: 24px;
+        }
+
+        .section-title {
+          font-size: 20px;
+          font-weight: 700;
+          color: #333;
+          margin: 0 0 12px 0;
+        }
+
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+        }
+
+        .primary-button {
+          background: #007AFF;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 8px;
+          font-size: 16px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        .primary-button:hover {
+          background: #0056CC;
+        }
+
+        .primary-button:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+        }
+
+        .add-button {
+          background: none;
+          border: none;
+          color: #007AFF;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+        }
+
+        .error-message {
+          background: #ffebee;
+          color: #c62828;
+          padding: 12px 16px;
+          margin: 8px 20px;
+          border-radius: 8px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 14px;
+        }
+
+        .error-message button {
+          background: none;
+          border: none;
+          color: #c62828;
+          font-size: 18px;
+          cursor: pointer;
+          padding: 0;
+          margin-left: 12px;
+        }
+
+        .bottom-nav {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          background: white;
+          border-top: 1px solid #eee;
+          padding: 8px 0;
+          display: flex;
+          justify-content: space-around;
+          align-items: center;
+          z-index: 10;
+        }
+
+        .nav-item {
+          background: none;
+          border: none;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          padding: 8px 12px;
+          cursor: pointer;
+          color: #999;
+          font-size: 12px;
+          transition: color 0.2s ease;
+        }
+
+        .nav-item.active {
+          color: #007AFF;
+        }
+
+        .nav-item:hover {
+          color: #007AFF;
+        }
+
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+
+        @media (min-width: 768px) {
+          .workout-app {
+            padding-bottom: 0;
+          }
+          
+          .bottom-nav {
+            display: none;
+          }
         }
       `}</style>
     </div>
