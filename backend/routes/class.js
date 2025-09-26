@@ -7,28 +7,62 @@ const Booking = require('../models/ClassBooking');
 
 // POST to create a new class
 router.post("/create", async (req, res) => {
-    try {
-        const { className, instructor, capacity, schedule, campus, classTime } = req.body;
-        if (!className || !instructor || !capacity || !schedule || !campus || !classTime) {
-            return res.status(400).json({ message: "All class fields are required" });
-        }
+    try {
+        // Log the request body for debugging
+        console.log("Request body received:", req.body);
 
-        const newClass = new Class({
-            className,
-            instructor,
-            capacity,
-            schedule,
-            campus,
-            classTime,
-        });
+        const { className, instructor, capacity, schedule, campus, classTime } = req.body;
 
-        await newClass.save();
-        res.status(201).json({ message: "Class created successfully", class: newClass });
+        // Check for missing or falsy required fields
+        const missingFields = [];
+        if (!className) missingFields.push("className");
+        if (!instructor) missingFields.push("instructor");
+        if (!capacity) missingFields.push("capacity");
+        if (!schedule) missingFields.push("schedule");
+        if (!campus) missingFields.push("campus");
+        if (!classTime) missingFields.push("classTime");
 
-    } catch (err) {
-        console.error("Error creating class:", err);
-        res.status(500).json({ message: "Server error creating class" });
-    }
+        if (missingFields.length > 0) {
+            return res.status(400).json({
+                message: "Missing required fields",
+                missing: missingFields,
+            });
+        }
+
+        // Additional validation for data types
+        if (typeof capacity !== "number" || capacity < 1) {
+            return res.status(400).json({
+                message: "Invalid capacity: must be a number greater than or equal to 1",
+            });
+        }
+
+        const newClass = new Class({
+            className,
+            instructor,
+            capacity,
+            schedule,
+            campus,
+            classTime,
+        });
+
+        await newClass.save();
+        res.status(201).json({ message: "Class created successfully", class: newClass });
+
+    } catch (err) {
+        // Handle Mongoose validation errors specifically
+        if (err.name === "ValidationError") {
+            const errors = Object.values(err.errors).map(e => ({
+                field: e.path,
+                message: e.message,
+            }));
+            return res.status(400).json({
+                message: "Validation failed",
+                errors,
+            });
+        }
+        console.error("Error creating class:", err);
+        res.status(500).json({ message: "Server error creating class", error: err.message });
+    }
 });
 
 // GET all available classes
