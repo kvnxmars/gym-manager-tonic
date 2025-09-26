@@ -32,19 +32,23 @@ class ClassController {
                 instructor,
                 capacity,
                 campus,
-                time,
-                duration,
+                //time,
+                //duration,
                 date,
-                location,
+                //location,
                 description,
+                schedule,
                 category,
                 image = ""
             } = req.body;
 
+            const time = schedule?.time;
+            const duration =schedule?.duration;
+
             console.log('Received request body:', req.body);
 
             //validate required fields
-            const requiredFields = [ name, instructor, capacity, campus, time, duration, date, category ];
+            const requiredFields = [ 'name', 'instructor', 'capacity', 'campus', 'date', 'category' ];
             console.log('Received fields:', requiredFields);
 
 
@@ -119,18 +123,19 @@ class ClassController {
             booked: 0,
             spaceLeft: parseInt(capacity),
             campus,
-            time,
-            duration: parseInt(duration),
+        //time,
+            //duration: parseInt(duration),
+            schedule: {
+                days: [schedule.days],
+                type: schedule.type,
+                time: schedule.time,
+                frequency: schedule.frequency,
+                duration: parseInt(schedule.duration)
+            },
             date: date ? new Date(date) : Date.now(),
             description: description || '',
-            category: category || {
-                primary: 'General',
-                level: 'Beginner',
-                intensity: 'Low'
-            },
+            category: categoryObj,
             image,
-            bookedStudents: [],
-            instructorDetails: { name: instructor, contact: '', specialty: 'Other', photo: ''}
             });
 
             await newClass.save();
@@ -438,8 +443,8 @@ class ClassController {
             const { classId } = req.params;
             const updateData = req.body;
 
-            const updatedClass = await Class.findByIdAndUpdate(
-                classId,
+            const updatedClass = await Class.findOneAndUpdate(
+                {classId: classId },
                 { $set: updateData },
                 { new: true, runValidators: true }
             );
@@ -466,13 +471,13 @@ class ClassController {
         try {
             const { classId } = req.params;
 
-            const cls = await Class.findByIdAndDelete(classId);
+            const cls = await Class.findOneAndDelete(classId);
             if (!cls) {
                 return res.status(404).json({ message: "Class not found." });
             }
 
             await Booking.updateMany(
-                { 'class.id': classId },
+                { 'classId': classId },
                 { $set: 
                     { 
                     'booking.status': 'cancelled',
