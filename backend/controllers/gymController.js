@@ -1,5 +1,7 @@
 const CheckIn = require("../models/CheckIns");
 
+
+
 // Simple stats (total visits, last 10 check-ins)
 exports.getStats = async (req, res) => {
   try {

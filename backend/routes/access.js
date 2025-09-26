@@ -1,11 +1,18 @@
 const express = require("express");
-const { createCheckIn } = require("../controllers/checkInController");
+//const { createCheckIn } = require("../controllers/checkInController");
 const router = express.Router();
-const studentSchema = require("../models/Student");
+
+//models
+const Student = require("../models/Student");
+const CheckIn = require("../models/CheckIns");
+
+// =========================
+// 🔹 READ
+// =========================
 
 
 // Check-in
-router.post("/checkin", async (req, res) => {
+router.post("/checkin/:studentNumber", async (req, res) => {
   try {
     const { studentNumber } = req.body;
     const student = await Student.findOne({ studentNumber });
@@ -30,7 +37,7 @@ router.post("/checkin", async (req, res) => {
 });
 
 // Check-out
-router.post("/checkout", async (req, res) => {
+router.post("/checkout/:studentNumber", async (req, res) => {
   try {
     const { studentNumber } = req.body;
     const student = await Student.findOne({ studentNumber });

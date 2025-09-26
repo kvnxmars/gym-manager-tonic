@@ -1,45 +1,126 @@
 const mongoose = require('mongoose');
+const { campusData }  = require('../data/campusData');
 
-// Schema for a gym class and its details
-const ClassSchema = new mongoose.Schema({
-    className: {
+
+//extract campus names/ID for validation
+const validCampusIds = campusData.campuses.map(campus => campus.id); 
+
+//class schema
+const classSchema = new mongoose.Schema({
+    // Unique identifier for the class
+    classId: {
         type: String,
-        required: [true, 'Class name is required'],
-        trim: true,
+        maxLength: 8,
+        unique: true,
+        required: true
     },
-    instructor: {
+    // Name of the class
+    name: {
         type: String,
-        required: [true, 'Instructor name is required'],
-        trim: true,
+        required: true
     },
+    // Description of the class
+    description: {
+        type: String,
+        default: ''
+    },
+
+    date: {
+        type: Date,
+        required: true
+    },
+
     capacity: {
         type: Number,
-        required: [true, 'Capacity is required'],
-        min: [1, 'Capacity must be at least 1']
+        required: true
     },
-    schedule: {
-        type: String,
-        required: [true, 'Schedule is required'],
-        trim: true,
-    },
+
     campus: {
         type: String,
-        required: [true, 'Campus is required'],
-        trim: true,
+        required:true,
+        enum: validCampusIds
     },
-    classTime: {
-        type: String,
-        required: [true, 'Class time is required'],
-    },
-    // Track the number of current bookings to enforce capacity limits
-    bookedCount: {
-        type: Number,
-        default: 0
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
-});
 
-module.exports = mongoose.model('Class', ClassSchema);
+    //class classification
+    category: {
+        primary: {
+            type: String,
+            required: true
+        },
+        level: {
+            type: String,
+            enum: ['Beginner', 'Intermediate', 'Advanced'],
+            required: true
+        },
+        intensity: {
+            type: String,
+            enum: ['Low', 'Medium', 'High'],
+            required: true
+        }
+
+    },
+
+    //instructor details
+    instructor: {
+        name: {
+            type: String,
+            required: true
+        },
+        contact: {
+            type: String,
+            default: ''
+        },
+        specialty: {
+            type: String,
+            enum: ['Yoga', 'Pilates', 'Cardio', 'Strength Training', 'Dance', 'HIIT', 'Cycling', 'Other'],
+            default: 'Other'
+        },
+        
+        photo: {
+            type: String,
+            default: ''
+        },
+
+        rating: {
+            type: Number,
+            min: 0,
+            max: 5,
+            default: null
+        },
+
+        totalRatings: {
+            type: Number,
+            default: 0
+        }
+    },
+
+    //schedule details
+    schedule: {
+        days: [{
+            type: String,
+            enum: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        }],
+        type: {
+            type: String,
+            enum: ['In-Person', 'Virtual', 'Hybrid'],
+            required: true
+        },
+        frequency: {
+            type: String,
+            enum: ['Once', 'Weekly', 'Bi-Weekly', 'Monthly'],
+            required: true
+        },
+        time: {
+            type: String,
+            required: true
+        },
+        duration: {
+            type: Number, //in minutes
+            required: true
+        }
+    }
+
+    
+    });
+
+    module.exports = mongoose.models.Class || mongoose.model('Class', classSchema); // Create Class model

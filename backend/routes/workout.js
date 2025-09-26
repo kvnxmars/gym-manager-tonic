@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Workout = require("../models/Workout");
+const Workout = require("../models/WorkoutSession");
 const workoutController = require("../controllers/workoutController");
 
 // POST /api/workouts → log a workout

@@ -1,17 +1,21 @@
+/* eslint-disable */
 import React, { useState } from "react";
-import "../styles/Auth.css"; // shared CSS
 import { Link, useNavigate } from "react-router-dom";
+import "../../styles/Auth.css";
 
-// Backend API base URL (adjust if needed)
 const API_URL = "http://localhost:5000/api";
 
-export default function SignInPage() {
+export default function SignupPage() {
   const navigate = useNavigate();
 
-  // Form state for login
+  // Signup form state
   const [formData, setFormData] = useState({
     studentNumber: "",
+    firstName: "",
+    lastName: "",
+    email: "",
     password: "",
+    confirmPassword: "",
   });
 
   // UI state
@@ -19,20 +23,26 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Update form state
-  const handleChange = (e) => {
+  // Update form
+  const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
-  // Handle login submit
+  // Submit signup form
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Ensure password match
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     try {
-      // Send POST request to backend /signin
-      const res = await fetch(`${API_URL}/auth/login`, {
+      // Send POST request to backend /signup endpoint
+      const res = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -40,18 +50,10 @@ export default function SignInPage() {
 
       const data = await res.json();
 
-      // If login failed
-      if (!res.ok) {
-        throw new Error(data.message || "Signin failed");
-      }
+      if (!res.ok) throw new Error(data.message || "Signup failed");
 
-      // Save token + student info in localStorage (so PWA can persist login)
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("student", JSON.stringify(data.student));
-
-      // Redirect to dashboard (once created)
-      //alert("Login successful! 🎉");
-      navigate("/student-dashboard");
+      alert("Signup successful! Please sign in.");
+      navigate("/"); // go to login
     } catch (err) {
       setError(err.message);
     } finally {
@@ -63,11 +65,9 @@ export default function SignInPage() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-card-form">
-          <h2 className="title">Fit@NWU Signin</h2>
+          <h2 className="title">Fit@NWU Signup</h2>
 
-          {/* Signin form */}
           <form className="form" onSubmit={handleSubmit}>
-            {/* Student Number */}
             <input
               className="input"
               type="text"
@@ -78,7 +78,37 @@ export default function SignInPage() {
               required
             />
 
-            {/* Password with emoji toggle */}
+            <input
+              className="input"
+              type="text"
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+            />
+
+            <input
+              className="input"
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+            />
+
+            <input
+              className="input"
+              type="email"
+              name="email"
+              placeholder="University Email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+
+            {/* Password with toggle */}
             <div className="input-container">
               <input
                 className="input"
@@ -97,18 +127,25 @@ export default function SignInPage() {
               </span>
             </div>
 
-            {/* Error message */}
+            <input
+              className="input"
+              type={showPassword ? "text" : "password"}
+              name="confirmPassword"
+              placeholder="Confirm Password 🔑"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+
             {error && <p className="error-text">{error}</p>}
 
-            {/* Submit button */}
             <button className="submit-btn" type="submit" disabled={loading}>
-              {loading ? "Signing in..." : "Sign In"}
+              {loading ? "Signing up..." : "Sign Up"}
             </button>
           </form>
 
-          {/* Switch to Signup */}
           <p className="switch-link">
-            Don’t have an account? <Link to="/signup">Sign up</Link>
+            Already have an account? <Link to="/">Sign in</Link>
           </p>
         </div>
       </div>
