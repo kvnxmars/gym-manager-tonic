@@ -17,11 +17,27 @@ body {
   overflow: hidden;
 }
 
-/* Main App Container */
+/* --- Responsive Improvements --- */
+
+/* Use relative units for paddings, font-sizes, and spacing */
+:root {
+  font-size: 16px;
+}
+
+body {
+  font-size: 1rem;
+}
+
+/* Main App Container: always fill viewport, max 600px on desktop */
 .workout-app {
-  width: 393px;
-  height: 852px;
+  width: 100vw;
+  height: 100vh;
+  max-width: 600px;
+  max-height: 100vh;
   margin: 0 auto;
+  border-radius: 0;
+  min-width: 0;
+  min-height: 0;
   background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #C084FC 100%);
   position: relative;
   overflow: hidden;
@@ -61,7 +77,7 @@ body {
 
 /* App Content */
 .app-content {
-  padding: 20px;
+  padding: 1.25rem;
   height: calc(100vh - 140px);
   overflow-y: auto;
   scrollbar-width: none;
@@ -141,9 +157,8 @@ body {
 .templates-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
-  margin-top: 0;
-  padding: 0 20px;
+  gap: 1rem;
+  padding: 0 1.25rem;
 }
 
 .template-card {
@@ -217,7 +232,7 @@ body {
 
 /* Workout Content */
 .workout-content {
-  padding: 0 20px 100px 20px;
+  padding: 1.25rem;
   height: calc(100vh - 200px);
   overflow-y: auto;
   scrollbar-width: none;
@@ -437,76 +452,13 @@ body {
   }
 }
 
-/* Responsive: Tablet and Desktop */
-@media (min-width: 415px) {
+/* Tablet/Desktop: rounded corners and centered */
+@media (min-width: 601px) {
   .workout-app {
-    width: 100vw;
-    height: 100vh;
+    border-radius: 24px;
+    margin: 2rem auto;
     max-width: 600px;
     max-height: 100vh;
-    margin: 0 auto;
-    border-radius: 24px;
-  }
-}
-
-/* Responsive: Small Tablets and Large Phones */
-@media (max-width: 600px) {
-  .workout-app {
-    width: 100vw;
-    height: 100vh;
-    border-radius: 0;
-    min-width: 0;
-    min-height: 0;
-  }
-  .app-content,
-  .workout-content {
-    padding: 10px;
-  }
-  .templates-grid {
-    grid-template-columns: 1fr;
-    padding: 0 5px;
-    gap: 10px;
-  }
-  .template-card {
-    padding: 20px 10px;
-    min-height: 90px;
-    font-size: 14px;
-  }
-  .section-title,
-  .workout-title {
-    font-size: 18px;
-  }
-  .primary-button,
-  .add-set-button {
-    padding: 12px;
-    font-size: 15px;
-  }
-  .nav-item {
-    width: 48px;
-    height: 48px;
-    font-size: 20px;
-  }
-  .bottom-nav {
-    height: 70px;
-    padding-bottom: 8px;
-  }
-}
-
-/* Responsive: Very Small Devices */
-@media (max-width: 375px) {
-  .section-title,
-  .workout-title {
-    font-size: 16px;
-  }
-  .primary-button,
-  .add-set-button {
-    font-size: 13px;
-    padding: 10px;
-  }
-  .nav-item {
-    width: 40px;
-    height: 40px;
-    font-size: 16px;
   }
 }
 
