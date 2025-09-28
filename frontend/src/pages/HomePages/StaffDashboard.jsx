@@ -1,29 +1,33 @@
-// src/pages/StaffDashboard.js
+// src/pages/HomePages/StaffDashboard.jsx
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import "../../styles/dashboard.css"; // note: capitalized to match earlier
+import "../../styles/dashboard.css";
 import { Html5QrcodeScanner } from "html5-qrcode";
-const API_URL = "http://localhost:5000/api"; // official backend URL
+
+const API_URL = "http://localhost:5000/api";
 
 const StaffDashboard = () => {
   const [occupancy, setOccupancy] = useState(0);
   const [recentCheckins, setRecentCheckins] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [showScanner, setShowScanner] = useState(false);
 
   // Fetch insights on mount
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Get gym occupancy
-        const occRes = await axios.get("{API_URL}/occupancy");
-        setOccupancy(occRes.data.currentOccupancy);
-
-        // Get recent check-ins (for now hardcoded student)
-        const checkinRes = await axios.get("{API_URL}/checkins");
-        setRecentCheckins(checkinRes.data.checkIns.slice(0, 5));
-      } catch (error) {
-        console.error("Error loading staff insights:", error);
+        // Added timeout and error handling for each request
+        const [occRes, checkinRes] = await Promise.all([
+          axios.get(`${API_URL}/gym/occupancy`, { timeout: 5000 }),
+          axios.get(`${API_URL}/admin/checkins`, { timeout: 5000 })
+        ]);
+        
+        setOccupancy(occRes.data.currentOccupancy || 0);
+        setRecentCheckins(checkinRes.data?.slice(0, 5) || []);
+      } catch (err) {
+        console.error("Error loading staff insights:", err);
+        setError("Failed to load dashboard data. Please check if the server is running.");
       } finally {
         setLoading(false);
       }
@@ -32,10 +36,13 @@ const StaffDashboard = () => {
     fetchData();
   }, []);
 
-  // Initialize QR scanner only when showScanner is true
+  // QR Scanner
   useEffect(() => {
-    if (showScanner) {
-      const scanner = new Html5QrcodeScanner("staff-reader", {
+    if (!showScanner) return;
+
+    let scanner;
+    try {
+      scanner = new Html5QrcodeScanner("staff-reader", {
         fps: 10,
         qrbox: 250,
       });
@@ -45,24 +52,37 @@ const StaffDashboard = () => {
           try {
             const studentData = JSON.parse(decodedText);
             alert(`✅ Checked in: ${studentData.name} (${studentData.studentNumber})`);
-
-            // Example: call backend check-in
-            // axios.post("http://localhost:5000/api/checkin", studentData);
-
-            setShowScanner(false); // hide scanner after success
+            
+            // Optional: Send to backend
+            // axios.post(`${API_URL}/admin/checkin-qr`, { 
+            //   studentNumber: studentData.studentNumber 
+            // });
+            
+            setShowScanner(false);
           } catch (err) {
-            alert("Invalid QR Code");
+            alert("Invalid QR Code format");
           }
         },
-        (error) => {
-          console.warn("QR scan error:", error);
+        (scanError) => {
+          // Don't show alert for common scanning errors
+          if (scanError !== "QR code parse error, error = NotFoundException") {
+            console.warn("QR scan error:", scanError);
+          }
         }
       );
-
-      return () => {
-        scanner.clear().catch((err) => console.error("Scanner clear error:", err));
-      };
+    } catch (err) {
+      console.error("Failed to initialize QR scanner:", err);
+      setError("QR scanner failed to initialize");
+      setShowScanner(false);
     }
+
+    return () => {
+      if (scanner) {
+        scanner.clear().catch((err) => 
+          console.error("Scanner clear error:", err)
+        );
+      }
+    };
   }, [showScanner]);
 
   return (
@@ -70,16 +90,18 @@ const StaffDashboard = () => {
       <h1 className="dashboard-title">Staff Dashboard</h1>
 
       {loading ? (
-        <p>Loading insights...</p>
+        <div className="loading">Loading insights...</div>
+      ) : error ? (
+        <div className="error-text">{error}</div>
       ) : (
         <div className="dashboard-grid">
-          {/* Gym occupancy */}
+          {/* Occupancy */}
           <div className="dashboard-card">
             <h2>Gym Occupancy</h2>
-            <p>{occupancy} students currently inside</p>
+            <p className="occupancy-count">{occupancy} students currently inside</p>
           </div>
 
-          {/* Membership insights (placeholder) */}
+          {/* Membership */}
           <div className="dashboard-card">
             <h2>Membership Status</h2>
             <p>All active students: Coming soon</p>
@@ -91,7 +113,10 @@ const StaffDashboard = () => {
             {showScanner ? (
               <div id="staff-reader" style={{ width: "100%" }}></div>
             ) : (
-              <button onClick={() => setShowScanner(true)} className="dashboard-btn">
+              <button
+                onClick={() => setShowScanner(true)}
+                className="dashboard-btn primary"
+              >
                 📷 Scan QR Code
               </button>
             )}
@@ -100,14 +125,22 @@ const StaffDashboard = () => {
           {/* Recent Check-ins */}
           <div className="dashboard-card">
             <h2>Recent Check-ins</h2>
-            <ul>
-              {recentCheckins.map((c) => (
-                <li key={c._id}>
-                  Checked in at {new Date(c.checkInTime).toLocaleTimeString()}{" "}
-                  {c.isActive ? "(Still inside)" : ""}
-                </li>
-              ))}
-            </ul>
+            {recentCheckins.length > 0 ? (
+              <ul className="checkins-list">
+                {recentCheckins.map((c, index) => (
+                  <li key={c._id || index} className="checkin-item">
+                    <span className="time">
+                      {new Date(c.checkInTime).toLocaleTimeString()}
+                    </span>
+                    {!c.checkOutTime && (
+                      <span className="active-badge">(Still inside)</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="no-data">No check-ins yet.</p>
+            )}
           </div>
         </div>
       )}
