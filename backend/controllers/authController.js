@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Student = require("../models/Student");
-//const Staff = require("../models/Staff");
+const Staff = require("../models/Staff");
 
 const JWT_SECRET = process.env.JWT_SECRET || "tonic.key";
 
@@ -84,7 +84,7 @@ exports.studentLogin = async (req, res) => {
 // ----------------------
 // Staff Login
 // ----------------------
-/*exports.staffLogin = async (req, res) => {
+exports.staffLogin = async (req, res) => {
   try {
     const { staffNumber, password } = req.body;
 
@@ -99,14 +99,15 @@ exports.studentLogin = async (req, res) => {
     if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
     // ✅ Create JWT
-    const token = jwt.sign({ id: staff._id, role: "staff" }, JWT_SECRET, {
+    //will return staff for everyone
+    const token = jwt.sign({ id: staff._id, role: staff.role }, JWT_SECRET, {
       expiresIn: "1h",
     });
 
     return res.status(200).json({
       message: "Login successful!",
       token,
-      staff: {
+      role: {
         id: staff._id,
         staffNumber: staff.staffNumber,
         name: staff.name,
@@ -117,4 +118,4 @@ exports.studentLogin = async (req, res) => {
     console.error("Staff login error:", error);
     res.status(500).json({ message: "An error occurred during login." });
   }
-};*/
+};

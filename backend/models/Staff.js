@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 // Helper regex for email validation
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 // Staff schema
 const staffSchema = new mongoose.Schema({
