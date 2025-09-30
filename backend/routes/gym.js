@@ -1,6 +1,7 @@
 const express = require("express");
 const { getStats } = require("../controllers/gymController");
 const router = express.Router();
+const CheckIn = require("../models/CheckIns");
 
 // Gym occupancy
 router.get("/occupancy", async (req, res) => {

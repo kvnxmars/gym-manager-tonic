@@ -3,12 +3,9 @@ const express = require("express");
 const router = express.Router();
 
 const Student = require("../models/Student");
-const CheckIn = require("../models/CheckIns");
+const CheckIn = require("../models/CheckIns"); // ✅ point to CheckIns.js
 
-// ================== ADMIN ROUTES ================== //
-
-// ✅ POST: QR Check-in
-// Body: { studentNumber: "12345" }
+// POST: QR Check-in
 router.post("/checkin-qr", async (req, res) => {
   try {
     const { studentNumber } = req.body;
@@ -21,17 +18,14 @@ router.post("/checkin-qr", async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    // Check if student is already checked in
+    // Check if student is already inside
     const active = await CheckIn.findOne({
       studentId: student._id,
       checkOutTime: null,
     });
 
     if (active) {
-      return res.status(400).json({
-        message: "Student already checked in",
-        active,
-      });
+      return res.status(400).json({ message: "Student already checked in", active });
     }
 
     const checkIn = new CheckIn({
@@ -51,7 +45,7 @@ router.post("/checkin-qr", async (req, res) => {
   }
 });
 
-// ✅ GET: Get all check-ins for a specific student
+// GET: Get all check-ins for a specific student
 router.get("/checkins/:studentNumber", async (req, res) => {
   try {
     const { studentNumber } = req.params;
@@ -60,8 +54,7 @@ router.get("/checkins/:studentNumber", async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    const history = await CheckIn.find({ studentId: student._id })
-      .sort({ checkInTime: -1 });
+    const history = await CheckIn.find({ studentId: student._id }).sort({ checkInTime: -1 });
 
     res.json({
       student: {
@@ -76,7 +69,7 @@ router.get("/checkins/:studentNumber", async (req, res) => {
   }
 });
 
-// ✅ GET: Get all check-ins (with optional date range)
+// GET: Get all check-ins (optionally filter by date range)
 router.get("/checkins", async (req, res) => {
   try {
     const { from, to } = req.query;
