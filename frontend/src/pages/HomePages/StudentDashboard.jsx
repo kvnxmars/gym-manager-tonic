@@ -676,7 +676,7 @@ const StudentDashboard = () => {
                       }}
                       onClick={() => openEditModal(template)}
                       title="Edit template"
-                    >
+                    >P
                       ✏️
                     </button>
                     <button 

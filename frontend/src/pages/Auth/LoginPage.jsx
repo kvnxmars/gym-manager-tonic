@@ -51,12 +51,19 @@ export default function SignInPage() {
 
       // Redirect to dashboard (once created)
       //alert("Login successful! 🎉");
+     // Redirect based on role
+    if (data.user.role === "student") {
       navigate("/student-dashboard");
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+    } else if (data.user.role === "staff" || data.user.role === "admin") {
+      navigate("/staff-dashboard");
+    } else {
+      setError("Unknown user role.");
     }
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
   };
 
   return (
