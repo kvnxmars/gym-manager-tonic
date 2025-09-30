@@ -26,6 +26,7 @@ const Student = require("./models/Student");
 const CheckIn = require("./models/CheckIns");
 
 // ================== ROUTES ================== //
+
 const authRoutes = require("./routes/auth");
 const accessRoutes = require("./routes/access");
 const studentRoutes = require("./routes/student")
@@ -77,6 +78,7 @@ const adminRoutes = require("./routes/adminRoutes");
 });*/
 
 // Use routes
+app.use("/api/admin", adminRoutes); // Admin routes (checkins, qr check-in, etc.)
 app.use("/api/auth", authRoutes); // Auth routes
 app.use("/api/access", accessRoutes); // Access control routes
 app.use("/api/workouts", workoutRoutes); // Workout routes

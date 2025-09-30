@@ -1,19 +1,19 @@
-const mongoose = require('mongoose');
+// backend/models/CheckIns.js
+const mongoose = require("mongoose");
 
 const checkInSchema = new mongoose.Schema({
   studentId: { 
-    type: mongoose.Schema.Types.ObjectId,  // use ObjectId instead of String
-    ref: 'Student',
-    required: true
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: "Student", 
+    required: true 
   },
   checkInTime: { 
     type: Date, 
-    default: Date.now,  // auto-fill when created
     required: true 
   },
   checkOutTime: { 
     type: Date, 
-    default: null       // ✅ allow null until checkout
+    default: null // null means student still inside
   },
   createdAt: { 
     type: Date, 
@@ -21,4 +21,4 @@ const checkInSchema = new mongoose.Schema({
   }
 });
 
-module.exports = mongoose.models.CheckIn || mongoose.model('CheckIn', checkInSchema);
+module.exports = mongoose.model("CheckIn", checkInSchema);

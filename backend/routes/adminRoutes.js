@@ -1,11 +1,10 @@
-// backend/routes/adminRoutes.js
 const express = require("express");
 const router = express.Router();
 
 const Student = require("../models/Student");
-const CheckIn = require("../models/CheckIns"); // ✅ point to CheckIns.js
+const CheckIn = require("../models/CheckIns");
 
-// POST: QR Check-in
+// ✅ POST: QR Check-in
 router.post("/checkin-qr", async (req, res) => {
   try {
     const { studentNumber } = req.body;
@@ -18,14 +17,13 @@ router.post("/checkin-qr", async (req, res) => {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    // Check if student is already inside
     const active = await CheckIn.findOne({
       studentId: student._id,
       checkOutTime: null,
     });
 
     if (active) {
-      return res.status(400).json({ message: "Student already checked in", active });
+      return res.status(400).json({ message: "Student already checked in" });
     }
 
     const checkIn = new CheckIn({
@@ -35,59 +33,66 @@ router.post("/checkin-qr", async (req, res) => {
 
     await checkIn.save();
 
-    res.status(201).json({
-      message: "✅ Check-in successful",
-      checkIn,
-    });
+    res.status(201).json({ message: "✅ Check-in successful", checkIn });
   } catch (err) {
     console.error("Admin checkin error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// GET: Get all check-ins for a specific student
-router.get("/checkins/:studentNumber", async (req, res) => {
+// ✅ GET: All check-ins
+router.get("/checkins", async (req, res) => {
   try {
-    const { studentNumber } = req.params;
+    const results = await CheckIn.find()
+      .sort({ checkInTime: -1 })
+      .populate("studentId", "studentNumber firstName lastName email");
+    res.json(results);
+  } catch (err) {
+    console.error("Admin get all checkins error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ✅ GET: Active students (still inside)
+router.get("/active", async (req, res) => {
+  try {
+    const active = await CheckIn.find({ checkOutTime: null })
+      .populate("studentId", "studentNumber firstName lastName email");
+    res.json(active);
+  } catch (err) {
+    console.error("Admin active error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// ✅ POST: Manual checkout
+router.post("/checkout", async (req, res) => {
+  try {
+    const { studentNumber } = req.body;
+    if (!studentNumber) {
+      return res.status(400).json({ message: "Missing studentNumber" });
+    }
+
     const student = await Student.findOne({ studentNumber });
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }
 
-    const history = await CheckIn.find({ studentId: student._id }).sort({ checkInTime: -1 });
-
-    res.json({
-      student: {
-        id: student._id,
-        studentNumber: student.studentNumber,
-      },
-      history,
+    const active = await CheckIn.findOne({
+      studentId: student._id,
+      checkOutTime: null,
     });
-  } catch (err) {
-    console.error("Admin history error:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
 
-// GET: Get all check-ins (optionally filter by date range)
-router.get("/checkins", async (req, res) => {
-  try {
-    const { from, to } = req.query;
-    const filter = {};
-
-    if (from || to) {
-      filter.checkInTime = {};
-      if (from) filter.checkInTime.$gte = new Date(from);
-      if (to) filter.checkInTime.$lte = new Date(to);
+    if (!active) {
+      return res.status(400).json({ message: "Student is not currently checked in" });
     }
 
-    const results = await CheckIn.find(filter)
-      .sort({ checkInTime: -1 })
-      .populate("studentId", "studentNumber name email");
+    active.checkOutTime = new Date();
+    await active.save();
 
-    res.json(results);
+    res.json({ message: "✅ Student checked out", checkout: active });
   } catch (err) {
-    console.error("Admin get all checkins error:", err);
+    console.error("Admin checkout error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
