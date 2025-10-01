@@ -61,5 +61,7 @@ class workoutController {
             console.error("Error fetching workout stats:", err);
             res.status(500).json({ message: "Server error", error: err.message });
         }
+        module.exports = workoutController;
     };
+    
 }

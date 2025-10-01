@@ -14,6 +14,9 @@ router.post("/", async (req, res) => {
   }
 });
 
+// Define a GET route for fetching workout statistics for a specific student
+router.get('/stats/:studentNumber', workoutController.getWorkoutStats);
+
 // GET /api/workouts/:userId → get all workouts for a student
 router.get("/:userId", async (req, res) => {
   try {
@@ -23,8 +26,10 @@ router.get("/:userId", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+// GET /api/workouts/stats/:studentNumber → get workout statistics
 
-// Define a GET route for fetching workout statistics for a specific student
-router.get('/stats/:studentNumber', workoutController.getWorkoutStats);
+
+
+
 
 module.exports = router;
