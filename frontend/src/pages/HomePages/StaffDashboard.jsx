@@ -359,44 +359,38 @@ const handleDeleteClass = async (classId) => {
             <div className="class-list" style={{ display: "grid", gap: "1rem" }}>
               {classes.length > 0 ? (
                 classes.map((cls) => (
-                  <div key={cls._id} className="class-card" style={{
-                    border: "1px solid #e0e0e0",
-                    borderRadius: "8px",
-                    padding: "1rem",
-                    background: "#fff",
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.03)"
-                  }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div>
-                        <strong style={{ fontSize: "1.2rem" }}>{cls.name}</strong>
-                        <span style={{ marginLeft: "0.5rem", color: "#888" }}>
-                          ({cls.category?.level}, {cls.category?.intensity})
-                        </span>
-                      </div>
-                      <div>
-                     
-                      </div>
-                    </div>
+                                  <div key={cls._id} className="class-card">
+                    <strong>{cls.name}</strong> - {cls.category?.level} ({cls.category?.intensity})<br />
+                    Instructor: {cls.instructor?.name} | Capacity: {cls.capacity}<br />
+                    Schedule: {cls.schedule?.days?.join(", ")} {cls.schedule?.time} ({cls.schedule?.type})
+
                     <div style={{ marginTop: "0.5rem" }}>
-                      <span>Instructor: <b>{cls.instructor?.name}</b></span> | 
-                      <span> Capacity: <b>{cls.capacity}</b></span>
+                      <button
+                        className="dashboard-btn small"
+                        onClick={() => {
+                          setEditingClass(cls);
+                          setShowClassForm(true);
+                        }}
+                      >
+                        ✏️ Update
+                      </button>
+                      <button
+                        className="dashboard-btn small danger"
+                        onClick={async () => {
+                          if (!window.confirm(`Delete class "${cls.name}"?`)) return;
+                          try {
+                            await axios.delete(`${API_URL}/classes/delete/${cls._id}`);
+                            setClasses(prev => prev.filter(c => c._id !== cls._id));
+                            alert("✅ Class deleted successfully!");
+                          } catch (err) {
+                            console.error(err);
+                            alert("❌ Failed to delete class");
+                          }
+                        }}
+                      >
+                        🗑️ Delete
+                      </button>
                     </div>
-                    <div style={{ marginTop: "0.5rem", color: "#555" }}>
-                      <span>Schedule: {cls.schedule?.days?.join(", ")} {cls.schedule?.time} ({cls.schedule?.type})</span>
-                    </div>
-                    <details style={{ marginTop: "0.5rem" }}>
-                      <summary style={{ cursor: "pointer" }}>More Details</summary>
-                      <div style={{ marginTop: "0.5rem" }}>
-                        <p>Description: {cls.description}</p>
-                        {/* campus removed from classes */}
-                        <p>Instructor Specialty: {cls.instructor?.specialty}</p>
-                        <p>Instructor Contact: {cls.instructor?.contact}</p>
-                        <p>Instructor Rating: {cls.instructor?.rating} ({cls.instructor?.totalRatings} ratings)</p>
-                        <p>Schedule Frequency: {cls.schedule?.frequency}</p>
-                        <p>Duration: {cls.schedule?.duration} min</p>
-                        <p>Date: {cls.date ? new Date(cls.date).toLocaleDateString() : ""}</p>
-                      </div>
-                    </details>
                   </div>
                 ))
               ) : (
