@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
-const { campusData }  = require('../data/campusData');
-
-
-//extract campus names/ID for validation
-const validCampusIds = campusData.campuses.map(campus => campus.id); 
+// class schema
 
 //class schema
 const classSchema = new mongoose.Schema({
@@ -35,11 +31,7 @@ const classSchema = new mongoose.Schema({
         required: true
     },
 
-    campus: {
-        type: String,
-        required:true,
-        enum: validCampusIds
-    },
+    // campus field removed — campus management deprecated
 
     //class classification
     category: {

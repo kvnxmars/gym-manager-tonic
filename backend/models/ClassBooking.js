@@ -15,9 +15,7 @@ const ClassBookingSchema = new mongoose.Schema({
     required: true 
 },
   campus:  {
-    type: String, 
-    required: true 
-},
+  // campus removed from booking record
   
   
   time: { 
@@ -40,6 +38,7 @@ const ClassBookingSchema = new mongoose.Schema({
   bookedAt: { 
     type: Date, 
     default: Date.now 
+}
 }
 });
 

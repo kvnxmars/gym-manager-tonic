@@ -12,7 +12,8 @@ class ClassController {
     //GET api/classes/campuses - Get all campuses
     static async getCampuses(req, res) {
         try {
-            res.json({ campuses });
+            // Campus management removed; return empty list to keep API stable
+            res.json({ campuses: [] });
         }
         catch (err) {
             console.error("Error fetching campuses:", err);
@@ -31,7 +32,6 @@ class ClassController {
                 name,
                 instructor,
                 capacity,
-                campus,
                 time,
                 duration,
                 date,
@@ -43,11 +43,13 @@ class ClassController {
 
             console.log('Received request body:', req.body);
 
+            // campus has been deprecated/removed from classes — ignore any campus value sent by clients
+
             // Determine whether a full schedule object was provided
             const scheduleProvided = !!req.body.schedule;
 
             // Build list of required field NAMES (strings) depending on payload shape
-            const requiredNames = ['name', 'instructor', 'capacity', 'campus', 'date', 'category'];
+            const requiredNames = ['name', 'instructor', 'capacity', 'date', 'category'];
             if (!scheduleProvided) {
                 // If no schedule object, time and duration are required
                 requiredNames.push('time', 'duration');
@@ -128,7 +130,6 @@ class ClassController {
                 description: description || '',
                 date: date ? new Date(date) : Date.now(),
                 capacity: parseInt(capacity),
-                campus,
                 category: categoryObj,
                 instructor: instructorDetails,
                 schedule: scheduleObj,
@@ -156,10 +157,10 @@ class ClassController {
     }
 
     //GET api/classes - all classes despite campus
-    static async getAllClasses(req, res) {
+   /* static async getAllClasses(req, res) {
         try {
-            const { date, campus } = req.query;
-            let filter = { status: 'active' };
+            const { date } = req.query;
+            let filter = {};
 
             if (date) {
                 const searchDate = new Date(date);
@@ -169,10 +170,6 @@ class ClassController {
                     $gte: searchDate, 
                     $lt: nextDay 
                 };
-            }
-
-            if (campus) {
-                filter.campus = campus;
             }
 
             const classes = await Class.find(filter)
@@ -190,18 +187,13 @@ class ClassController {
         }
 
     
-    }
-    
-    //GET /api/classes/campus/:campusName - Get classes by campus
-    static async getClassesByCampus(req, res) {
-        try {
-            const { campusName } = req.params; // Campus name from URL parameter
-            const { date } = req.query; // Optional date filter
+    } */
 
-            let filter = {
-                campus: campusName,
-                status: 'active'
-            };
+    //GET api/classes - all classes
+    static async getAllClasses(req, res) {
+        try {
+            const { date } = req.query;
+            let filter = {};
 
             if (date) {
                 const searchDate = new Date(date);
@@ -213,17 +205,33 @@ class ClassController {
                 };
             }
 
+            // Fetch classes only; no populate
             const classes = await Class.find(filter)
-                .populate('bookedStudents', 'studentNumber name.first name.last') // Populate bookedStudents with studentNumber and name
-                .sort({ date: 1, time: 1 }); // Sort by date and time ascending
+                .sort({ date: 1, time: 1 });
 
-            res.json({ classes }); // Send the classes as JSON response
+            res.json({ classes });
         } catch (err) {
-            console.error("Error fetching classes by campus:", err);
+            console.error("Error fetching classes:", err);
             res.status(500).json({ 
-                message: "Server error fetching classes by campus",
+                message: "Server error fetching classes",
                 error: err.message
-             });
+            });
+        }
+    }
+
+        
+    
+    //GET /api/classes/campus/:campusName - Get classes by campus
+    static async getClassesByCampus(req, res) {
+        // Campus concept has been removed from the codebase. Keep this route available
+        // but respond with a 410 Gone status to indicate the endpoint is deprecated.
+        try {
+            return res.status(410).json({
+                message: 'Campus-based queries have been removed from the API.'
+            });
+        } catch (err) {
+            console.error("Error handling deprecated campus route:", err);
+            return res.status(500).json({ message: 'Server error', error: err.message });
         }
     }
 
@@ -276,7 +284,7 @@ class ClassController {
             //find class
             const cls = await Class.findById(classId);
             if (!cls || cls.status !== 'active') {
-                return res.status(404).json({ message: "Class not found or is not active." });
+                //return res.status(404).json({ message: "Class not found or is not active." });
             }
 
             //check if class is full 
@@ -316,8 +324,7 @@ class ClassController {
                     name: cls.name,
                     instructor: cls.instructor,
                     date: cls.date,
-                    duration: cls.duration,
-                    campus: cls.campus
+                    duration: (cls.schedule && cls.schedule.duration) ? cls.schedule.duration : cls.duration
                 },
 
                 booking: {
@@ -401,17 +408,18 @@ class ClassController {
                     return res.status(404).json({ message: "Class not found." });
                 }
 
-                const studentNumberToUse = studentnumberFromId || studentId;
+                // Prefer the provided studentId (from body); fall back to the parsed value
+                const studentNumberToUse = studentId || studentIdFromId;
                 if (!studentNumberToUse) {
                     return res.status(400).json({ message: "Student ID is required to cancel booking." });
                 }
 
                 //booking not found
-                if (!cls.bookedStudents.includes(studentNumberToUse)) {
+                if (!cls.bookedStudents.some(id => id.toString() === studentNumberToUse.toString())) {
                     return res.status(404).json({ message: "Booking not found for this student in the specified class." });
                 }
 
-                //save booking record
+                // Remove the student from bookedStudents and save
                 cls.bookedStudents = cls.bookedStudents.filter(
                     id => id.toString() !== studentNumberToUse.toString()
                 );
@@ -498,7 +506,8 @@ class ClassController {
         try {
             const bookings = await Booking.find()
                 .populate('student.id', 'studentNumber name.first')
-                .populate('class.id', 'name isntructor campus')
+                // 'campus' field removed from class model; also fix instructor spelling
+                .populate('class.id', 'name instructor')
                 .sort({ 'booking.bookedAt': -1 });
 
             res.json({ bookings });

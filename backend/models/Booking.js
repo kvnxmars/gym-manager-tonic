@@ -56,11 +56,7 @@ const bookingSchema = new mongoose.Schema({
             required: true,
             min: 1
         },
-        campus: {
-            type: String,
-            required: true,
-            trim: true
-        },
+    // campus removed — location is taken from class/location fields if needed
 
     },
     //booking details
