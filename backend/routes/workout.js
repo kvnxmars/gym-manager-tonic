@@ -17,9 +17,6 @@ router.post("/", async (req, res) => {
 */
 router.post("/", workoutController.createTemplate);
 
-// Define a GET route for fetching workout statistics for a specific student
-router.get('/stats/:studentNumber', workoutController.getWorkoutStats);
-
 // GET /api/workouts/:userId → get all workouts for a student
 router.get("/:userId", async (req, res) => {
   try {
