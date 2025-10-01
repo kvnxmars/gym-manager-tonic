@@ -285,7 +285,7 @@ const WorkoutApp = () => {
             }
 
             workoutToStart = {
-                _id: newSessionId,
+                //_id: newSessionId,
                 name: workoutName.trim(),
                 category: 'Custom',
                 exercises: [],
@@ -381,7 +381,6 @@ const WorkoutApp = () => {
 
             // Create workout session object
             const workoutSession = {
-                _id: sessionId,
                 studentNumber: studentNumber,
                 templateId: currentTemplate._id,
                 templateName: currentTemplate.name,
@@ -420,7 +419,7 @@ const WorkoutApp = () => {
             try {
                 await workoutApi.saveWorkoutSession(workoutSession);
 
-                const successMessage = `Workout session saved successfully!\n\nSession Stats:\n• Duration: ${formatTime(elapsedTime)}\n• Completed Sets: ${completedSets}/${totalSets} (${workoutSession.stats.completionRate}%)\n• Total Weight: ${totalWeight} kg\n• Total Reps: ${totalReps}`;
+                const successMessage = `Workout session saved successfully!\n\nSession Stats:\n• Duration: ${formatTime(elapsedTime)}`;
 
                 alert(successMessage);
 

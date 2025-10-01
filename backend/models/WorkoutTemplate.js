@@ -22,9 +22,14 @@ const WorkoutTemplateSchema = new mongoose.Schema({
         type: Date, 
         default: Date.now 
     },
-    updateAt: { 
+    updatedAt: { 
         type: Date, 
         default: Date.now 
+    }, 
+
+    isDefault: {
+        type: Boolean,
+        default: false
     }
 });
 

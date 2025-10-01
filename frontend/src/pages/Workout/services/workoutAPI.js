@@ -35,7 +35,7 @@ export const workoutApi = {
                 }))
             };
 
-            const response = await fetch(`${API_URL}/templates`, {
+            const response = await fetch(`${API_URL}/templates/create`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
