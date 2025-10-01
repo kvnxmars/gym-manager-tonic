@@ -1,8 +1,40 @@
 const mongoose = require('mongoose');
 
+
+//set subschema
+const setSchema = new mongoose.Schema({
+    setId: {
+        type: String,
+        unique: true
+    },
+    weight: {
+        type: Number,
+        default: 0
+    },
+    reps: {
+        type: Number,
+        default: 0
+    },
+    completed: {
+        type: Boolean,
+        default: false
+    },
+    restTime: {
+        type: Number,
+        required: false,
+        default: 0
+    }
+
+});
 // Exercise subdocument schema
 // Represents a single exercise within a workout
 const ExerciseSchema = new mongoose.Schema({
+    exerciseId: {
+        type: String,
+        //required: true,
+        //unique: true, 
+        trim: true
+    },
     exerciseName: {
         type: String,
         required: [true, 'Exercise name is required'],
@@ -18,80 +50,11 @@ const ExerciseSchema = new mongoose.Schema({
         maxLength: 1000
     },
 
-    instructions: [{
-    type: String,
+    instructions: {
+    type: [String],
     required: true,
     trim: true
-  }],
-
-    sets: {
-        type: Number,
-        required: [true, 'Set number is required'],
-        min: [1, 'Set must be at least 1']
-    },
-
-    reps: {
-        type: Number,
-        required: [true, 'Reps are required'],
-        min: [1, 'Reps must be at least 1']
-    },
-
-    weight: {
-        previous: {
-            type: Number,
-            min: [0, 'Previous weight cannot be negative'],
-            default: 0
-        },
-
-        duration: {
-            type: Number,
-            required: false,
-            min: 0
-        },
-
-        distance: {
-            type: Number, //in km or meters
-            required: false,
-            min: 0
-        },
-        
-        restTime: {
-            type: Number, //in seconds
-            required: false,
-            min: 0
-        },
-
-        primaryMuscleGroups: [{
-            type: String,
-            required: true,
-            enum: ['chest', 'back', 'shoulders', 'biceps', 'triceps', 'forearms', 'core', 'glutes', 'quadriceps', 'hamstrings', 'calves', 'full-body']
-        }],
-        secondaryMuscleGroups: [{
-        type: String,
-    enum: ['chest', 'back', 'shoulders', 'biceps', 'triceps', 'forearms', 'core', 'glutes', 'quadriceps', 'hamstrings', 'calves']
-    }],
-    equipment: [{
-        type: String,
-        enum: ['barbell', 'dumbbell', 'kettlebell', 'resistance-band', 'cable-machine', 'bodyweight', 'bench', 'pull-up-bar', 'treadmill', 'bike', 'rowing-machine', 'smith-machine', 'leg-press', 'lat-pulldown', 'none']
-  }],
-    
-    
-    notes: {
-        type: String,
-        required: false,
-        trim: true,
-        maxlength: [500, 'Notes cannot exceed 200 characters']
-    },
-    
-    exerciseType: {
-    type: String,
-    enum: ['strength', 'cardio', 'flexibility', 'plyometric'],
-    default: 'strength'
-  }
-
-            
-    }
-    
-    
+  },
+    sets: [setSchema]
 });
-   module.exports = ExerciseSchema;
+module.exports = ExerciseSchema;

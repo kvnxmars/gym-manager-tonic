@@ -46,8 +46,8 @@ export default function SignInPage() {
       }
 
       // Save token + student info in localStorage (so PWA can persist login)
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("student", JSON.stringify(data.student));
+      window.sessionStorage.setItem("token", data.token);
+      window.sessionStorage.setItem("student", JSON.stringify(data.student));
 
       // Redirect to dashboard (once created)
       //alert("Login successful! 🎉");
