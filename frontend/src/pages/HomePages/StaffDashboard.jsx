@@ -1,9 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../../styles/dashboard.css";
 import { Html5QrcodeScanner } from "html5-qrcode";
 
 const API_URL = "http://localhost:5000/api";
+
+// Add these option lists so ClassForm can render safely
+const campusOptions = ["Potchefstroom", "Vaal", "Mafikeng"];
+const specialtyOptions = [
+  "Yoga",
+  "Pilates",
+  "Cardio",
+  "Strength Training",
+  "Dance",
+  "HIIT",
+  "Cycling",
+  "Other",
+];
+const daysOfWeek = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
 const StaffDashboard = () => {
   const [occupancy, setOccupancy] = useState(0);
@@ -15,6 +37,49 @@ const StaffDashboard = () => {
   const [classes, setClasses] = useState([]);
   const [showClassForm, setShowClassForm] = useState(false);
   const [editingClass, setEditingClass] = useState(null);
+  const [saving, setSaving] = useState(false);
+
+  // Add a ref to the main scrollable container
+  const containerRef = useRef(null);
+
+  // Enable page/container scrolling if something disabled it
+  const enableScrolling = () => {
+    try {
+      // Ensure document can scroll
+      document.documentElement.style.overflowY = "auto";
+      document.body.style.overflowY = "auto";
+      // Ensure the dashboard container itself scrolls
+      if (containerRef.current) {
+        containerRef.current.style.overflowY = "auto";
+        containerRef.current.style.maxHeight = "100vh";
+      }
+    } catch (err) {
+      console.warn("enableScrolling error:", err);
+    }
+  };
+
+  // Smooth scroll helpers
+  const scrollToTop = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  const scrollToBottom = () => {
+    if (containerRef.current) {
+      containerRef.current.scrollTo({ top: containerRef.current.scrollHeight, behavior: "smooth" });
+    } else {
+      window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+    }
+  };
+
+  // Call enableScrolling on mount and after layout changes
+  useEffect(() => {
+    enableScrolling();
+    // Re-enable if user toggles form or editing state
+  }, [showClassForm, editingClass]);
 
   // Fetch dashboard data
   const fetchData = async () => {
@@ -39,8 +104,10 @@ const StaffDashboard = () => {
   // Fetch classes
   const fetchClasses = async () => {
     try {
-      const res = await axios.get(`${API_URL}/admin/classes`);
-      setClasses(res.data || []);
+      // GET /api/classes (public generic list)
+      const res = await axios.get(`${API_URL}/classes`);
+      // backend may return array or { classes: [...] }
+      setClasses(res.data?.classes || res.data || []);
     } catch (err) {
       console.error("Error loading classes:", err);
     }
@@ -99,35 +166,91 @@ const StaffDashboard = () => {
     };
   }, [showScanner]);
 
+  // validate minimal required fields before sending (safe checks)
+  const validateClass = (c) => {
+    if (!((c.classId || "").toString().trim())) return "Class ID is required";
+    if (!((c.name || "").toString().trim())) return "Class name is required";
+    if (!c.date) return "Date is required";
+    if (!c.capacity || Number(c.capacity) <= 0) return "Capacity must be > 0";
+    if (!((c.category?.primary || "").toString().trim())) return "Category primary is required";
+    if (!((c.instructor?.name || "").toString().trim())) return "Instructor name is required";
+    if (!((c.schedule?.time || "").toString().trim())) return "Schedule time is required";
+    if (!c.schedule?.duration || Number(c.schedule?.duration) <= 0) return "Schedule duration must be > 0";
+    return null;
+  };
+
+  // prepare minimal payload matching backend schema
+  const prepareClassPayload = (c) => ({
+    classId: (c.classId || "").trim(),
+    name: (c.name || "").trim(),
+    description: (c.description || "").trim(),
+    date: c.date ? new Date(c.date).toISOString() : undefined,
+    capacity: Number(c.capacity),
+    campus: c.campus || undefined,
+    category: {
+      primary: (c.category?.primary || "").trim(),
+      level: c.category?.level || "Beginner",
+      intensity: c.category?.intensity || "Low"
+    },
+    instructor: {
+      name: (c.instructor?.name || "").trim(),
+      contact: (c.instructor?.contact || "").trim(),
+      specialty: c.instructor?.specialty || "Other",
+      photo: c.instructor?.photo || ""
+    },
+    schedule: {
+      days: Array.isArray(c.schedule?.days) ? c.schedule.days : [],
+      type: c.schedule?.type || "In-Person",
+      frequency: c.schedule?.frequency || "Once",
+      time: c.schedule?.time || "",
+      duration: Number(c.schedule?.duration || 0)
+    }
+  });
+
   // Create/Edit class
   const handleClassSubmit = async (classData) => {
+    setError("");
+    const payload = prepareClassPayload(classData);
+
+    setSaving(true);
     try {
       if (editingClass) {
-        await axios.put(`${API_URL}/admin/classes/${editingClass._id}`, classData);
+        // use classId when calling update route (fallback to _id if only available)
+        const id = editingClass.classId || editingClass._id;
+        await axios.put(`${API_URL}/classes/update/${id}`, payload);
       } else {
-        await axios.post(`${API_URL}/admin/classes`, classData);
+        await axios.post(`${API_URL}/classes/create`, payload);
       }
       setShowClassForm(false);
       setEditingClass(null);
       fetchClasses();
     } catch (err) {
-      alert("Failed to save class");
+      console.error("Save class error:", err);
+      const serverMsg = err.response?.data?.message || err.response?.data || err.message;
+      alert("Failed to save class: " + (typeof serverMsg === "string" ? serverMsg : JSON.stringify(serverMsg)));
+    } finally {
+      setSaving(false);
     }
   };
 
   // Delete class
-  const handleDeleteClass = async (classId) => {
+  const handleDeleteClass = async (classIdOrDoc) => {
+    const classId = typeof classIdOrDoc === "string" ? classIdOrDoc : (classIdOrDoc.classId || classIdOrDoc._id);
     if (!window.confirm("Delete this class?")) return;
     try {
-      await axios.delete(`${API_URL}/admin/classes/${classId}`);
+      // DELETE /api/classes/delete/:classId
+      await axios.delete(`${API_URL}/classes/delete/${classId}`);
       fetchClasses();
     } catch (err) {
-      alert("Failed to delete class");
+      console.error("Delete class error:", err);
+      const serverMsg = err.response?.data?.message || err.response?.data || err.message;
+      alert("Failed to delete class: " + (typeof serverMsg === "string" ? serverMsg : JSON.stringify(serverMsg)));
     }
   };
 
   return (
-    <div className="dashboard-container">
+    // Attach the ref to the top container so JS can scroll it
+    <div ref={containerRef} className="dashboard-container">
       <h1 className="dashboard-title">Staff Dashboard</h1>
 
       {loading ? (
@@ -174,7 +297,8 @@ const StaffDashboard = () => {
               <button onClick={() => setShowScanner(true)} className="dashboard-btn">
                 📷 Scan QR Code
               </button>
-            )}
+            )
+            }
           </div>
 
           {/* Recent Check-ins */}
@@ -218,6 +342,7 @@ const StaffDashboard = () => {
                   initialData={editingClass}
                   onSubmit={handleClassSubmit}
                   onCancel={() => { setShowClassForm(false); setEditingClass(null); }}
+                  saving={saving}
                 />
               </div>
             )}
@@ -286,29 +411,101 @@ const StaffDashboard = () => {
           </div>
         </div>
       )}
+
+      {/* Place quick-scroll controls */}
+      <div className="scroll-controls" aria-hidden="false">
+        <button type="button" className="scroll-btn" onClick={scrollToTop} title="Scroll to top">↑</button>
+        <button type="button" className="scroll-btn" onClick={scrollToBottom} title="Scroll to bottom">↓</button>
+      </div>
     </div>
   );
 };
 
-// Improved ClassForm with grouped sections and labels
-function ClassForm({ initialData, onSubmit, onCancel }) {
-  const [form, setForm] = useState(
-    initialData || {
-      classId: "",
-      name: "",
-      description: "",
-      date: "",
-      capacity: "",
-      campus: "",
-      category: { primary: "", level: "Beginner", intensity: "Low" },
-      instructor: { name: "", contact: "", specialty: "Other", photo: "", rating: 0, totalRatings: 0 },
-      schedule: { days: [], type: "In-Person", frequency: "Once", time: "", duration: "" }
-    }
-  );
+// validate minimal required fields before sending (safe checks)
+const validateClass = (c) => {
+  if (!((c.classId || "").toString().trim())) return "Class ID is required";
+  if (!((c.name || "").toString().trim())) return "Class name is required";
+  if (!c.date) return "Date is required";
+  if (!c.capacity || Number(c.capacity) <= 0) return "Capacity must be > 0";
+  if (!((c.category?.primary || "").toString().trim())) return "Category primary is required";
+  if (!((c.instructor?.name || "").toString().trim())) return "Instructor name is required";
+  if (!((c.schedule?.time || "").toString().trim())) return "Schedule time is required";
+  if (!c.schedule?.duration || Number(c.schedule?.duration) <= 0) return "Schedule duration must be > 0";
+  return null;
+};
 
-  const campusOptions = ["NWU01", "NWU02", "NWU03"];
-  const specialtyOptions = ['Yoga', 'Pilates', 'Cardio', 'Strength Training', 'Dance', 'HIIT', 'Cycling', 'Other'];
-  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+// prepare minimal payload matching backend schema (clean primitives, arrays, numbers)
+const prepareClassPayload = (c) => {
+  const campus = c.campus ? String(c.campus).toLowerCase() : undefined;
+
+  return {
+    classId: String(c.classId || "").trim(),
+    name: String(c.name || "").trim(),
+    description: (c.description || "").toString().trim() || undefined,
+    date: c.date ? new Date(c.date).toISOString() : undefined,
+    capacity: Number(c.capacity),
+    campus,
+    category: {
+      primary: String(c.category?.primary || "").trim(),
+      level: String(c.category?.level || "Beginner"),
+      intensity: String(c.category?.intensity || "Low")
+    },
+    instructor: {
+      name: String(c.instructor?.name || "").trim(),
+      contact: (c.instructor?.contact || "").toString().trim() || undefined,
+      specialty: String(c.instructor?.specialty || "Other"),
+      photo: c.instructor?.photo || undefined,
+      rating: c.instructor?.rating !== undefined && c.instructor?.rating !== "" ? Number(c.instructor.rating) : undefined,
+      totalRatings: c.instructor?.totalRatings !== undefined && c.instructor?.totalRatings !== "" ? Number(c.instructor.totalRatings) : undefined
+    },
+    schedule: {
+      days: Array.isArray(c.schedule?.days) ? c.schedule.days.map(d => String(d)) : [],
+      type: String(c.schedule?.type || "In-Person"),
+      frequency: String(c.schedule?.frequency || "Once"),
+      time: String(c.schedule?.time || "").trim(),
+      duration: Number(c.schedule?.duration || 0)
+    }
+  };
+};
+
+// Improved ClassForm with normalization to avoid runtime errors
+function ClassForm({ initialData, onSubmit, onCancel, saving = false }) {
+  const normalize = (data) => ({
+    classId: data?.classId ?? "",
+    name: data?.name ?? "",
+    description: data?.description ?? "",
+    date: data?.date
+      ? (typeof data.date === "string" ? data.date.substring(0,10) : (data.date instanceof Date ? data.date.toISOString().substring(0,10) : ""))
+      : "",
+    capacity: data?.capacity ?? "",
+    campus: data?.campus ?? "",
+    category: {
+      primary: data?.category?.primary ?? "",
+      level: data?.category?.level ?? "Beginner",
+      intensity: data?.category?.intensity ?? "Low"
+    },
+    instructor: {
+      name: data?.instructor?.name ?? "",
+      contact: data?.instructor?.contact ?? "",
+      specialty: data?.instructor?.specialty ?? "Other",
+      photo: data?.instructor?.photo ?? "",
+      rating: data?.instructor?.rating ?? "",
+      totalRatings: data?.instructor?.totalRatings ?? ""
+    },
+    schedule: {
+      days: Array.isArray(data?.schedule?.days) ? data.schedule.days.map(d => String(d)) : [],
+      type: data?.schedule?.type ?? "In-Person",
+      frequency: data?.schedule?.frequency ?? "Once",
+      time: data?.schedule?.time ?? "",
+      duration: data?.schedule?.duration ?? ""
+    }
+  });
+
+  const [form, setForm] = useState(normalize(initialData));
+
+  useEffect(() => {
+    setForm(normalize(initialData));
+  }, [initialData]);
 
   return (
     <form
@@ -440,7 +637,7 @@ function ClassForm({ initialData, onSubmit, onCancel }) {
         </label>
       </fieldset>
       <div style={{ display: "flex", gap: "1rem", marginTop: "1rem" }}>
-        <button type="submit" className="dashboard-btn success">💾 Save</button>
+        <button type="submit" disabled={saving} className="dashboard-btn success">{saving ? "Saving..." : "💾 Save"}</button>
         <button type="button" className="dashboard-btn danger" onClick={onCancel}>Cancel</button>
       </div>
     </form>

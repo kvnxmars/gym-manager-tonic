@@ -1,11 +1,75 @@
-/* Container */
+/* Reset default styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Body and HTML setup for scrolling */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Main container adjustments */
 .dashboard-container {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   padding: 32px 16px;
   background: linear-gradient(120deg, #f6f8fc 60%, #e3eafc 100%);
   border-radius: 18px;
   box-shadow: 0 6px 32px rgba(60, 80, 180, 0.08);
+
+  /* Critical for scrolling */
+  max-height: 100vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on mobile */
+  position: relative;
+}
+
+/* Scroll controls (floating) */
+.scroll-controls {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1200;
+}
+
+.scroll-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: none;
+  background: #1976d2;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transition: transform 0.15s ease, background 0.15s ease;
+}
+.scroll-btn:hover {
+  transform: translateY(-3px);
+  background: #1565c0;
+}
+
+/* Make sure inner cards do not force overflow off-screen */
+.dashboard-card,
+.class-card,
+.class-form-container {
+  height: auto;
+}
+
+/* Body styles to ensure full height */
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
 }
 
 /* Title */
@@ -35,6 +99,9 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 24px;
+  overflow-y: visible;
+  max-height: none;
+  padding-bottom: 32px;
 }
 
 /* Class Card */
@@ -102,6 +169,8 @@
   box-shadow: 0 2px 8px rgba(60, 80, 180, 0.06);
   padding: 28px;
   margin-bottom: 32px;
+  max-height: 80vh;
+  overflow-y: auto;
 }
 
 /* Form Fields */
@@ -160,7 +229,8 @@ summary {
 /* Responsive */
 @media (max-width: 700px) {
   .dashboard-container {
-    padding: 12px 2px;
+    padding: 12px 8px;
+    border-radius: 0;
   }
   .dashboard-title {
     font-size: 2rem;
@@ -173,5 +243,13 @@ summary {
   }
   .class-form-container {
     padding: 14px;
+  }
+  .scroll-controls {
+    right: 12px;
+    bottom: 12px;
+  }
+  .scroll-btn {
+    width: 40px;
+    height: 40px;
   }
 }

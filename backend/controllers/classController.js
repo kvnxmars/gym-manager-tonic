@@ -43,102 +43,103 @@ class ClassController {
 
             console.log('Received request body:', req.body);
 
-            //validate required fields
-            const requiredFields = [ name, instructor, capacity, campus, time, duration, date, category ];
-            console.log('Received fields:', requiredFields);
+            // Determine whether a full schedule object was provided
+            const scheduleProvided = !!req.body.schedule;
 
+            // Build list of required field NAMES (strings) depending on payload shape
+            const requiredNames = ['name', 'instructor', 'capacity', 'campus', 'date', 'category'];
+            if (!scheduleProvided) {
+                // If no schedule object, time and duration are required
+                requiredNames.push('time', 'duration');
+            }
 
-            const missingFields = requiredFields.filter(fieldName => {
-                const value = req.body[fieldName];
-                return !value || (typeof value === 'string' && value.trim() === '');
+            // Compute missing fields by looking up the keys on req.body
+            const missingFields = requiredNames.filter(key => {
+                const value = req.body[key];
+                return value === undefined || value === null || (typeof value === 'string' && value.trim() === '');
             });
+            console.log('Required field names:', requiredNames);
             console.log('Missing fields:', missingFields);
 
             if (missingFields.length > 0) {
-                return res.status(400).json({ message: `Missing required fields: ${missingFields.join(", ")}` 
-            });
+                return res.status(400).json({ message: `Missing required fields: ${missingFields.join(', ')}` });
+            }
 
-        }
+            // Normalize instructor - support both string and object formats
+            let instructorDetails;
+            if (typeof instructor === 'string') {
+                instructorDetails = {
+                    name: instructor,
+                    contact: '',
+                    specialty: 'Other',
+                    photo: ''
+                };
+            } else if (typeof instructor === 'object' && instructor.name) {
+                instructorDetails = {
+                    name: instructor.name,
+                    contact: instructor.contact || '',
+                    specialty: instructor.specialty || 'Other',
+                    photo: instructor.photo || ''
+                };
+            } else {
+                return res.status(400).json({ message: "Invalid instructor format. Provide either a string or object with 'name' property." });
+            }
 
-        //handle instructor - support both string and object formats
-        let instructorName;
-        let instructorDetails;
+            // Normalize category - support string or object
+            let categoryObj;
+            if (typeof category === 'string') {
+                categoryObj = { primary: category, level: 'Beginner', intensity: 'Low' };
+            } else if (typeof category === 'object') {
+                categoryObj = {
+                    primary: category.primary || 'General',
+                    level: category.level || 'Beginner',
+                    intensity: category.intensity || 'Low'
+                };
+            } else {
+                categoryObj = { primary: 'General', level: 'Beginner', intensity: 'Low' };
+            }
 
-        if (typeof instructor === 'string') {
-            instructorName = instructor;
-            instructorDetails = {
-                name: instructor,
-                contact: '',
-                specialty: 'Other',
+            // Build schedule object: prefer req.body.schedule but accept flattened fields
+            let scheduleObj = {};
+            if (scheduleProvided && typeof req.body.schedule === 'object') {
+                scheduleObj = {
+                    days: Array.isArray(req.body.schedule.days) ? req.body.schedule.days : (req.body.schedule.days ? [req.body.schedule.days] : []),
+                    type: req.body.schedule.type || (req.body.type || 'In-Person'),
+                    frequency: req.body.schedule.frequency || (req.body.frequency || 'Once'),
+                    time: req.body.schedule.time || time || '',
+                    duration: parseInt(req.body.schedule.duration || duration || 0)
+                };
+            } else {
+                scheduleObj = {
+                    days: Array.isArray(req.body.days) ? req.body.days : (req.body.days ? [req.body.days] : []),
+                    type: req.body.type || 'In-Person',
+                    frequency: req.body.frequency || 'Once',
+                    time: time || '',
+                    duration: parseInt(duration || 0)
+                };
+            }
 
-            };
+            //generate unique classId
+            const generateClassId = classId || `CLS-${Date.now()}`.slice(-8);
 
-        } else if (typeof instructor === 'object' && instructor.name) {
-            instructorName = instructor.name;
-            instructorDetails = {
-                name: instructor.name,
-                contact: instructor.contact || '',
-                specialty: instructor.specialty || 'Other'
-            };
-        } else {
-            return res.status(400).json({
-                message: "Invalid instructor format. Provide either a string or object with 'name' property."
-            });
-        }
-
-        // Handle category - support both string and object formats
-        let categoryObj;
-        if (typeof category === 'string') {
-            categoryObj = {
-                primary: category,
-                level: 'Beginner',
-                intensity: 'Low'
-            };
-        } else if (typeof category === 'object') {
-            categoryObj = {
-                primary: category.primary || 'General',
-                level: category.level || 'Beginner',
-                intensity: category.intensity || 'Low'
-            };
-        } else {
-            categoryObj = {
-                primary: 'General',
-                level: 'Beginner',
-                intensity: 'Low'
-            };
-        }
-
-        //generate unique classId
-        const generateClassId = classId || `CLS-${Date.now()}`.slice(-8);      
-    
-        const newClass = new Class({
-            classId: generateClassId,
-            name,
-            instructor,
-            capacity: parseInt(capacity),
-            booked: 0,
-            spaceLeft: parseInt(capacity),
-            campus,
-            time,
-            duration: parseInt(duration),
-            date: date ? new Date(date) : Date.now(),
-            description: description || '',
-            category: category || {
-                primary: 'General',
-                level: 'Beginner',
-                intensity: 'Low'
-            },
-            image,
-            bookedStudents: [],
-            instructorDetails: { name: instructor, contact: '', specialty: 'Other', photo: ''}
+            const newClass = new Class({
+                classId: generateClassId,
+                name,
+                description: description || '',
+                date: date ? new Date(date) : Date.now(),
+                capacity: parseInt(capacity),
+                campus,
+                category: categoryObj,
+                instructor: instructorDetails,
+                schedule: scheduleObj,
+                image: image || '',
+                booked: 0,
+                spaceLeft: parseInt(capacity),
+                bookedStudents: []
             });
 
             await newClass.save();
-            res.status(201).json({ 
-                message: "Class created successfully", 
-                class: newClass 
-            });
-        
+            res.status(201).json({ message: 'Class created successfully', class: newClass });
         }
         catch (err) {
             console.error("Error creating class:", err);
