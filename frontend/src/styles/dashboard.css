@@ -1,9 +1,10 @@
+body,
 .dashboard-container {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background: linear-gradient(to bottom, #6a11cb, #2575fc);
-  color: white;
+  color: #111 !important;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   text-align: center;
 }
@@ -53,4 +54,27 @@
   width: 100%;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.dashboard-title,
+.dashboard-card,
+.class-form-container,
+.class-card,
+.class-list,
+form,
+label,
+input,
+select,
+textarea,
+button,
+fieldset,
+legend,
+ul,
+li,
+p,
+span,
+strong,
+details,
+summary {
+  color: #111 !important;
 }

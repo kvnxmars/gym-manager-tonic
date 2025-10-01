@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Button, Card, CardContent, Typography, TextField, Grid } from '@mui/material';
 import SignIn from "./pages/Auth/LoginPage";
 import SignUp from "./pages/Auth/SignupPage";
 import Workout from './pages/Workout/components/WorkoutApp';
