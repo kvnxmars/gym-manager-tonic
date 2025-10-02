@@ -19,15 +19,22 @@ export default function SignupPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "student", // default role
+    //role: "student", // default role
   });
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) => {
+    //handle nested name
+    if(e.target.name === 'firstName' || e.target.name === 'lastName') {
+      setFormData({ 
+        ...formData, 
+        [e.target.name == 'firstName' ? 'first' : 'last'] : e.target.value });
+    }
+  };
+    
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -41,6 +48,20 @@ export default function SignupPage() {
     setError("");
 
     try {
+
+      // Construct the payload to send to the backend
+        const signupData = {
+            studentNumber: formData.studentNumber,
+            name: {
+              first: formData.name.first,
+              last: formData.name.last,
+            },
+            email: formData.email,
+            password: formData.password,
+            // *** CRITICAL CHANGE: HARDCODE THE ROLE HERE ***
+            role: "student", 
+        };
+
       const res = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -67,16 +88,7 @@ export default function SignupPage() {
           <h2 className="title">Fit@NWU Signup</h2>
 
           <form className="form" onSubmit={handleSubmit}>
-            {/* Role Selector */}
-            <select
-              name="role"
-              value={formData.role}
-              onChange={handleChange}
-              className="input"
-            >
-              <option value="student">Student</option>
-              <option value="admin">Admin</option>
-            </select>
+            
 
             {/* Only show student fields if role = student */}
             {formData.role === "student" && (
