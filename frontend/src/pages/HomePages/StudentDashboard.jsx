@@ -857,7 +857,8 @@ const StudentDashboard = () => {
           <Users size={20} />
           <span>Classes</span>
         </button>
-        <button className="nav-item">
+        <button className="nav-item"
+        onClick={() => navigate("/profile")}>
           <span style={{ fontSize: '20px' }}>👤</span>
           <span>Profile</span>
         </button>

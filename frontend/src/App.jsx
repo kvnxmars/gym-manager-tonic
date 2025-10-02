@@ -6,10 +6,13 @@ import Workout from './pages/Workout/components/WorkoutApp';
 import StudentDashboard from "./pages/HomePages/StudentDashboard"; // ✅
 import StaffDashboard from "./pages/HomePages/StaffDashboard"; // ✅
 import ClassBookings from "./pages/Class/ClassBooking"; // ✅
+import ProfileApp from "./pages/profileApp";
+//import ErrorBoundary from "./components/ErrorBoundary";
 
 function App() {
   return (
     <Router>
+      
       <Routes>
         <Route path="/" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
@@ -17,7 +20,9 @@ function App() {
         <Route path="/staff-dashboard" element={<StaffDashboard />} /> {/* ✅ */}
         <Route path="/workout" element={<Workout />} /> 
         <Route path="/class-bookings" element={<ClassBookings />} /> {/* ✅ */}
+        <Route path="/profile" element={<ProfileApp />} />
       </Routes>
+      
     </Router>
   );
 }
