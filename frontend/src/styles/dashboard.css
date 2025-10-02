@@ -1,80 +1,216 @@
-body,
-.dashboard-container {
-  display: flex;
-  flex-direction: column;
+/* dashboard.css - White & Purple Theme */
+
+/* Variables for a consistent theme */
+:root {
+  --color-light-bg: #ffffff;
+  --color-header-bg: #f5f3ff; /* light lavender */
+  --color-card-bg: #fafafa;
+  --color-accent-purple: #6b46c1; /* main purple */
+  --color-accent-pink: #d946ef; /* secondary accent if needed */
+  --color-dark-text: #2d2d2d;
+  --color-muted-text: #6b7280;
+  --color-border: #e5e7eb;
+  --border-radius: 8px;
+  --box-shadow: 0 2px 8px rgba(107, 70, 193, 0.15);
+}
+
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--color-light-bg);
+  color: var(--color-dark-text);
+}
+
+/* Main container */
+.MuiBox-root {
   min-height: 100vh;
-  background: linear-gradient(to bottom, #6a11cb, #2575fc);
-  color: #111 !important;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  text-align: center;
+  background-color: var(--color-light-bg);
+  padding: 0;
 }
 
-.dashboard-header {
-  padding: 20px;
-  background: rgba(0, 0, 0, 0.3);
+/* Header bar */
+.MuiTypography-h4 {
+  background-color: var(--color-header-bg);
+  color: var(--color-accent-purple);
+  font-size: 28px;
+  font-weight: 600;
+  padding: 24px 40px;
+  margin: 0 !important;
+  border-bottom: 2px solid var(--color-border);
+  box-shadow: var(--box-shadow);
+  letter-spacing: 0.5px;
 }
 
-.dashboard-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 20px;
+/* Tabs */
+.MuiTabs-root {
+  position: relative;
+  background-color: var(--color-header-bg);
+  padding: 0 40px;
+  border-bottom: 1px solid var(--color-border);
+  box-shadow: 0 2px 5px rgba(107, 70, 193, 0.1);
 }
 
-.welcome-text {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
+.MuiTabs-indicator {
+  background-color: var(--color-accent-purple);
+  height: 3px;
 }
 
-.scan-btn {
-  background: #fff;
-  color: #2575fc;
-  font-size: 1rem;
-  font-weight: bold;
-  padding: 12px 20px;
+.MuiTab-root {
+  background-color: transparent;
+  color: var(--color-muted-text);
+  padding: 16px 32px;
+  font-size: 15px;
+  font-weight: 500;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
   border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: 0.3s ease;
 }
 
-.scan-btn:hover {
-  background: #f0f0f0;
-  transform: scale(1.05);
+.MuiTab-root:hover {
+  background-color: rgba(107, 70, 193, 0.08);
+  color: var(--color-accent-purple);
 }
 
-.qr-box {
+.MuiTab-root.Mui-selected {
+  background-color: rgba(107, 70, 193, 0.12);
+  color: var(--color-accent-purple);
+  font-weight: 600;
+}
+
+/* Section headers */
+h2 {
+  color: var(--color-accent-purple);
+  font-size: 22px;
+  font-weight: 600;
+  margin: 32px 0 16px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-border);
+  text-transform: uppercase;
+}
+
+/* Text */
+p {
+  color: var(--color-dark-text);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 12px 0;
+}
+
+/* Class grid */
+.class-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
   margin-top: 20px;
-  width: 100%;
-  max-width: 350px;
-}
-.qr-box img {
-  width: 100%;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
-.dashboard-title,
-.dashboard-card,
-.class-form-container,
-.class-card,
-.class-list,
-form,
-label,
-input,
-select,
-textarea,
-button,
-fieldset,
-legend,
-ul,
-li,
-p,
-span,
-strong,
-details,
-summary {
-  color: #111 !important;
+.class-card {
+  background: var(--color-card-bg);
+  border-radius: var(--border-radius);
+  padding: 24px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--box-shadow);
+  transition: all 0.2s ease;
+}
+
+.class-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.25);
+  border-color: var(--color-accent-purple);
+}
+
+.class-card strong {
+  color: var(--color-accent-purple);
+  font-size: 18px;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 12px;
+}
+
+/* Buttons */
+.dashboard-btn {
+  background: linear-gradient(135deg, var(--color-accent-purple), #805ad5);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(107, 70, 193, 0.25);
+}
+
+.dashboard-btn:hover {
+  background: linear-gradient(135deg, #805ad5, var(--color-accent-purple));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.35);
+}
+
+.dashboard-btn.danger {
+  background: linear-gradient(135deg, var(--color-accent-pink), #be185d);
+}
+
+.dashboard-btn.danger:hover {
+  background: linear-gradient(135deg, #be185d, var(--color-accent-pink));
+}
+
+/* QR Scanner */
+#staff-reader {
+  background-color: white;
+  border-radius: var(--border-radius);
+  padding: 20px;
+  margin: 16px 0;
+  box-shadow: var(--box-shadow);
+  border: 1px solid var(--color-border);
+}
+
+/* Equipment form */
+.equipment-form {
+  display: grid;
+  gap: 16px;
+  margin: 24px 0;
+  background-color: var(--color-card-bg);
+  padding: 24px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-border);
+}
+
+.equipment-form input {
+  background-color: #f9f9ff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--color-dark-text);
+}
+
+.equipment-form input:focus {
+  outline: none;
+  border-color: var(--color-accent-purple);
+  box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.15);
+}
+
+.equipment-form button {
+  background: linear-gradient(135deg, var(--color-accent-purple), #805ad5);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 12px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.equipment-form button:hover {
+  background: linear-gradient(135deg, #805ad5, var(--color-accent-purple));
+  box-shadow: 0 2px 8px rgba(107, 70, 193, 0.3);
 }
