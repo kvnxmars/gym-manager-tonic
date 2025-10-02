@@ -1,255 +1,267 @@
-/* Reset default styles */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Body and HTML setup for scrolling */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-
-/* Main container adjustments */
+/* General Layout and Typography */
 .dashboard-container {
-  width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 32px 16px;
-  background: linear-gradient(120deg, #f6f8fc 60%, #e3eafc 100%);
-  border-radius: 18px;
-  box-shadow: 0 6px 32px rgba(60, 80, 180, 0.08);
-
-  /* Critical for scrolling */
-  max-height: 100vh;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* smooth scrolling on mobile */
-  position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    background-color: #f4f7f6; /* Light, calming background */
+    min-height: 100vh;
+    overflow-y: auto; /* Enable scrolling on the container itself */
 }
 
-/* Scroll controls (floating) */
-.scroll-controls {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  z-index: 1200;
-}
-
-.scroll-btn {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  border: none;
-  background: #1976d2;
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transition: transform 0.15s ease, background 0.15s ease;
-}
-.scroll-btn:hover {
-  transform: translateY(-3px);
-  background: #1565c0;
-}
-
-/* Make sure inner cards do not force overflow off-screen */
-.dashboard-card,
-.class-card,
-.class-form-container {
-  height: auto;
-}
-
-/* Body styles to ensure full height */
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-}
-
-/* Title */
 .dashboard-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #222;
-  margin-bottom: 32px;
-  letter-spacing: 1px;
+    text-align: center;
+    color: #1a535c; /* Dark teal/blue for professional header */
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    font-weight: 700;
 }
 
-/* Card */
+/* Dashboard Grid */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+/* Cards (Boxes) */
 .dashboard-card {
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(60, 80, 180, 0.07);
-  padding: 24px;
-  margin-bottom: 32px;
-  transition: box-shadow 0.2s;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Subtle shadow */
+    transition: transform 0.3s ease;
 }
+
 .dashboard-card:hover {
-  box-shadow: 0 6px 24px rgba(60, 80, 180, 0.13);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* Class List Grid */
-.class-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-  gap: 24px;
-  overflow-y: visible;
-  max-height: none;
-  padding-bottom: 32px;
-}
-
-/* Class Card */
-.class-card {
-  background: #f8faff;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(60, 80, 180, 0.06);
-  padding: 20px;
-  transition: box-shadow 0.2s;
-  border: 1px solid #e3eafc;
-}
-.class-card:hover {
-  box-shadow: 0 6px 18px rgba(60, 80, 180, 0.11);
-}
-
-/* Card Header */
-.class-card strong {
-  font-size: 1.2rem;
-  color: #1976d2;
-}
-.class-card .card-actions {
-  margin-top: 12px;
-  display: flex;
-  gap: 12px;
+.dashboard-card h2 {
+    color: #38a3a5; /* Medium teal for card titles */
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    border-bottom: 2px solid #e0f2f1; /* Light divider */
+    padding-bottom: 8px;
 }
 
 /* Buttons */
 .dashboard-btn {
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 20px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.2s;
-  box-shadow: 0 2px 6px rgba(60, 80, 180, 0.07);
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+    margin-right: 10px; /* Space between buttons */
 }
-.dashboard-btn:hover {
-  background: #1565c0;
-  transform: translateY(-2px) scale(1.04);
+
+.dashboard-btn:active {
+    transform: scale(0.98);
 }
+
 .dashboard-btn.small {
-  padding: 6px 12px;
-  font-size: 0.95rem;
+    padding: 5px 10px;
+    font-size: 0.85em;
 }
-.dashboard-btn.danger {
-  background: #d32f2f;
+
+.dashboard-btn:not(.success):not(.danger) {
+    background-color: #38a3a5; /* Default blue/green */
+    color: white;
 }
-.dashboard-btn.danger:hover {
-  background: #b71c1c;
+
+.dashboard-btn:not(.success):not(.danger):hover {
+    background-color: #2a7f81;
 }
+
 .dashboard-btn.success {
-  background: #388e3c;
+    background-color: #64b5f6; /* Light blue for positive action */
+    color: white;
 }
+
 .dashboard-btn.success:hover {
-  background: #2e7031;
+    background-color: #42a5f5;
 }
 
-/* Form Container */
+.dashboard-btn.danger {
+    background-color: #ef5350; /* Red for destructive action */
+    color: white;
+}
+
+.dashboard-btn.danger:hover {
+    background-color: #e53935;
+}
+
+.dashboard-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Lists (Active Students/Check-ins) */
+.dashboard-card ul {
+    list-style: none;
+    padding: 0;
+}
+
+.dashboard-card li {
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95em;
+}
+
+.dashboard-card li:last-child {
+    border-bottom: none;
+}
+
+/* Occupancy Styling */
+.dashboard-card p {
+    font-size: 1.2em;
+    font-weight: 500;
+}
+
+/* Class List Styling */
+.class-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.class-card {
+    background: #f0f8ff; /* Very light blue for class info */
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 5px solid #38a3a5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.class-card strong {
+    color: #1a535c;
+    font-size: 1.1em;
+}
+
+/* Form Styles */
 .class-form-container {
-  background: #f6f8fc;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(60, 80, 180, 0.06);
-  padding: 28px;
-  margin-bottom: 32px;
-  max-height: 80vh;
-  overflow-y: auto;
+    background: #ffffff; /* White background for the form area */
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* Form Fields */
-.class-form-container form {
-  display: grid;
-  gap: 18px;
+.class-form-container fieldset {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #c0e7e8;
+    border-radius: 8px;
+    background-color: #f7fcfc;
 }
+
+.class-form-container legend {
+    color: #1a535c;
+    font-size: 1.1em;
+    font-weight: bold;
+    padding: 0 10px;
+}
+
 .class-form-container label {
-  font-weight: 500;
-  color: #222;
-  margin-bottom: 6px;
-  display: block;
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #555;
 }
-.class-form-container input,
+
+.class-form-container input[type="text"],
+.class-form-container input[type="number"],
+.class-form-container input[type="date"],
+.class-form-container input[type="url"],
 .class-form-container select,
 .class-form-container textarea {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #cfd8dc;
-  font-size: 1rem;
-  background: #fff;
-  margin-bottom: 8px;
-  transition: border 0.2s;
-}
-.class-form-container input:focus,
-.class-form-container select:focus,
-.class-form-container textarea:focus {
-  border: 1.5px solid #1976d2;
-  outline: none;
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
 }
 
-/* Fieldset */
-.class-form-container fieldset {
-  border: 1px solid #e3eafc;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
-}
-.class-form-container legend {
-  font-weight: 600;
-  color: #1976d2;
-  padding: 0 8px;
+.class-form-container textarea {
+    resize: vertical;
+    min-height: 80px;
 }
 
-/* Details/Summary */
-details {
-  margin-top: 10px;
-}
-summary {
-  cursor: pointer;
-  font-weight: 500;
-  color: #a419d2;
+/* Scroll Controls */
+.scroll-controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-/* Responsive */
-@media (max-width: 700px) {
-  .dashboard-container {
-    padding: 12px 8px;
-    border-radius: 0;
-  }
-  .dashboard-title {
-    font-size: 2rem;
-  }
-  .class-list {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-card {
-    padding: 14px;
-  }
-  .class-form-container {
-    padding: 14px;
-  }
-  .scroll-controls {
-    right: 12px;
-    bottom: 12px;
-  }
-  .scroll-btn {
+.scroll-btn {
     width: 40px;
     height: 40px;
-  }
+    border-radius: 50%;
+    background-color: #38a3a5;
+    color: white;
+    font-size: 1.5em;
+    line-height: 1;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* Error and Loading */
+.error-text {
+    color: #e53935;
+    text-align: center;
+    padding: 20px;
+    background: #ffebee;
+    border-radius: 8px;
+}
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2em;
+    color: #38a3a5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .dashboard-title {
+        font-size: 2em;
+    }
+    
+    .scroll-controls {
+        bottom: 10px;
+        right: 10px;
+    }
+}
+
+/* Custom Checkbox Style for Days */
+.class-form-container fieldset div label {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 15px;
+    cursor: pointer;
+}
+
+.class-form-container fieldset div input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+    cursor: pointer;
 }

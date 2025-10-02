@@ -11,10 +11,11 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<SignIn />} />
+        {/* MODIFICATION: Change the path="/" element to load StaffDashboard */}
+        <Route path="/" element={<StaffDashboard />} /> 
+       {/* <Route path="/" element={<SignIn />} /> */}
         <Route path="/signup" element={<SignUp />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
-        <Route path="/staff-dashboard" element={<StaffDashboard />} />
         <Route path="/workout" element={<Workout />} />
         <Route path="/class-bookings" element={<ClassBookings />} />
       </Routes>

@@ -593,23 +593,7 @@ function ClassForm({ initialData, onSubmit, onCancel, saving = false }) {
         <button type="submit" disabled={saving} className="dashboard-btn success">{saving ? "Saving..." : "💾 Save"}</button>
         <button type="button" className="dashboard-btn danger" onClick={onCancel}>Cancel</button>
       </div>
-           <button
-  className="dashboard-btn small"
-  style={{ marginRight: "0.5rem" }}
-  onClick={() => {
-    setEditingClass(cls);
-    setShowClassForm(true);
-  }}
->
-  ✏️ Edit
-</button>
-<button
-  className="dashboard-btn small danger"
-  onClick={() => handleDeleteClass(cls._id)} // pass _id only
->
-  🗑️ Delete
-</button>
-
+        
     </form>
   );
 }
