@@ -2,13 +2,12 @@ import React, { useState, useEffect } from 'react';
 import '../../styles/ClassBooking.css';
 
 const ClassBookingsApp = () => {
-  const [view, setView] = useState('campuses'); // campuses, classes, booking, myBookings
+  const [view, setView] = useState('classes'); // classes, booking, myBookings
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   
   // State management
-  const [campuses, setCampuses] = useState([]);
-  const [selectedCampus, setSelectedCampus] = useState(null);
+  // campuses removed - fetch all classes
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [myBookings, setMyBookings] = useState([]);
@@ -204,21 +203,7 @@ const ClassBookingsApp = () => {
   const API_BASE_URL = "http://localhost:5000/api";
 
   // API Functions
-  const fetchCampuses = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch(`${API_BASE_URL}/campus/all`);
-      if (!response.ok) throw new Error('Failed to fetch campuses');
-      const data = await response.json();
-      setCampuses(data.campuses || []);
-    } catch (err) {
-      setError(err.message);
-      //setCampuses(mockCampuses); // Fallback to mock data
-    } finally {
-      setLoading(false);
-    }
-  };
-
+  // simplified: fetch all classes (no campus parameter)
   const fetchClasses = async (date) => {
     setLoading(true);
     try {
@@ -228,13 +213,14 @@ const ClassBookingsApp = () => {
       setClasses(data.classes || []);
     } catch (err) {
       setError(err.message);
-      //setClasses(mockClasses[campusId] || []); // Fallback to mock data
     } finally {
       setLoading(false);
     }
   };
 
-  const bookClass = async () => {
+  // removed duplicate fetchClasses earlier
+
+  const bookClass = async (classId) => {
     setLoading(true);
     try {
       const response = await fetch(`${API_BASE_URL}/classes/book`, {
@@ -242,7 +228,9 @@ const ClassBookingsApp = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           classId,
-          studentId: student.id,
+          // backend expects a studentId (Mongo _id). Frontend should provide it from auth state.
+          // This component exposes `user.id` as the current user's id.
+          studentId: user.id,
           date: selectedDate
         })
       });
@@ -278,12 +266,18 @@ const ClassBookingsApp = () => {
   const cancelBooking = async (bookingId) => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/classes/cancel/${bookingId}`, {
-        method: 'DELETE'
+      // Backend route is POST /api/classes/cancel and expects bookingId (and optionally studentId) in the body
+      const response = await fetch(`${API_BASE_URL}/classes/cancel`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bookingId, studentId: user.id })
       });
-      
-      if (!response.ok) throw new Error('Failed to cancel booking');
-      
+
+      if (!response.ok) {
+        const errBody = await response.json().catch(() => ({}));
+        throw new Error(errBody.message || 'Failed to cancel booking');
+      }
+
       setMyBookings(prev => prev.filter(b => b.bookingId !== bookingId));
     } catch (err) {
       setError(err.message);
@@ -295,7 +289,8 @@ const ClassBookingsApp = () => {
   const fetchMyBookings = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/classes/student/${student.id}`);
+      // Backend expects the student's Mongo _id in the URL param
+      const response = await fetch(`${API_BASE_URL}/classes/student/${user.id}`);
       if (!response.ok) throw new Error('Failed to fetch bookings');
       const data = await response.json();
       setMyBookings(data.bookings || []);
@@ -309,7 +304,8 @@ const ClassBookingsApp = () => {
 
   // Initialize data
   useEffect(() => {
-    fetchCampuses();
+    // initial load - fetch classes
+    fetchClasses();
   }, []);
 
   // Helper functions
@@ -325,67 +321,7 @@ const ClassBookingsApp = () => {
 
   const isClassFull = (capacity, booked) => booked >= capacity;
 
-  // Campus Selection Screen
-  const CampusScreen = () => (
-    <div className="booking-app">
-      <div className="status-bar">
-        <span className="device-name">FIT@NWU</span>
-        
-      </div>
-      
-      <div className="app-header">
-        <h1 className="page-title">Select Campus</h1>
-        <button className="profile-button">👤</button>
-      </div>
-      
-      <div className="app-content">
-        {loading && <div className="loading-spinner">Loading campuses...</div>}
-        {error && (
-          <div className="error-message">
-            <p>{error}</p>
-            <button onClick={fetchCampuses} className="retry-button">Retry</button>
-          </div>
-        )}
-        
-        <div className="campuses-grid">
-          {campuses.map(campus => (
-            <div
-              key={campus.id}
-              className="campus-card"
-              onClick={() => {
-                setSelectedCampus(campus);
-                fetchClasses(campus.id, selectedDate);
-                setView('classes');
-              }}
-            >
-              <div className="campus-icon">{campus.image}</div>
-              <div className="campus-info">
-                <h3 className="campus-name">{campus.name}</h3>
-                <p className="campus-location">{campus.city}</p>
-                {/*<p className="campus-classes">{campus.totalClasses} classes available</p>*/}
-                
-              </div>
-              <div className="arrow-icon">›</div>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <div className="bottom-nav">
-        <button className="nav-item active">🏢</button>
-        <button 
-          className="nav-item"
-          onClick={() => {
-            fetchMyBookings();
-            setView('myBookings');
-          }}
-        >
-          📅
-        </button>
-        <button className="nav-item">⚙️</button>
-      </div>
-    </div>
-  );
+  // Classes Screen (default)
 
   // Classes Screen
   const ClassesScreen = () => (
@@ -395,23 +331,23 @@ const ClassBookingsApp = () => {
       </div>
       
       <div className="app-header">
-        <button className="back-button" onClick={() => setView('campuses')}>
+        <button className="back-button" onClick={() => setView('classes')} style={{visibility: 'hidden'}}>
           ‹
         </button>
-        <h1 className="page-title">{selectedCampus?.name}</h1>
+        <h1 className="page-title">Classes</h1>
         <button className="profile-button">👤</button>
       </div>
       
       <div className="date-selector">
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => {
-            setSelectedDate(e.target.value);
-            fetchClasses(selectedCampus.id, e.target.value);
-          }}
-          className="date-input"
-        />
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => {
+              setSelectedDate(e.target.value);
+              fetchClasses(e.target.value);
+            }}
+            className="date-input"
+          />
       </div>
       
       <div className="app-content">
@@ -419,7 +355,7 @@ const ClassBookingsApp = () => {
         {error && (
           <div className="error-message">
             <p>{error}</p>
-            <button onClick={() => fetchClasses(selectedCampus.id, selectedDate)} className="retry-button">
+            <button onClick={() => fetchClasses(selectedDate)} className="retry-button">
               Retry
             </button>
           </div>
@@ -429,7 +365,7 @@ const ClassBookingsApp = () => {
           <div className="empty-state">
             <div className="empty-icon">📅</div>
             <h3>No Classes Available</h3>
-            <p>There are no classes scheduled for this date at {selectedCampus?.name}</p>
+            <p>There are no classes scheduled for this date</p>
           </div>
         )}
         
@@ -490,7 +426,7 @@ const ClassBookingsApp = () => {
       </div>
       
       <div className="bottom-nav">
-        <button className="nav-item" onClick={() => setView('campuses')}>🏢</button>
+        <button className="nav-item" style={{visibility: 'hidden'}}>🏢</button>
         <button 
           className="nav-item active"
           onClick={() => {
@@ -539,7 +475,7 @@ const ClassBookingsApp = () => {
                 </div>
                 <div className="booking-detail">
                   <span className="detail-label">📍 Location</span>
-                  <span className="detail-value">{selectedClass.location}, {selectedCampus?.name}</span>
+                  <span className="detail-value">{selectedClass.location}</span>
                 </div>
                 
                 <div className="booking-detail">
@@ -556,8 +492,8 @@ const ClassBookingsApp = () => {
               <div className="user-info">
                 <div className="user-avatar">👤</div>
                 <div>
-                  <p className="user-name">{student.name}</p>
-                  <p className="user-id">Student ID: {student.studentNumber}</p>
+                  <p className="user-name">{user.name}</p>
+                  <p className="user-id">Student ID: {user.studentNumber}</p>
                 </div>
               </div>
             </div>
@@ -589,7 +525,7 @@ const ClassBookingsApp = () => {
       </div>
       
       <div className="bottom-nav">
-        <button className="nav-item" onClick={() => setView('campuses')}>🏢</button>
+        <button className="nav-item" style={{visibility: 'hidden' }}>🏢</button>
         <button className="nav-item">📅</button>
         <button className="nav-item">⚙️</button>
       </div>
@@ -604,7 +540,7 @@ const ClassBookingsApp = () => {
       </div>
       
       <div className="app-header">
-        <button className="back-button" onClick={() => setView('campuses')}>
+        <button className="back-button" onClick={() => setView('classes')}>
           ‹
         </button>
         <h1 className="page-title">My Bookings</h1>
@@ -618,10 +554,10 @@ const ClassBookingsApp = () => {
           <div className="empty-state">
             <div className="empty-icon">📅</div>
             <h3>No Bookings Yet</h3>
-            <p>You haven't booked any classes. Browse campuses to find classes!</p>
+            <p>You haven't booked any classes. Browse classes to find sessions!</p>
             <button 
               className="primary-button"
-              onClick={() => setView('campuses')}
+              onClick={() => setView('classes')}
             >
               Browse Classes
             </button>
@@ -663,7 +599,7 @@ const ClassBookingsApp = () => {
       </div>
       
       <div className="bottom-nav">
-        <button className="nav-item" onClick={() => setView('campuses')}>🏢</button>
+        <button className="nav-item" style={{visibility: 'hidden'}}>🏢</button>
         <button className="nav-item active">📅</button>
         <button className="nav-item">⚙️</button>
       </div>
@@ -673,8 +609,6 @@ const ClassBookingsApp = () => {
   // Render appropriate screen
   const renderScreen = () => {
     switch (view) {
-      case 'campuses':
-        return <CampusScreen />;
       case 'classes':
         return <ClassesScreen />;
       case 'booking':
@@ -682,7 +616,7 @@ const ClassBookingsApp = () => {
       case 'myBookings':
         return <MyBookingsScreen />;
       default:
-        return <CampusScreen />;
+        return <ClassesScreen />;
     }
   };
 

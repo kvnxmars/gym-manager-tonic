@@ -25,8 +25,7 @@ const StudentDashboard = () => {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [workoutStats, setWorkoutStats] = useState(null);
 
-  // Campus classes state
-  const [selectedCampus, setSelectedCampus] = useState("Potchefstroom");
+  // Campus concept removed - fetch all classes from backend
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,7 +46,7 @@ const StudentDashboard = () => {
           fetchCheckins(studentData.studentNumber),
           fetchWorkoutTemplates(studentData.studentNumber),
           fetchWorkoutStats(studentData.studentNumber),
-          fetchClasses(selectedCampus)
+          fetchClasses()
         ]);
 
       } catch (err) {
@@ -59,7 +58,7 @@ const StudentDashboard = () => {
     };
 
     fetchData();
-  }, [selectedCampus]);
+  }, []);
 
   const fetchQRData = async (studentNumber) => {
     try {
@@ -118,9 +117,10 @@ const StudentDashboard = () => {
     }
   };
 
-  const fetchClasses = async (campus) => {
+  const fetchClasses = async () => {
     try {
-      const response = await fetch(`${API_URL}/classes?campus=${campus}`);
+      // Backend expects no campus query param; fetch the global list
+      const response = await fetch(`${API_URL}/classes`);
       if (response.ok) {
         const data = await response.json();
         setClasses(data.classes || []);
@@ -522,23 +522,7 @@ const StudentDashboard = () => {
         <div className="workout-section">
           <div className="section-header">
             <h2 className="section-title">Classes</h2>
-            <select 
-              value={selectedCampus} 
-              onChange={(e) => setSelectedCampus(e.target.value)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#007AFF',
-                fontSize: '14px',
-                fontWeight: '500',
-                outline: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              <option value="Potchefstroom">Potchefstroom</option>
-              <option value="Vaal">Vaal</option>
-              <option value="Mafikeng">Mafikeng</option>
-            </select>
+            {/* Campus selector removed - backend no longer filters by campus */}
           </div>
           
           {classes.length > 0 ? (
@@ -584,7 +568,7 @@ const StudentDashboard = () => {
             </div>
           ) : (
             <p style={{ color: '#888', textAlign: 'center', padding: '20px 0' }}>
-              No classes available for {selectedCampus}
+              No classes available
             </p>
           )}
         </div>

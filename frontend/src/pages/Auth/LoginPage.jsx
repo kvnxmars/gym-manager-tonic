@@ -1,41 +1,43 @@
 import React, { useState } from "react";
-import "../../styles/Auth.css"; // shared CSS
+import "../../styles/Auth.css"; 
 import { Link, useNavigate } from "react-router-dom";
 
-// Backend API base URL (adjust if needed)
 const API_URL = "http://localhost:5000/api";
 
 export default function SignInPage() {
   const navigate = useNavigate();
 
-  // Form state for login
   const [formData, setFormData] = useState({
     studentNumber: "",
     password: "",
   });
 
-  // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Update form state
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle login submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      // Send POST request to backend /signin
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: formData.studentNumber.includes("@")
+            ? formData.studentNumber
+            : undefined,
+          studentNumber: formData.studentNumber.includes("@")
+            ? undefined
+            : formData.studentNumber,
+          password: formData.password,
+        }),
       });
 
       const data = await res.json();
@@ -47,11 +49,11 @@ export default function SignInPage() {
 
       // Save token + student info in localStorage (so PWA can persist login)
       window.sessionStorage.setItem("token", data.token);
-      window.sessionStorage.setItem("student", JSON.stringify(data.student));
+      //window.sessionStorage.setItem("student", JSON.stringify(data.student));
+      window.sessionStorage.setItem("userRole", data.role);
 
-      // Redirect to dashboard (once created)
-      //alert("Login successful! 🎉");
-      navigate("/student-dashboard");
+      // ✅ Navigate based on role
+      navigate(data.role === "admin" ? "/staff-dashboard" : "/student-dashboard");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -65,9 +67,7 @@ export default function SignInPage() {
         <div className="auth-card-form">
           <h2 className="title">Fit@NWU Signin</h2>
 
-          {/* Signin form */}
           <form className="form" onSubmit={handleSubmit}>
-            {/* Student Number */}
             <input
               className="input"
               type="text"
@@ -78,7 +78,6 @@ export default function SignInPage() {
               required
             />
 
-            {/* Password with emoji toggle */}
             <div className="input-container">
               <input
                 className="input"
@@ -97,16 +96,13 @@ export default function SignInPage() {
               </span>
             </div>
 
-            {/* Error message */}
             {error && <p className="error-text">{error}</p>}
 
-            {/* Submit button */}
             <button className="submit-btn" type="submit" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
-          {/* Switch to Signup */}
           <p className="switch-link">
             Don’t have an account? <Link to="/signup">Sign up</Link>
           </p>

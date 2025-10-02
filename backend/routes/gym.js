@@ -1,15 +1,17 @@
+// backend/routes/gym.js
 const express = require("express");
-const { getStats } = require("../controllers/gymController");
 const router = express.Router();
+const CheckIn = require("../models/CheckIns"); // ✅ point to CheckIns.js
 
-// Gym occupancy
+// GET current occupancy
 router.get("/occupancy", async (req, res) => {
   try {
-    const active = await CheckIn.countDocuments({ checkOutTime: null });
-    res.json({ currentOccupancy: active, lastUpdated: new Date() });
+    // Count students who are still inside (no checkout yet)
+    const activeCount = await CheckIn.countDocuments({ checkOutTime: null });
+    res.json({ currentOccupancy: activeCount });
   } catch (err) {
     console.error("Occupancy error:", err);
-    res.status(500).json({ message: "Server error fetching occupancy" });
+    res.status(500).json({ message: "Server error" });
   }
 });
 

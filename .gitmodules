@@ -1,0 +1,3 @@
+[submodule "gym-manager-tonic"]
+	path = gym-manager-tonic
+	url = https://github.com/kvnxmars/gym-manager-tonic.git

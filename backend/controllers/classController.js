@@ -12,7 +12,8 @@ class ClassController {
     //GET api/classes/campuses - Get all campuses
     static async getCampuses(req, res) {
         try {
-            res.json({ campuses });
+            // Campus management removed; return empty list to keep API stable
+            res.json({ campuses: [] });
         }
         catch (err) {
             console.error("Error fetching campuses:", err);
@@ -31,7 +32,6 @@ class ClassController {
                 name,
                 instructor,
                 capacity,
-                campus,
                 time,
                 duration,
                 date,
@@ -43,102 +43,104 @@ class ClassController {
 
             console.log('Received request body:', req.body);
 
-            //validate required fields
-            const requiredFields = [ name, instructor, capacity, campus, time, duration, date, category ];
-            console.log('Received fields:', requiredFields);
+            // campus has been deprecated/removed from classes — ignore any campus value sent by clients
 
+            // Determine whether a full schedule object was provided
+            const scheduleProvided = !!req.body.schedule;
 
-            const missingFields = requiredFields.filter(fieldName => {
-                const value = req.body[fieldName];
-                return !value || (typeof value === 'string' && value.trim() === '');
+            // Build list of required field NAMES (strings) depending on payload shape
+            const requiredNames = ['name', 'instructor', 'capacity', 'date', 'category'];
+            if (!scheduleProvided) {
+                // If no schedule object, time and duration are required
+                requiredNames.push('time', 'duration');
+            }
+
+            // Compute missing fields by looking up the keys on req.body
+            const missingFields = requiredNames.filter(key => {
+                const value = req.body[key];
+                return value === undefined || value === null || (typeof value === 'string' && value.trim() === '');
             });
+            console.log('Required field names:', requiredNames);
             console.log('Missing fields:', missingFields);
 
             if (missingFields.length > 0) {
-                return res.status(400).json({ message: `Missing required fields: ${missingFields.join(", ")}` 
-            });
+                return res.status(400).json({ message: `Missing required fields: ${missingFields.join(', ')}` });
+            }
 
-        }
+            // Normalize instructor - support both string and object formats
+            let instructorDetails;
+            if (typeof instructor === 'string') {
+                instructorDetails = {
+                    name: instructor,
+                    contact: '',
+                    specialty: 'Other',
+                    photo: ''
+                };
+            } else if (typeof instructor === 'object' && instructor.name) {
+                instructorDetails = {
+                    name: instructor.name,
+                    contact: instructor.contact || '',
+                    specialty: instructor.specialty || 'Other',
+                    photo: instructor.photo || ''
+                };
+            } else {
+                return res.status(400).json({ message: "Invalid instructor format. Provide either a string or object with 'name' property." });
+            }
 
-        //handle instructor - support both string and object formats
-        let instructorName;
-        let instructorDetails;
+            // Normalize category - support string or object
+            let categoryObj;
+            if (typeof category === 'string') {
+                categoryObj = { primary: category, level: 'Beginner', intensity: 'Low' };
+            } else if (typeof category === 'object') {
+                categoryObj = {
+                    primary: category.primary || 'General',
+                    level: category.level || 'Beginner',
+                    intensity: category.intensity || 'Low'
+                };
+            } else {
+                categoryObj = { primary: 'General', level: 'Beginner', intensity: 'Low' };
+            }
 
-        if (typeof instructor === 'string') {
-            instructorName = instructor;
-            instructorDetails = {
-                name: instructor,
-                contact: '',
-                specialty: 'Other',
+            // Build schedule object: prefer req.body.schedule but accept flattened fields
+            let scheduleObj = {};
+            if (scheduleProvided && typeof req.body.schedule === 'object') {
+                scheduleObj = {
+                    days: Array.isArray(req.body.schedule.days) ? req.body.schedule.days : (req.body.schedule.days ? [req.body.schedule.days] : []),
+                    type: req.body.schedule.type || (req.body.type || 'In-Person'),
+                    frequency: req.body.schedule.frequency || (req.body.frequency || 'Once'),
+                    time: req.body.schedule.time || time || '',
+                    duration: parseInt(req.body.schedule.duration || duration || 0)
+                };
+            } else {
+                scheduleObj = {
+                    days: Array.isArray(req.body.days) ? req.body.days : (req.body.days ? [req.body.days] : []),
+                    type: req.body.type || 'In-Person',
+                    frequency: req.body.frequency || 'Once',
+                    time: time || '',
+                    duration: parseInt(duration || 0)
+                };
+            }
 
-            };
+            //generate unique classId
+            const generateClassId = classId || `CLS-${Date.now()}`.slice(-8);
 
-        } else if (typeof instructor === 'object' && instructor.name) {
-            instructorName = instructor.name;
-            instructorDetails = {
-                name: instructor.name,
-                contact: instructor.contact || '',
-                specialty: instructor.specialty || 'Other'
-            };
-        } else {
-            return res.status(400).json({
-                message: "Invalid instructor format. Provide either a string or object with 'name' property."
-            });
-        }
-
-        // Handle category - support both string and object formats
-        let categoryObj;
-        if (typeof category === 'string') {
-            categoryObj = {
-                primary: category,
-                level: 'Beginner',
-                intensity: 'Low'
-            };
-        } else if (typeof category === 'object') {
-            categoryObj = {
-                primary: category.primary || 'General',
-                level: category.level || 'Beginner',
-                intensity: category.intensity || 'Low'
-            };
-        } else {
-            categoryObj = {
-                primary: 'General',
-                level: 'Beginner',
-                intensity: 'Low'
-            };
-        }
-
-        //generate unique classId
-        const generateClassId = classId || `CLS-${Date.now()}`.slice(-8);      
-    
-        const newClass = new Class({
-            classId: generateClassId,
-            name,
-            instructor,
-            capacity: parseInt(capacity),
-            booked: 0,
-            spaceLeft: parseInt(capacity),
-            campus,
-            time,
-            duration: parseInt(duration),
-            date: date ? new Date(date) : Date.now(),
-            description: description || '',
-            category: category || {
-                primary: 'General',
-                level: 'Beginner',
-                intensity: 'Low'
-            },
-            image,
-            bookedStudents: [],
-            instructorDetails: { name: instructor, contact: '', specialty: 'Other', photo: ''}
+            const newClass = new Class({
+                classId: generateClassId,
+                name,
+                description: description || '',
+                date: date ? new Date(date) : Date.now(),
+                capacity: parseInt(capacity),
+                category: categoryObj,
+                instructor: instructorDetails,
+                schedule: scheduleObj,
+                image: image || '',
+                booked: 0,
+                spaceLeft: parseInt(capacity),
+                bookedStudents: []
             });
 
             await newClass.save();
-            res.status(201).json({ 
-                message: "Class created successfully", 
-                class: newClass 
-            });
-        
+            res.status(201).json({ message: 'Class created successfully', class: newClass });
         }
         catch (err) {
             console.error("Error creating class:", err);
@@ -155,8 +157,21 @@ class ClassController {
     }
 
     //GET api/classes - all classes despite campus
-    static async getAllClasses(req, res) {
+   /* static async getAllClasses(req, res) {
         try {
+            const { date } = req.query;
+            let filter = {};
+
+            if (date) {
+                const searchDate = new Date(date);
+                const nextDay = new Date(searchDate);
+                nextDay.setDate(nextDay.getDate() + 1);
+                filter.date = { 
+                    $gte: searchDate, 
+                    $lt: nextDay 
+                };
+            }
+
            
             let filter = { status: 'active' };
             //const classId = req.params;
@@ -175,18 +190,13 @@ class ClassController {
         }
 
     
-    }
-    
-    //GET /api/classes/campus/:campusName - Get classes by campus
-    static async getClassesByCampus(req, res) {
-        try {
-            const { campusName } = req.params; // Campus name from URL parameter
-            const { date } = req.query; // Optional date filter
+    } */
 
-            let filter = {
-                campus: campusName,
-                status: 'active'
-            };
+    //GET api/classes - all classes
+    static async getAllClasses(req, res) {
+        try {
+            const { date } = req.query;
+            let filter = {};
 
             if (date) {
                 const searchDate = new Date(date);
@@ -198,17 +208,33 @@ class ClassController {
                 };
             }
 
+            // Fetch classes only; no populate
             const classes = await Class.find(filter)
-                .populate('bookedStudents', 'studentNumber name.first name.last') // Populate bookedStudents with studentNumber and name
-                .sort({ date: 1, time: 1 }); // Sort by date and time ascending
+                .sort({ date: 1, time: 1 });
 
-            res.json({ classes }); // Send the classes as JSON response
+            res.json({ classes });
         } catch (err) {
-            console.error("Error fetching classes by campus:", err);
+            console.error("Error fetching classes:", err);
             res.status(500).json({ 
-                message: "Server error fetching classes by campus",
+                message: "Server error fetching classes",
                 error: err.message
-             });
+            });
+        }
+    }
+
+        
+    
+    //GET /api/classes/campus/:campusName - Get classes by campus
+    static async getClassesByCampus(req, res) {
+        // Campus concept has been removed from the codebase. Keep this route available
+        // but respond with a 410 Gone status to indicate the endpoint is deprecated.
+        try {
+            return res.status(410).json({
+                message: 'Campus-based queries have been removed from the API.'
+            });
+        } catch (err) {
+            console.error("Error handling deprecated campus route:", err);
+            return res.status(500).json({ message: 'Server error', error: err.message });
         }
     }
 
@@ -261,7 +287,7 @@ class ClassController {
             //find class
             const cls = await Class.findById(classId);
             if (!cls || cls.status !== 'active') {
-                return res.status(404).json({ message: "Class not found or is not active." });
+                //return res.status(404).json({ message: "Class not found or is not active." });
             }
 
             //check if class is full 
@@ -301,8 +327,7 @@ class ClassController {
                     name: cls.name,
                     instructor: cls.instructor,
                     date: cls.date,
-                    duration: cls.duration,
-                    campus: cls.campus
+                    duration: (cls.schedule && cls.schedule.duration) ? cls.schedule.duration : cls.duration
                 },
 
                 booking: {
@@ -386,17 +411,18 @@ class ClassController {
                     return res.status(404).json({ message: "Class not found." });
                 }
 
-                const studentNumberToUse = studentnumberFromId || studentId;
+                // Prefer the provided studentId (from body); fall back to the parsed value
+                const studentNumberToUse = studentId || studentIdFromId;
                 if (!studentNumberToUse) {
                     return res.status(400).json({ message: "Student ID is required to cancel booking." });
                 }
 
                 //booking not found
-                if (!cls.bookedStudents.includes(studentNumberToUse)) {
+                if (!cls.bookedStudents.some(id => id.toString() === studentNumberToUse.toString())) {
                     return res.status(404).json({ message: "Booking not found for this student in the specified class." });
                 }
 
-                //save booking record
+                // Remove the student from bookedStudents and save
                 cls.bookedStudents = cls.bookedStudents.filter(
                     id => id.toString() !== studentNumberToUse.toString()
                 );
@@ -483,7 +509,8 @@ class ClassController {
         try {
             const bookings = await Booking.find()
                 .populate('student.id', 'studentNumber name.first')
-                .populate('class.id', 'name isntructor campus')
+                // 'campus' field removed from class model; also fix instructor spelling
+                .populate('class.id', 'name instructor')
                 .sort({ 'booking.bookedAt': -1 });
 
             res.json({ bookings });

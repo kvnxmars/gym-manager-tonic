@@ -8,7 +8,6 @@ const API_URL = "http://localhost:5000/api";
 export default function SignupPage() {
   const navigate = useNavigate();
 
-  // Signup form state
   const [formData, setFormData] = useState({
     studentNumber: "",
     firstName: "",
@@ -16,22 +15,19 @@ export default function SignupPage() {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "student", // default role
   });
 
-  // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Update form
   const handleChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // Submit signup form
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Ensure password match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -41,7 +37,6 @@ export default function SignupPage() {
     setError("");
 
     try {
-      // Send POST request to backend /signup endpoint
       const res = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -52,8 +47,8 @@ export default function SignupPage() {
 
       if (!res.ok) throw new Error(data.message || "Signup failed");
 
-      alert("Signup successful! Please sign in.");
-      navigate("/"); // go to login
+      alert(`Signup successful as ${data.role}! Please sign in.`);
+      navigate("/");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -68,35 +63,51 @@ export default function SignupPage() {
           <h2 className="title">Fit@NWU Signup</h2>
 
           <form className="form" onSubmit={handleSubmit}>
-            <input
-              className="input"
-              type="text"
-              name="studentNumber"
-              placeholder="Student Number"
-              value={formData.studentNumber}
+            {/* Role Selector */}
+            <select
+              name="role"
+              value={formData.role}
               onChange={handleChange}
-              required
-            />
+              className="input"
+            >
+              <option value="student">Student</option>
+              <option value="admin">Admin</option>
+            </select>
 
-            <input
-              className="input"
-              type="text"
-              name="firstName"
-              placeholder="First Name"
-              value={formData.firstName}
-              onChange={handleChange}
-              required
-            />
+            {/* Only show student fields if role = student */}
+            {formData.role === "student" && (
+              <>
+                <input
+                  className="input"
+                  type="text"
+                  name="studentNumber"
+                  placeholder="Student Number"
+                  value={formData.studentNumber}
+                  onChange={handleChange}
+                  required
+                />
 
-            <input
-              className="input"
-              type="text"
-              name="lastName"
-              placeholder="Last Name"
-              value={formData.lastName}
-              onChange={handleChange}
-              required
-            />
+                <input
+                  className="input"
+                  type="text"
+                  name="firstName"
+                  placeholder="First Name"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  required
+                />
+
+                <input
+                  className="input"
+                  type="text"
+                  name="lastName"
+                  placeholder="Last Name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  required
+                />
+              </>
+            )}
 
             <input
               className="input"
@@ -108,7 +119,6 @@ export default function SignupPage() {
               required
             />
 
-            {/* Password with toggle */}
             <div className="input-container">
               <input
                 className="input"

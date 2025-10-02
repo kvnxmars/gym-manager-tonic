@@ -1,0 +1,22 @@
+.admin-auth-form {
+  max-width: 300px;
+  margin: auto;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+.admin-auth-form input {
+  display: block;
+  width: 100%;
+  margin: 0.5rem 0;
+  padding: 0.5rem;
+}
+.admin-auth-form button {
+  width: 100%;
+  padding: 0.5rem;
+  margin-top: 0.5rem;
+}
+.admin-auth-form p {
+  margin-top: 0.5rem;
+  color: #333;
+}
