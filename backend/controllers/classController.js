@@ -157,25 +157,11 @@ class ClassController {
     //GET api/classes - all classes despite campus
     static async getAllClasses(req, res) {
         try {
-            const { date, campus } = req.query;
+           
             let filter = { status: 'active' };
-
-            if (date) {
-                const searchDate = new Date(date);
-                const nextDay = new Date(searchDate);
-                nextDay.setDate(nextDay.getDate() + 1);
-                filter.date = { 
-                    $gte: searchDate, 
-                    $lt: nextDay 
-                };
-            }
-
-            if (campus) {
-                filter.campus = campus;
-            }
-
+            //const classId = req.params;
             const classes = await Class.find(filter)
-            .sort({ date: 1, time: 1 })
+            //.sort({ date: 1, time: 1 })
             .populate('bookedStudents', 'studentNumber name.first name.last');
 
             res.json({ classes });

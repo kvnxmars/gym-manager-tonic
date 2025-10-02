@@ -4,7 +4,7 @@ const Workout = require("../models/WorkoutSession");
 const workoutController = require("../controllers/workoutController");
 
 // POST /api/workouts → log a workout
-/*
+
 router.post("/", async (req, res) => {
   try {
     const workout = new Workout(req.body);
@@ -14,11 +14,11 @@ router.post("/", async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
-*/
-router.post("/", workoutController.createTemplate);
+
+//router.post("/", workoutController.saveSession);
 
 // GET /api/workouts/:userId → get all workouts for a student
-router.get("/:userId", async (req, res) => {
+router.get("/:studentNumber", async (req, res) => {
   try {
     const workouts = await Workout.find({ userId: req.params.userId }).sort({ date: -1 });
     res.json(workouts);
