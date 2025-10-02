@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const WorkoutTemplate = require("../models/WorkoutTemplate");
-const exerciseSchema = require("../models/Exercise");;
+const exerciseSchema = require("../models/Exercise");const workoutController = require("../controllers/workoutController");
+;
 
 
 // =========================
@@ -9,6 +10,7 @@ const exerciseSchema = require("../models/Exercise");;
 // =========================
 
 // POST /api/workout-templates → create a new template
+/*
 router.post("/create", async (req, res) => {
   try {
     const template = new WorkoutTemplate(req.body);
@@ -17,7 +19,8 @@ router.post("/create", async (req, res) => {
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
-});
+});*/
+router.post("/create", workoutController.createTemplate);
 
 // POST /api/workout-templates/:id/exercises → add a new exercise
 router.post("/:exercises", async (req, res) => {
@@ -36,23 +39,7 @@ router.post("/:exercises", async (req, res) => {
 });
 
 // POST /api/workout-templates/:id/exercises/:exerciseId/sets → add a set
-router.post("/:exercises/:sets", async (req, res) => {
-  try {
-    const template = await WorkoutTemplate.findById(req.params.id);
-    if (!template) return res.status(404).json({ error: "Template not found" });
-
-    const exercise = template.exercises.id(req.params.exerciseId);
-    if (!exercise) return res.status(404).json({ error: "Exercise not found" });
-
-    exercise.sets.push(req.body);
-    template.updatedAt = new Date();
-    await template.save();
-
-    res.status(201).json(exercise);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+router.post("/:exercises/:sets", workoutController.addSet);
 
 
 // =========================
@@ -60,16 +47,10 @@ router.post("/:exercises/:sets", async (req, res) => {
 // =========================
 
 // GET /api/workout-templates/:studentNumber → get all templates for a student
-router.get("/:studentNumber", async (req, res) => {
-  try {
-    const templates = await WorkoutTemplate.find({
-      studentNumber: req.params.studentNumber,
-    }).sort({ createdAt: -1 });
-    res.json(templates);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.get("/:studentNumber", workoutController.getAllTemplates);
+
+//default templates
+router.get("/default", workoutController.getDefaultTemplates);
 
 
 // =========================
@@ -77,63 +58,14 @@ router.get("/:studentNumber", async (req, res) => {
 // =========================
 
 // PUT /api/workout-templates/:id → update template info (e.g., name)
-router.put("/:id", async (req, res) => {
-  try {
-    const template = await WorkoutTemplate.findByIdAndUpdate(
-      req.params.id,
-      { ...req.body, updatedAt: new Date() },
-      { new: true }
-    );
-    if (!template) return res.status(404).json({ error: "Template not found" });
-
-    res.json(template);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+router.put("/:templateId", workoutController.updateTemplate);
 
 // PUT /api/workout-templates/:id/exercises/:exerciseId → update exercise
-router.put("/:id/exercises/:exerciseId", async (req, res) => {
-  try {
-    const template = await WorkoutTemplate.findById(req.params.id);
-    if (!template) return res.status(404).json({ error: "Template not found" });
+router.put("/:templateId/:exerciseId", workoutController.updateExercise);
 
-    const exercise = template.exercises.id(req.params.exerciseId);
-    if (!exercise) return res.status(404).json({ error: "Exercise not found" });
-
-    exercise.set(req.body); // overwrite with new data
-    template.updatedAt = new Date();
-    await template.save();
-
-    res.json(exercise);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
 
 // PUT /api/workout-templates/:id/exercises/:exerciseId/sets/:setIndex → update a set
-router.put("/:id/exercises/:exerciseId/sets/:setIndex", async (req, res) => {
-  try {
-    const template = await WorkoutTemplate.findById(req.params.id);
-    if (!template) return res.status(404).json({ error: "Template not found" });
-
-    const exercise = template.exercises.id(req.params.exerciseId);
-    if (!exercise) return res.status(404).json({ error: "Exercise not found" });
-
-    const setIndex = req.params.setIndex;
-    if (setIndex < 0 || setIndex >= exercise.sets.length) {
-      return res.status(404).json({ error: "Set not found" });
-    }
-
-    exercise.sets[setIndex] = req.body;
-    template.updatedAt = new Date();
-    await template.save();
-
-    res.json(exercise.sets[setIndex]);
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-});
+router.put("/:templateId/:exerciseId/:setIndex", workoutController.updateSet);
 
 
 // =========================
@@ -141,59 +73,11 @@ router.put("/:id/exercises/:exerciseId/sets/:setIndex", async (req, res) => {
 // =========================
 
 // DELETE /api/workout-templates/:id → delete template
-router.delete("/:id", async (req, res) => {
-  try {
-    const template = await WorkoutTemplate.findByIdAndDelete(req.params.id);
-    if (!template) return res.status(404).json({ error: "Template not found" });
-
-    res.json({ message: "Template deleted" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.delete("/:templateId", workoutController.deleteTemplate);
 
 // DELETE /api/workout-templates/:id/exercises/:exerciseId → delete exercise
-router.delete("/:id/exercises/:exerciseId", async (req, res) => {
-  try {
-    const template = await WorkoutTemplate.findById(req.params.id);
-    if (!template) return res.status(404).json({ error: "Template not found" });
-
-    const exercise = template.exercises.id(req.params.exerciseId);
-    if (!exercise) return res.status(404).json({ error: "Exercise not found" });
-
-    exercise.remove();
-    template.updatedAt = new Date();
-    await template.save();
-
-    res.json({ message: "Exercise deleted" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.delete("/:exerciseId/:exerciseId", workoutController.deleteExercise);
 
 // DELETE /api/workout-templates/:id/exercises/:exerciseId/sets/:setIndex → delete a set
-router.delete("/:id/exercises/:exerciseId/sets/:setIndex", async (req, res) => {
-  try {
-    const template = await WorkoutTemplate.findById(req.params.id);
-    if (!template) return res.status(404).json({ error: "Template not found" });
-
-    const exercise = template.exercises.id(req.params.exerciseId);
-    if (!exercise) return res.status(404).json({ error: "Exercise not found" });
-
-    const setIndex = req.params.setIndex;
-    if (setIndex < 0 || setIndex >= exercise.sets.length) {
-      return res.status(404).json({ error: "Set not found" });
-    }
-
-    exercise.sets.splice(setIndex, 1);
-    template.updatedAt = new Date();
-    await template.save();
-
-    res.json({ message: "Set deleted" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
+router.delete("/:templateId/:exerciseId/:setIndex", workoutController.deleteSet);
 module.exports = router;

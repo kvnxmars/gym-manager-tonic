@@ -10,8 +10,12 @@ export default function SignupPage() {
 
   const [formData, setFormData] = useState({
     studentNumber: "",
-    firstName: "",
-    lastName: "",
+    name: {
+      first: "",
+      last: ""
+    },
+    //firstName: "",
+    //lastName: "",
     email: "",
     password: "",
     confirmPassword: "",

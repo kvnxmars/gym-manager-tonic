@@ -1,16 +1,39 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Student = require("../models/Student");
-//const Staff = require("../models/Staff");
+const Admin = require("../models/Admin");
 
 const JWT_SECRET = process.env.JWT_SECRET || "tonic.key";
 
+class authController{
 // ----------------------
-// Student Signup
+// Signup
 // ----------------------
-exports.signup = async (req, res) => {
+static async signup(req, res) {
   try {
-    const { studentNumber, firstName, lastName, email, password } = req.body;
+    const { studentNumber, firstName, lastName, email, password, role } = req.body;
+
+    //check for email
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
+    }
+
+    if (role === "admin") {
+      // -------- ADMIN SIGNUP --------
+      const existingAdmin = await Admin.findOne({ email });
+      if (existingAdmin) {
+        return res.status(400).json({ message: "Admin already exists" });
+    }
+  
+   const hashedPassword = await bcrypt.hash(password, 10);
+   const newAdmin = new Admin({ email, password: hashedPassword});
+   await newAdmin.save();
+
+   return res.status(201).json({ message: "Admin registered successfully", role: "admin "})
+
+  }
+
+
 
     if (!studentNumber || !firstName || !lastName || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
@@ -45,42 +68,63 @@ exports.signup = async (req, res) => {
 // ----------------------
 // Student Login
 // ----------------------
-exports.studentLogin = async (req, res) => {
+static async studentLogin(req, res){
   try {
-    const { studentNumber, password } = req.body;
+    const { studentNumber, email, password } = req.body;
 
-    if (!studentNumber || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
     }
 
-    const student = await Student.findOne({ studentNumber });
-    if (!student) return res.status(401).json({ message: "Invalid credentials" });
+    let user = null;
+    let role = null;
 
-    const isMatch = await bcrypt.compare(password, student.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    // Strategy: Try to identify user type based on what was provided
+    if (email) {
+      // If email is provided, check Admin first
+      user = await Admin.findOne({ email });
+      if (user) {
+        role = "admin";
+      } else {
+        // If no admin found, check if a student has this email
+        user = await Student.findOne({ email });
+        if (user) role = "student";
+      }
+    } else if (studentNumber) {
+      // If studentNumber is provided, must be a student
+      user = await Student.findOne({ studentNumber });
+      if (user) role = "student";
+    }
 
-    // ✅ Create JWT
-    const token = jwt.sign({ id: student._id, role: "student" }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-    return res.status(200).json({
-      message: "Login successful!",
+    // Verify password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id, role }, JWT_SECRET, { expiresIn: "1h" });
+
+    // Return appropriate user data based on role
+    res.json({
+      message: "Login successful",
       token,
-      student: {
-        id: student._id,
-        studentNumber: student.studentNumber,
-        name: student.name,
-        email: student.email,
-        membershipStatus: student.membershipStatus,
-      },
+      role,
+      user: role === "admin"
+        ? { email: user.email }
+        : { studentNumber: user.studentNumber, name: user.name, email: user.email },
     });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "An error occurred during login." });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error during login" });
   }
 };
-
+}
+module.exports = authController;
 // ----------------------
 // Staff Login
 // ----------------------

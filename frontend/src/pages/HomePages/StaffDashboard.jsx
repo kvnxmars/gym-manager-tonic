@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "../../styles/dashboard.css";
 import { Html5QrcodeScanner } from "html5-qrcode";

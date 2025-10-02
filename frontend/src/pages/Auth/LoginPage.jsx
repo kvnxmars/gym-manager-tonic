@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "../../styles/Auth.css"; 
 import { Link, useNavigate } from "react-router-dom";
 
@@ -8,7 +8,7 @@ export default function SignInPage() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    studentNumber: "",
+    identifier: "",
     password: "",
   });
 
@@ -26,16 +26,17 @@ export default function SignInPage() {
     setError("");
 
     try {
+
+      //determine if input is email or student number
+      const isEmail = formData.identifier.includes("@");
+
+
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: formData.studentNumber.includes("@")
-            ? formData.studentNumber
-            : undefined,
-          studentNumber: formData.studentNumber.includes("@")
-            ? undefined
-            : formData.studentNumber,
+          email: isEmail ? formData.identifier: undefined,
+          studentNumber: !isEmail ? formData.identifier : undefined,
           password: formData.password,
         }),
       });
@@ -48,12 +49,27 @@ export default function SignInPage() {
       }
 
       // Save token + student info in localStorage (so PWA can persist login)
-      window.sessionStorage.setItem("token", data.token);
-      //window.sessionStorage.setItem("student", JSON.stringify(data.student));
-      window.sessionStorage.setItem("userRole", data.role);
+      sessionStorage.setItem("token", data.token);
+      sessionStorage.setItem("student", JSON.stringify(data.student || data.user));
+      sessionStorage.setItem("userRole", data.role);
 
+      //save profile info
+      if (data.role === "student" && data.student) {
+        sessionStorage.setItem("student", JSON.stringify(data.student));
+      } else {
+        sessionStorage.removeItem("student");
+      }
+
+      console.log("login successful: ", data);
       // ✅ Navigate based on role
-      navigate(data.role === "admin" ? "/staff-dashboard" : "/student-dashboard");
+      if (data.role === "admin") {
+        navigate("/staff-dashboard");
+      }else if (data.role === "student") {
+        navigate("/student-dashboard");
+      } else {
+        navigate("/");
+      }
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -71,9 +87,9 @@ export default function SignInPage() {
             <input
               className="input"
               type="text"
-              name="studentNumber"
-              placeholder="Student Number"
-              value={formData.studentNumber}
+              name="identifier"
+              placeholder="Email or Student Number"
+              value={formData.identifier}
               onChange={handleChange}
               required
             />

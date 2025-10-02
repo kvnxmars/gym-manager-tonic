@@ -65,8 +65,8 @@ export const workoutApi = {
                     sets: ex.sets.map(set => ({
                         weight: set.weight || '',
                         reps: set.reps || '',
-                        previous: set.previous || '',
-                        completed: set.completed || false
+                        //previous: set.previous || '',
+                        //completed: set.completed || false
                     }))
                 }))
             };

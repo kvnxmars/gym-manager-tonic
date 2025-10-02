@@ -124,7 +124,20 @@ class workoutController {
         }
 
     }
-
+// GET /api/workouts/history/:studentNumber → get all past sessions for a student
+    static async getPastSessions(req, res) {
+        try {
+            const { studentNumber } = req.params;
+            // Find all workouts for the student and sort them by date descending
+            const sessions = await Workout.find({ studentNumber: studentNumber })
+                .sort({ date: -1, createdAt: -1 }); 
+            
+            res.status(200).json(sessions);
+        } catch (err) {
+            console.error("Error fetching past sessions:", err);
+            res.status(500).json({ message: "Server error", error: err.message });
+        }
+    }
     //GET -> get default templates
     static async getDefaultTemplates(req, res) {
         try {
@@ -164,8 +177,8 @@ class workoutController {
     // PUT /api/workout/:id/exercises/:exerciseId → update exercise 
     static async updateExercise (req, res) {
         try {
-            const { id, exerciseId } = req.params;
-            const template = await Template.findById(id);
+            const { templateId, exerciseId } = req.params;
+            const template = await Template.findOne(templateId);
             if (!template) return res.status(404).json({ error: "Template not found" });
 
             const exercise = template.exercises.id(exerciseId);
@@ -186,8 +199,8 @@ class workoutController {
     // PUT /api/workout-templates/:id/exercises/:exerciseId/sets/:setIndex → update a set
     static async updateSet (req, res) {
          try {
-            const { id, exerciseId, setIndex } = req.params;
-            const template = await Template.findById(id);
+            const { setId, exerciseId, setIndex } = req.params;
+            const template = await Template.findOne(setId);
             if (!template) return res.status(404).json({ error: "Template not found" });
 
             const exercise = template.exercises.id(exerciseId);
