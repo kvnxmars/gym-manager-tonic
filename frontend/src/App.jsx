@@ -6,6 +6,7 @@ import Workout from './pages/Workout/components/WorkoutApp';
 import StudentDashboard from "./pages/HomePages/StudentDashboard";
 import StaffDashboard from "./pages/HomePages/StaffDashboard";
 import ClassBookings from "./pages/Class/ClassBooking";
+import EquipmentManager from "./pages/Admin/EquipmentManager";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/staff-dashboard" element={<StaffDashboard />} />
         <Route path="/workout" element={<Workout />} />
         <Route path="/class-bookings" element={<ClassBookings />} />
+        <Route path="/admin/equipment" element={<EquipmentManager />} />
       </Routes>
     </Router>
   );

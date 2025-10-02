@@ -37,6 +37,7 @@ const templateRoutes = require("./routes/templates");
 const bookingRoutes = require("./routes/booking");
 const adminAuth = require("./routes/adminAuth");
 const adminRoutes = require("./routes/adminRoutes");
+const equipmentRoutes = require("./routes/equipment");
 
 
 
@@ -87,6 +88,7 @@ app.use("/api/gym", occupancyRoute); // Gym occupancy routes
 app.use("/api/templates", templateRoutes); // Workout template routes
 const campusRoutes = require("./routes/campus");
 app.use("/api/booking", bookingRoutes); // Booking routes
+app.use("/api/equipment", equipmentRoutes);
 // Campus routes intentionally disabled; campus management removed from the application
 // app.use("/api/campus", campusRoutes);
 

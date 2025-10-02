@@ -1,0 +1,3 @@
+/* frontend/src/styles/StudentQR.css */
+.student-qr-page { padding: 24px; text-align: center; }
+.qr-wrap { display:inline-block; padding:12px; background:white; border-radius:8px; box-shadow:0 1px 6px rgba(0,0,0,0.12); }

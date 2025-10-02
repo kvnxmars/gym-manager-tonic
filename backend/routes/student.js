@@ -25,15 +25,25 @@ router.get("/", async (req, res) => {
 });
 
 // READ profile by student number
-router.get("/:studentNumber", async (req, res) => {
+router.get("/:studentNumber/qrcode", async (req, res) => {
   try {
-    const profile = await StudentProfile.findOne({
-      studentNumber: req.params.studentNumber,
+    const studentNumber = req.params.studentNumber;
+    const student = await StudentProfile.findOne({ studentNumber });
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    // Generate QR image (PNG as Data URL)
+    const qrImage = await QRCode.toDataURL(student.qrCode);
+
+    res.json({
+      studentNumber: student.studentNumber,
+      name: student.name,
+      email: student.email,
+      qrCode: student.qrCode,
+      qrImage, // <-- frontend can display this
     });
-    if (!profile) return res.status(404).json({ error: "Profile not found" });
-    res.json(profile);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("student qrcode error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 

@@ -1,117 +1,79 @@
-// backend/routes/adminRoutes.js
 const express = require("express");
 const router = express.Router();
-
 const Student = require("../models/Student");
 const CheckIn = require("../models/CheckIns");
 
-// ================== ADMIN ROUTES ================== //
-
-// ✅ POST: QR Check-in
-// Body: { studentNumber: "12345" }
+// QR check-in
 router.post("/checkin-qr", async (req, res) => {
   try {
-    const { studentNumber } = req.body;
-    if (!studentNumber) {
-      return res.status(400).json({ message: "Missing studentNumber" });
-    }
+    const { studentNumber, qrCode } = req.body;
+    if (!studentNumber && !qrCode) return res.status(400).json({ message: "Missing studentNumber or qrCode" });
 
-    const student = await Student.findOne({ studentNumber });
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
+    const query = studentNumber ? { studentNumber } : { qrCode };
+    const student = await Student.findOne(query);
+    if (!student) return res.status(404).json({ message: "Student not found" });
 
-    // Check if student is already checked in
-    const active = await CheckIn.findOne({
-      studentId: student._id,
-      checkOutTime: null,
-    });
-
-    if (active) {
-      return res.status(400).json({
-        message: "Student already checked in",
-        active,
-      });
-    }
+    // Already inside?
+    const active = await CheckIn.findOne({ studentId: student._id, checkOutTime: null });
+    if (active) return res.status(400).json({ message: "Student already checked in", active });
 
     const checkIn = new CheckIn({
       studentId: student._id,
       checkInTime: new Date(),
     });
-
     await checkIn.save();
+    await checkIn.populate({ path: "studentId", select: "studentNumber name email" });
 
-    res.status(201).json({
-      message: "✅ Check-in successful",
-      checkIn,
-    });
+    res.status(201).json({ message: "Check-in successful", checkIn });
   } catch (err) {
     console.error("Admin checkin error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// ✅ POST: Manual Checkout
-// Body: { studentNumber: "12345" }
+// checkout
 router.post("/checkout", async (req, res) => {
   try {
     const { studentNumber } = req.body;
-    if (!studentNumber) {
-      return res.status(400).json({ message: "Missing studentNumber" });
-    }
+    if (!studentNumber) return res.status(400).json({ message: "Missing studentNumber" });
 
     const student = await Student.findOne({ studentNumber });
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
+    if (!student) return res.status(404).json({ message: "Student not found" });
 
-    const active = await CheckIn.findOne({
-      studentId: student._id,
-      checkOutTime: null,
-    });
+    const checkIn = await CheckIn.findOne({ studentId: student._id, checkOutTime: null });
+    if (!checkIn) return res.status(404).json({ message: "No active check-in" });
 
-    if (!active) {
-      return res.status(400).json({ message: "Student is not checked in" });
-    }
+    checkIn.checkOutTime = new Date();
+    await checkIn.save();
 
-    active.checkOutTime = new Date();
-    await active.save();
-
-    res.json({
-      message: "✅ Student checked out successfully",
-      checkIn: active,
-    });
+    res.json({ message: "Check-out successful", checkIn });
   } catch (err) {
     console.error("Admin checkout error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// ✅ GET: Get all check-ins
+// all checkins
 router.get("/checkins", async (req, res) => {
   try {
-    const results = await CheckIn.find()
+    const items = await CheckIn.find()
       .sort({ checkInTime: -1 })
+      .limit(100)
       .populate("studentId", "studentNumber name email");
-
-    res.json(results);
+    res.json(items);
   } catch (err) {
-    console.error("Admin get all checkins error:", err);
+    console.error("Admin get checkins error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// ✅ GET: Active students (currently checked in)
+// active
 router.get("/active", async (req, res) => {
   try {
-    const active = await CheckIn.find({ checkOutTime: null }).populate(
-      "studentId",
-      "studentNumber firstName lastName email"
-    );
-
-    res.json(active);
+    const items = await CheckIn.find({ checkOutTime: null }).populate("studentId", "studentNumber name email");
+    res.json(items);
   } catch (err) {
-    console.error("Admin active students error:", err);
+    console.error("Admin get active error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
