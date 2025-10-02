@@ -10,6 +10,7 @@ const Class = require("../models/Class");
 class ClassController {
 
     //GET api/classes/campuses - Get all campuses
+    /*
     static async getCampuses(req, res) {
         try {
             res.json({ campuses });
@@ -22,8 +23,10 @@ class ClassController {
              });
         }
     }
+    */
 
     //POST api/classes/create - Create a new class
+    
     static async createClass(req, res) {
         try {
             const {
@@ -153,45 +156,44 @@ class ClassController {
              });
         }
     }
+        
+
+   
 
     //GET api/classes - all classes despite campus
-    static async getAllClasses(req, res) {
-        try {
-            const { date, campus } = req.query;
-            let filter = { status: 'active' };
+    
+static async getAllClasses(req, res) {
+    try {
+        const { date } = req.query;
+        const filter = {};
 
-            if (date) {
-                const searchDate = new Date(date);
-                const nextDay = new Date(searchDate);
-                nextDay.setDate(nextDay.getDate() + 1);
-                filter.date = { 
-                    $gte: searchDate, 
-                    $lt: nextDay 
-                };
-            }
+        if (date) {
+            const searchDate = new Date(date);
+            const nextDay = new Date(searchDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+            filter.date = { 
+                $gte: searchDate, 
+                $lt: nextDay 
+            };
+        }
 
-            if (campus) {
-                filter.campus = campus;
-            }
-
-            const classes = await Class.find(filter)
+        const classes = await Class.find(filter)
             .sort({ date: 1, time: 1 })
             .populate('bookedStudents', 'studentNumber name.first name.last');
 
-            res.json({ classes });
-        } catch (err) {
-            console.error("Error fetching classes:", err);
-            res.status(500).json({ 
-                message: "Server error fetching classes",
-                error: err.message
-             });
-            
-        }
-
-    
+        res.json({ classes });
+    } catch (err) {
+        console.error("Error fetching classes:", err);
+        res.status(500).json({ 
+            message: "Server error fetching classes",
+            error: err.message
+        });
     }
+}
+    
     
     //GET /api/classes/campus/:campusName - Get classes by campus
+    /*
     static async getClassesByCampus(req, res) {
         try {
             const { campusName } = req.params; // Campus name from URL parameter
@@ -225,6 +227,7 @@ class ClassController {
              });
         }
     }
+        */
 
     //GET api/classes/student/:studentId - Get classes booked by a student
     static async getStudentClasses(req, res) {
