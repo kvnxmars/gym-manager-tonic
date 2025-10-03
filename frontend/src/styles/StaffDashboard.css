@@ -32,9 +32,17 @@ body {
 
 /* Main container (MUI Box) */
 .MuiBox-root {
-  min-height: 100vh;
   background-color: var(--color-light-bg);
-  padding: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.MuiBox-root > div:not(.MuiTabs-root) {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px 50px;
 }
 
 /* Header bar */
