@@ -1,17 +1,19 @@
-/* dashboard.css - White & Purple Theme */
+/* dashboard.css - Refined Purple & White Aesthetic */
 
-/* Variables for a consistent theme */
+/* Variables for a consistent, elegant theme */
 :root {
   --color-light-bg: #ffffff;
-  --color-header-bg: #f5f3ff; /* light lavender */
-  --color-card-bg: #fafafa;
-  --color-accent-purple: #6b46c1; /* main purple */
-  --color-accent-pink: #d946ef; /* secondary accent if needed */
-  --color-dark-text: #2d2d2d;
-  --color-muted-text: #6b7280;
-  --color-border: #e5e7eb;
-  --border-radius: 8px;
-  --box-shadow: 0 2px 8px rgba(107, 70, 193, 0.15);
+  --color-header-bg: #f5f3ff; /* Very light lavender for backgrounds */
+  --color-card-bg: #fdfdff; /* Near-white for card background */
+  --color-accent-purple: #703ff3; /* Deep, vibrant, primary purple */
+  --color-secondary-purple: #9f7aea; /* Lighter purple for subtle accents/borders */
+  --color-danger: #d946ef; /* Bright pink for danger/alerts */
+  --color-dark-text: #2c2c36; /* Nearly black */
+  --color-muted-text: #78788c; /* Muted gray for secondary info */
+  --color-border: #e8eaf6; /* Light, cool border color */
+  --border-radius: 12px; /* Slightly larger radius for a softer look */
+  --box-shadow-subtle: 0 4px 12px rgba(0, 0, 0, 0.05); /* Soft, universal shadow */
+  --box-shadow-lifted: 0 8px 20px rgba(112, 63, 243, 0.15); /* Pronounced shadow on hover */
 }
 
 /* Reset and base styles */
@@ -25,9 +27,10 @@ body {
   font-family: 'Inter', 'Segoe UI', Roboto, sans-serif;
   background-color: var(--color-light-bg);
   color: var(--color-dark-text);
+  line-height: 1.6;
 }
 
-/* Main container */
+/* Main container (MUI Box) */
 .MuiBox-root {
   min-height: 100vh;
   background-color: var(--color-light-bg);
@@ -38,60 +41,80 @@ body {
 .MuiTypography-h4 {
   background-color: var(--color-header-bg);
   color: var(--color-accent-purple);
-  font-size: 28px;
-  font-weight: 600;
-  padding: 24px 40px;
+  font-size: 30px;
+  font-weight: 700;
+  padding: 30px 50px 20px 50px; /* More vertical padding for presence */
   margin: 0 !important;
-  border-bottom: 2px solid var(--color-border);
-  box-shadow: var(--box-shadow);
-  letter-spacing: 0.5px;
+  border-bottom: none;
+  box-shadow: var(--box-shadow-subtle);
+  letter-spacing: 0.8px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 /* Tabs */
 .MuiTabs-root {
-  position: relative;
+  position: sticky;
+  top: 80px; /* Position below the header */
   background-color: var(--color-header-bg);
-  padding: 0 40px;
+  padding: 0 50px;
   border-bottom: 1px solid var(--color-border);
-  box-shadow: 0 2px 5px rgba(107, 70, 193, 0.1);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  z-index: 9;
 }
 
 .MuiTabs-indicator {
   background-color: var(--color-accent-purple);
-  height: 3px;
+  height: 4px; /* Thicker indicator */
+  border-radius: 2px 2px 0 0;
 }
 
 .MuiTab-root {
   background-color: transparent;
   color: var(--color-muted-text);
-  padding: 16px 32px;
-  font-size: 15px;
-  font-weight: 500;
+  padding: 14px 28px;
+  font-size: 14px;
+  font-weight: 600;
   text-transform: uppercase;
-  transition: all 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
+  letter-spacing: 0.5px;
 }
 
 .MuiTab-root:hover {
-  background-color: rgba(107, 70, 193, 0.08);
+  background-color: rgba(112, 63, 243, 0.05);
   color: var(--color-accent-purple);
 }
 
 .MuiTab-root.Mui-selected {
-  background-color: rgba(107, 70, 193, 0.12);
+  background-color: transparent; /* Keep background clean */
   color: var(--color-accent-purple);
-  font-weight: 600;
+  font-weight: 700;
+}
+
+/* Tab Panel Content */
+.MuiBox-root > div:not(.MuiTabs-root) > .MuiBox-root {
+    padding: 24px 50px !important; /* Consistent content padding */
 }
 
 /* Section headers */
 h2 {
-  color: var(--color-accent-purple);
-  font-size: 22px;
-  font-weight: 600;
+  color: var(--color-dark-text);
+  font-size: 24px;
+  font-weight: 700;
   margin: 32px 0 16px 0;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--color-border);
-  text-transform: uppercase;
+  padding-bottom: 10px;
+  border-bottom: 3px solid var(--color-secondary-purple); /* Accent border */
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+}
+
+h3 {
+  color: var(--color-accent-purple);
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 15px;
 }
 
 /* Text */
@@ -101,65 +124,151 @@ p {
   line-height: 1.6;
   margin: 12px 0;
 }
+ul {
+    list-style: none;
+    padding-left: 0;
+}
+ul li {
+    padding: 8px 0;
+    border-bottom: 1px dashed var(--color-border);
+    color: var(--color-dark-text);
+}
 
-/* Class grid */
+
+/* --- Card Styles (Classes & Equipment) --- */
 .class-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Responsive grid */
+  gap: 20px;
   margin-top: 20px;
 }
 
-.class-card {
+.class-card, .equipment-list li {
   background: var(--color-card-bg);
   border-radius: var(--border-radius);
   padding: 24px;
   border: 1px solid var(--color-border);
-  box-shadow: var(--box-shadow);
-  transition: all 0.2s ease;
+  box-shadow: var(--box-shadow-subtle);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.class-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.25);
+.class-card:hover, .equipment-list li:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--box-shadow-lifted);
   border-color: var(--color-accent-purple);
 }
 
 .class-card strong {
   color: var(--color-accent-purple);
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 19px;
+  font-weight: 700;
   display: block;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
+}
+.class-card p {
+    margin: 5px 0;
+    color: var(--color-muted-text);
 }
 
-/* Buttons */
+/* --- Input Field Styling --- */
+.input-field, .equipment-form input, .equipment-form select, textarea {
+  width: 100%;
+  background-color: #f9f9ff;
+  border: 1px solid var(--color-border);
+  border-radius: 8px; /* Use a slightly smaller radius for form elements */
+  padding: 12px 16px;
+  font-size: 15px;
+  color: var(--color-dark-text);
+  transition: all 0.2s ease;
+}
+
+.input-field:focus, .equipment-form input:focus, .equipment-form select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--color-accent-purple);
+  box-shadow: 0 0 0 3px rgba(112, 63, 243, 0.2);
+}
+
+/* --- Form Layouts --- */
+.class-form-container, .equipment-form {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 30px;
+    background-color: var(--color-card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-subtle);
+}
+
+.equipment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.class-form-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+fieldset {
+    border-color: var(--color-secondary-purple) !important;
+    padding: 20px !important;
+}
+
+legend {
+    color: var(--color-accent-purple);
+    font-weight: 600;
+}
+
+
+/* --- Buttons --- */
 .dashboard-btn {
-  background: linear-gradient(135deg, var(--color-accent-purple), #805ad5);
+  background: linear-gradient(135deg, var(--color-accent-purple), #9f7aea);
   color: white;
   border: none;
-  border-radius: var(--border-radius);
+  border-radius: 8px;
   padding: 12px 24px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   text-transform: uppercase;
-  box-shadow: 0 2px 8px rgba(107, 70, 193, 0.25);
+  letter-spacing: 0.5px;
+  box-shadow: 0 4px 10px rgba(112, 63, 243, 0.3);
 }
 
 .dashboard-btn:hover {
-  background: linear-gradient(135deg, #805ad5, var(--color-accent-purple));
+  background: linear-gradient(135deg, #9f7aea, var(--color-accent-purple));
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(107, 70, 193, 0.35);
+  box-shadow: 0 6px 15px rgba(112, 63, 243, 0.4);
+}
+
+.dashboard-btn.small {
+    padding: 8px 16px;
+    font-size: 13px;
+    border-radius: 6px;
+    box-shadow: none;
+}
+.dashboard-btn.small:hover {
+    box-shadow: 0 2px 5px rgba(112, 63, 243, 0.3);
 }
 
 .dashboard-btn.danger {
-  background: linear-gradient(135deg, var(--color-accent-pink), #be185d);
+  background: linear-gradient(135deg, var(--color-danger), #ec4899);
+  box-shadow: 0 4px 10px rgba(217, 70, 239, 0.3);
 }
 
 .dashboard-btn.danger:hover {
-  background: linear-gradient(135deg, #be185d, var(--color-accent-pink));
+  background: linear-gradient(135deg, #ec4899, var(--color-danger));
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(217, 70, 239, 0.4);
+}
+
+.dashboard-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 /* QR Scanner */
@@ -168,49 +277,15 @@ p {
   border-radius: var(--border-radius);
   padding: 20px;
   margin: 16px 0;
-  box-shadow: var(--box-shadow);
+  box-shadow: var(--box-shadow-subtle);
   border: 1px solid var(--color-border);
 }
 
-/* Equipment form */
-.equipment-form {
-  display: grid;
-  gap: 16px;
-  margin: 24px 0;
-  background-color: var(--color-card-bg);
-  padding: 24px;
-  border-radius: var(--border-radius);
-  border: 1px solid var(--color-border);
-}
-
-.equipment-form input {
-  background-color: #f9f9ff;
-  border: 1px solid var(--color-border);
-  border-radius: var(--border-radius);
-  padding: 12px 16px;
-  font-size: 14px;
-  color: var(--color-dark-text);
-}
-
-.equipment-form input:focus {
-  outline: none;
-  border-color: var(--color-accent-purple);
-  box-shadow: 0 0 0 3px rgba(107, 70, 193, 0.15);
-}
-
-.equipment-form button {
-  background: linear-gradient(135deg, var(--color-accent-purple), #805ad5);
-  color: white;
-  border: none;
-  border-radius: var(--border-radius);
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.equipment-form button:hover {
-  background: linear-gradient(135deg, #805ad5, var(--color-accent-purple));
-  box-shadow: 0 2px 8px rgba(107, 70, 193, 0.3);
+/* Usage Report (Recharts container) */
+.recharts-responsive-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: var(--color-card-bg);
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-subtle);
 }
