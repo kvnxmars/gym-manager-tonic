@@ -1,12 +1,15 @@
-// routes/studentProfiles.js
 const express = require("express");
 const router = express.Router();
 const StudentProfile = require("../models/Student");
+const QRCode = require("qrcode"); // ✅ required for QR
 
 // CREATE profile
 router.post("/", async (req, res) => {
   try {
-    const profile = new StudentProfile(req.body);
+    const profile = new StudentProfile({
+      ...req.body,
+      membershipStatus: req.body.membershipStatus || "active",
+    });
     const savedProfile = await profile.save();
     res.status(201).json(savedProfile);
   } catch (err) {
@@ -24,22 +27,21 @@ router.get("/", async (req, res) => {
   }
 });
 
-// READ profile by student number
+// READ profile + QR
 router.get("/:studentNumber/qrcode", async (req, res) => {
   try {
     const studentNumber = req.params.studentNumber;
     const student = await StudentProfile.findOne({ studentNumber });
     if (!student) return res.status(404).json({ message: "Student not found" });
 
-    // Generate QR image (PNG as Data URL)
     const qrImage = await QRCode.toDataURL(student.qrCode);
-
     res.json({
       studentNumber: student.studentNumber,
       name: student.name,
       email: student.email,
+      membershipStatus: student.membershipStatus,
       qrCode: student.qrCode,
-      qrImage, // <-- frontend can display this
+      qrImage,
     });
   } catch (err) {
     console.error("student qrcode error:", err);

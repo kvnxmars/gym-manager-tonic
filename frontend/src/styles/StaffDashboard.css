@@ -5,32 +5,29 @@
   box-sizing: border-box;
 }
 
-/* Body and HTML setup for scrolling */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  overflow-y: auto; /* ✅ global scroll */
 }
 
-/* Main container adjustments */
 .dashboard-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 32px 16px;
   background: linear-gradient(120deg, #f6f8fc 60%, #e3eafc 100%);
   border-radius: 18px;
   box-shadow: 0 6px 32px rgba(60, 80, 180, 0.08);
 
-  /* Critical for scrolling */
-  max-height: 100vh;
+  min-height: 100vh;   /* ✅ full height, not clipped */
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch; /* smooth scrolling on mobile */
+  -webkit-overflow-scrolling: touch;
   position: relative;
 }
 
-/* Scroll controls (floating) */
 .scroll-controls {
   position: fixed;
   right: 20px;
@@ -58,21 +55,6 @@ html, body {
   background: #1565c0;
 }
 
-/* Make sure inner cards do not force overflow off-screen */
-.dashboard-card,
-.class-card,
-.class-form-container {
-  height: auto;
-}
-
-/* Body styles to ensure full height */
-body {
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-}
-
-/* Title */
 .dashboard-title {
   font-size: 2.5rem;
   font-weight: 700;
@@ -81,7 +63,6 @@ body {
   letter-spacing: 1px;
 }
 
-/* Card */
 .dashboard-card {
   background: #fff;
   border-radius: 14px;
@@ -94,17 +75,13 @@ body {
   box-shadow: 0 6px 24px rgba(60, 80, 180, 0.13);
 }
 
-/* Class List Grid */
 .class-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
   gap: 24px;
-  overflow-y: visible;
-  max-height: none;
   padding-bottom: 32px;
 }
 
-/* Class Card */
 .class-card {
   background: #f8faff;
   border-radius: 12px;
@@ -117,18 +94,6 @@ body {
   box-shadow: 0 6px 18px rgba(60, 80, 180, 0.11);
 }
 
-/* Card Header */
-.class-card strong {
-  font-size: 1.2rem;
-  color: #1976d2;
-}
-.class-card .card-actions {
-  margin-top: 12px;
-  display: flex;
-  gap: 12px;
-}
-
-/* Buttons */
 .dashboard-btn {
   background: #1976d2;
   color: #fff;
@@ -145,24 +110,12 @@ body {
   background: #1565c0;
   transform: translateY(-2px) scale(1.04);
 }
-.dashboard-btn.small {
-  padding: 6px 12px;
-  font-size: 0.95rem;
-}
-.dashboard-btn.danger {
-  background: #d32f2f;
-}
-.dashboard-btn.danger:hover {
-  background: #b71c1c;
-}
-.dashboard-btn.success {
-  background: #388e3c;
-}
-.dashboard-btn.success:hover {
-  background: #2e7031;
-}
+.dashboard-btn.small { padding: 6px 12px; font-size: 0.95rem; }
+.dashboard-btn.danger { background: #d32f2f; }
+.dashboard-btn.danger:hover { background: #b71c1c; }
+.dashboard-btn.success { background: #388e3c; }
+.dashboard-btn.success:hover { background: #2e7031; }
 
-/* Form Container */
 .class-form-container {
   background: #f6f8fc;
   border-radius: 12px;
@@ -173,83 +126,12 @@ body {
   overflow-y: auto;
 }
 
-/* Form Fields */
-.class-form-container form {
-  display: grid;
-  gap: 18px;
-}
-.class-form-container label {
-  font-weight: 500;
-  color: #222;
-  margin-bottom: 6px;
-  display: block;
-}
-.class-form-container input,
-.class-form-container select,
-.class-form-container textarea {
-  width: 100%;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid #cfd8dc;
-  font-size: 1rem;
-  background: #fff;
-  margin-bottom: 8px;
-  transition: border 0.2s;
-}
-.class-form-container input:focus,
-.class-form-container select:focus,
-.class-form-container textarea:focus {
-  border: 1.5px solid #1976d2;
-  outline: none;
-}
+.class-form-container form { display: grid; gap: 18px; }
 
-/* Fieldset */
-.class-form-container fieldset {
-  border: 1px solid #e3eafc;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
-}
-.class-form-container legend {
-  font-weight: 600;
-  color: #1976d2;
-  padding: 0 8px;
-}
-
-/* Details/Summary */
-details {
-  margin-top: 10px;
-}
-summary {
-  cursor: pointer;
-  font-weight: 500;
-  color: #a419d2;
-}
-
-/* Responsive */
 @media (max-width: 700px) {
-  .dashboard-container {
-    padding: 12px 8px;
-    border-radius: 0;
-  }
-  .dashboard-title {
-    font-size: 2rem;
-  }
-  .class-list {
-    grid-template-columns: 1fr;
-  }
-  .dashboard-card {
-    padding: 14px;
-  }
-  .class-form-container {
-    padding: 14px;
-  }
-  .scroll-controls {
-    right: 12px;
-    bottom: 12px;
-  }
-  .scroll-btn {
-    width: 40px;
-    height: 40px;
-  }
+  .dashboard-container { padding: 12px 8px; border-radius: 0; }
+  .dashboard-title { font-size: 2rem; }
+  .class-list { grid-template-columns: 1fr; }
+  .dashboard-card { padding: 14px; }
+  .class-form-container { padding: 14px; }
 }
