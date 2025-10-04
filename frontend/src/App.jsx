@@ -11,6 +11,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
 import LandingPage from "./pages/landingPage";
 import AdminSignUp from "./pages/AdminSignup";
+import ProfileApp from "./pages/profileApp";
 
 function App() {
   return (
@@ -21,10 +22,11 @@ function App() {
         <Route path="/" element={<SignIn />} />
         <Route path="/admin-login" element={<AdminSignUp/>} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/student-dashboard" element={<StudentDashboard />} />
-        <Route path="/staff-dashboard" element={<StaffDashboard />} />
-        <Route path="/workout" element={<Workout />} />
-        <Route path="/class-bookings" element={<ClassBookings />} />
+        <Route path="/student-dashboard" element={<StudentDashboard />} /> {/* ✅ */}
+        <Route path="/staff-dashboard" element={<StaffDashboard />} /> {/* ✅ */}
+        <Route path="/workout" element={<Workout />} /> 
+        <Route path="/class-bookings" element={<ClassBookings />} /> {/* ✅ */}
+        <Route path="/profile" element={<ProfileApp />} />
       </Routes>
       </ErrorBoundary>
     </Router>
