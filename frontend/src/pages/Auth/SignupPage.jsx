@@ -10,16 +10,12 @@ export default function SignupPage() {
 
   const [formData, setFormData] = useState({
     studentNumber: "",
-    name: {
-      first: "",
-      last: ""
-    },
-    //firstName: "",
-    //lastName: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    //role: "student", // default role
+    role: "student", // default role
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -28,11 +24,10 @@ export default function SignupPage() {
 
   const handleChange = (e) => {
     //handle nested name
-    if(e.target.name === 'firstName' || e.target.name === 'lastName') {
-      setFormData({ 
-        ...formData, 
-        [e.target.name == 'firstName' ? 'first' : 'last'] : e.target.value });
-    }
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
     
 
@@ -49,18 +44,7 @@ export default function SignupPage() {
 
     try {
 
-      // Construct the payload to send to the backend
-        const signupData = {
-            studentNumber: formData.studentNumber,
-            name: {
-              first: formData.name.first,
-              last: formData.name.last,
-            },
-            email: formData.email,
-            password: formData.password,
-            // *** CRITICAL CHANGE: HARDCODE THE ROLE HERE ***
-            role: "student", 
-        };
+      console.log("Sending signup data: ", formData);
 
       const res = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
@@ -69,6 +53,8 @@ export default function SignupPage() {
       });
 
       const data = await res.json();
+
+      console.log("Received response:", data);
 
       if (!res.ok) throw new Error(data.message || "Signup failed");
 

@@ -64,11 +64,11 @@ class workoutController {
         }
     }
 
-    // POST /api/workout-templates/:id/exercises → add a new exercise
+    // POST /api/templates/:id/exercises → add a new exercise
     static async addExercise (req, res) {
         try {
-            const { exerciseId } = req.params;
-            const template = await Template.findOne(exerciseId);
+            const { templateId } = req.params;
+            const template = await Template.findById(templateId);
             if (!template) 
                 return res.status(404).json({ error: "Template not found:"});
 
@@ -76,7 +76,13 @@ class workoutController {
             template.updatedAt = new Date();
             await template.save();
 
-            res.status(201).json(template);
+            const updatedTemplate = await Template.findById(templateId);
+
+
+            console.log("Params:", req.params);
+            console.log("Body:", req.body);
+
+            res.status(201).json(updatedTemplate);
         }catch (err) {
             console.error("Error adding exercises to template: ", err);
             res.status(400).json({ error: err.message});
@@ -88,7 +94,7 @@ class workoutController {
     static async addSet (req, res) {
         try {
             const { setId, exerciseId } = req.params;
-            const template = await Template.findOne(setId);
+            const template = await Template.findById(setId);
             if (!template) return res.status(404).json({ error: "Template not found" });
 
             const exercise = template.exercises.id(exerciseId);
@@ -160,14 +166,27 @@ class workoutController {
     static async updateTemplate(req, res) {
        try {
             const { templateId } = req.params;
+            const { name } = req.body;
             const template = await Template.findOneAndUpdate(
-                templateId,
-                { ...req.body, updatedAt: new Date() },
-                { new: true, runValidators: true }
+                { 
+                    _id: templateId 
+                },
+                { 
+                    name, 
+                    updatedAt: new Date() 
+                },
+                { 
+                    new: true, 
+                    runValidators: true 
+                }
             );
             if (!template) return res.status(404).json({ error: "Template not found" });
 
+            console.log("Params:", req.params);
+            console.log("Body:", req.body);
+
             res.json(template);
+            
         } catch (err) {
             console.error("Error updating template:", err);
             res.status(400).json({ error: err.message });
@@ -178,11 +197,21 @@ class workoutController {
     static async updateExercise (req, res) {
         try {
             const { templateId, exerciseId } = req.params;
-            const template = await Template.findOne(templateId);
+            const { exerciseName, sets } = req.body;
+
+            //find templates
+            const template = await Template.findById(templateId);
+
             if (!template) return res.status(404).json({ error: "Template not found" });
 
+            //find exercise inside template
             const exercise = template.exercises.id(exerciseId);
             if (!exercise) return res.status(404).json({ error: "Exercise not found" });
+
+
+            // update exercise
+            if (exerciseName) exercise.exerciseName = exerciseName;
+            if (sets) exercise.sets = sets;
 
             // Overwrite the exercise subdocument with new data
             exercise.set(req.body); 
@@ -199,8 +228,8 @@ class workoutController {
     // PUT /api/workout-templates/:id/exercises/:exerciseId/sets/:setIndex → update a set
     static async updateSet (req, res) {
          try {
-            const { setId, exerciseId, setIndex } = req.params;
-            const template = await Template.findOne(setId);
+            const { templateId, exerciseId, setIndex } = req.params;
+            const template = await Template.findById(templateId);
             if (!template) return res.status(404).json({ error: "Template not found" });
 
             const exercise = template.exercises.id(exerciseId);
@@ -228,10 +257,18 @@ class workoutController {
 
     static async deleteTemplate(req, res) {
         try {
-            const { templateId } = req.params;
-            const template = await Template.findOneAndDelete(templateId);
+            const { _id: templateId } = req.params;
 
-            if (!template)
+            const { studentNumber } = req.body;
+
+            console.log("Params:", req.params);
+            console.log("Body", req.body);
+            const deletedTemplate = await Template.findOneAndDelete({
+                templateId,
+                studentNumber: studentNumber
+        });
+
+            if (!deletedTemplate)
                 return res.status(404).json({ error: "Template not found."});
 
             res.json({

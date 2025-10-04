@@ -55,6 +55,9 @@ const ExerciseSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-    sets: [setSchema]
+    sets: [setSchema],
+    noSets: {
+        type: Number
+    }
 });
 module.exports = ExerciseSchema;

@@ -12,10 +12,11 @@ body {
   background-color: #f9fafb;
   color: #111827;
   line-height: 1.5;
+  height:auto;
 }
 
 .min-h-screen {
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .bg-gray-50 {

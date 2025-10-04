@@ -49,26 +49,39 @@ export default function SignInPage() {
       }
 
       // Save token + student info in localStorage (so PWA can persist login)
-      sessionStorage.setItem("token", data.token);
-      sessionStorage.setItem("student", JSON.stringify(data.student || data.user));
-      sessionStorage.setItem("userRole", data.role);
+      localStorage.setItem("token", data.token);
+      //localStorage.setItem("role", data.role);
+      localStorage.setItem("student", JSON.stringify(data.user));
+      
 
       //save profile info
-      if (data.role === "student" && data.student) {
-        sessionStorage.setItem("student", JSON.stringify(data.student));
+      if (data.role === "student" && data.user) {
+        localStorage.setItem("student", JSON.stringify(data.user));
       } else {
-        sessionStorage.removeItem("student");
+        localStorage.removeItem("student");
       }
 
       console.log("login successful: ", data);
+      console.log("Saved student:", data.user);
+
       // ✅ Navigate based on role
-      if (data.role === "admin") {
-        navigate("/staff-dashboard");
+      /*if (data.role === "admin") {
+        navigate("/staff-dashboard", {state: {student: data.user}});
       }else if (data.role === "student") {
-        navigate("/student-dashboard");
+        navigate("/student-dashboard", {state: {student: data.user}});
       } else {
         navigate("/");
-      }
+      }*/
+     if (data.role === "student")
+     {
+      navigate("/student-dashboard");
+     } else if (data.role === "admin")
+     {
+      navigate("/staff-dashboard");
+     }
+     else {
+      navigate("/");
+     }
 
     } catch (err) {
       setError(err.message);

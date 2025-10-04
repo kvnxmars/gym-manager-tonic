@@ -30,4 +30,6 @@ router.get("/:studentNumber", async (req, res) => {
 // Define a GET route for fetching workout statistics for a specific student
 router.get('/stats/:studentNumber', workoutController.getWorkoutStats);
 
+router.get("/:studentNumber", workoutController.getPastSessions);
+
 module.exports = router;

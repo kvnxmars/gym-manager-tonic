@@ -43,7 +43,7 @@ const WorkoutApp = () => {
     // Get student data from memory (changed from localStorage)
     useEffect(() => {
         // Try to get from memory first
-        const storedStudent = window.sessionStorage?.getItem?.("student");
+        const storedStudent = localStorage?.getItem?.("student");
         if (storedStudent) {
             try {
                 const student = JSON.parse(storedStudent);

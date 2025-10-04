@@ -36,10 +36,21 @@ const StudentDashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const rawStudent = sessionStorage.getItem('student') || null; 
-        const storedStudent = JSON.parse(rawStudent);
+        
+        const rawStudent = localStorage.getItem("student");
+
+        let storedStudent = null;
+
+        try {
+          storedStudent = JSON.parse(rawStudent);
+        } catch (parseErr) {
+          console.error("Failed to parse student data: ", parseErr);
+        }
+        console.log("Session student", storedStudent);
+        
         if (!storedStudent) {
           console.error("No student data found. Please log in.");
+          navigate("/");
           setLoading(false);
           return;
         }
@@ -80,7 +91,7 @@ const StudentDashboard = () => {
 
   const fetchCheckins = async (studentNumber) => {
     try {
-      const response = await fetch(`${API_URL}/access/checkin/${studentNumber}`);
+      const response = await fetch(`${API_URL}/access/qr/${studentNumber}`);
       if (response.ok) {
         const data = await response.json();
         setCheckins(data.checkIns?.slice(0, 5) || []);
@@ -95,6 +106,7 @@ const StudentDashboard = () => {
       const response = await fetch(`${API_URL}/templates/${studentNumber}`);
       if (response.ok) {
         const data = await response.json();
+        console.log("Template API Responses:", data);
         setWorkoutTemplates(data.templates || []);
       }
     } catch (error) {
@@ -116,7 +128,8 @@ const StudentDashboard = () => {
 
   const fetchClasses = async () => {
     try {
-      const response = await fetch(`${API_URL}/classes/`);
+      const response = await fetch(`${API_URL}/classes`);
+      
       if (response.ok) {
         const data = await response.json();
         setClasses(data.classes || []);
@@ -160,7 +173,7 @@ const StudentDashboard = () => {
     if (!editingTemplate || !editingTemplate.name.trim()) return;
 
     try {
-      const response = await fetch(`${API_URL}/templates/${editingTemplate._id}`, {
+      const response = await fetch(`${API_URL}/templates/${templateId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: editingTemplate.name.trim() })
@@ -290,12 +303,16 @@ const StudentDashboard = () => {
   }
 
   return (
+    
     <div style={{ 
       fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
       background: '#f8f8f8',
-      minHeight: '100vh',
-      paddingBottom: '80px'
+      height: '100vh',
+      paddingBottom: '80px',
+      overflowY: 'auto'
+      //display: 'flex'
     }}>
+      
       <StatusBar studentNumber={student?.studentNumber} />
 
       {error && (
@@ -344,6 +361,8 @@ const StudentDashboard = () => {
         <WorkoutsGrid />
         <WorkoutTemplates 
           templates={workoutTemplates}
+          
+          
           onAdd={() => { setShowTemplateModal(true); setEditingTemplate(null); }}
           onEdit={openEditModal}
           onDelete={handleDeleteTemplate}
@@ -375,6 +394,7 @@ const StudentDashboard = () => {
         }
       `}</style>
     </div>
+    
   );
 };
 

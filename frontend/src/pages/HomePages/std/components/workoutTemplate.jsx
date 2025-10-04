@@ -29,7 +29,7 @@ const WorkoutTemplates = ({ templates, onAdd, onEdit, onDelete }) => (
     ) : (
       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
         {templates.map((template) => (
-          <div key={template._id} style={{
+          <div key={template.templateId} style={{
             background: 'white',
             border: '1px solid #eee',
             borderRadius: '12px',

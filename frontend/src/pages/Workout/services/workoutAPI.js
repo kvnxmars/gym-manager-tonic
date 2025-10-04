@@ -53,41 +53,67 @@ export const workoutApi = {
         }
     },
 
+
     async updateTemplate(studentNumber, templateId, template) {
-        try {
-            const payload = {
-                studentNumber,
-                name: template.name.trim(),
-                category: template.category || 'Custom',
-                exercises: template.exercises.map(ex => ({
-                    name: ex.name.trim(),
-                    type: ex.type || 'strength',
-                    sets: ex.sets.map(set => ({
-                        weight: set.weight || '',
-                        reps: set.reps || '',
-                        //previous: set.previous || '',
-                        //completed: set.completed || false
-                    }))
-                }))
+       try {
+        //step 1: update template
+        const templatePayload = {
+            studentNumber,
+            name: template.name.trim(),
+        
+
+        };
+        const templateRes = await fetch (`${API_URL}/templates/${templateId}`, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json" },
+            body: JSON.stringify(templatePayload),
+        });
+        
+        if (!templateRes.ok) {
+            throw new Error(`Failed to update: ${await templateRes.text()}`);
+        }
+
+        //update exercises
+        for (const ex of template.exercises) {
+            const exercisePayload = {
+                exerciseName: ex.name.trim()
             };
 
-            const response = await fetch(`${API_URL}/templates/${templateId}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+            const exerciseRes = await fetch(`${API_URL}/templates/${templateId}/${ex.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json"},
+                body: JSON.stringify(exercisePayload),
             });
 
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Failed to update template: ${errorText}`);
+            if (!exerciseRes.ok) {
+                throw new Error(`Failed to update exercise ${ex.id}: ${await exerciseRes.text()}`);
             }
 
-            return await response.json();
-        } catch (error) {
-            console.error('Error updating template:', error);
-            throw error;
+            //update sets for this exercise
+            for (const set of exercise.sets) {
+                const setPayload = {
+                    weight: set.weight || "",
+                    reps: set.reps || ""
+                };
+
+                const setRes = await fetch(`${API_URL}/templates/${templateId}/${ex.id}/${setIndex}}`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(setPayload),
+                });
+
+                 if (!setRes.ok) {
+                    throw new Error(`Failed to update set ${setIndex}: ${await setRes.text()}`);
+                }
+
+            }
         }
-    },
+        return {message : "Template successfully updated."};
+    }catch (error) {
+        console.error("Error updating template", error);
+        throw error;
+    }
+},
 
     async deleteTemplate(studentNumber, templateId) {
         try {

@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import ExerciseCard from './ExerciseCard';
 import TimerControls from './TimerControls';
 

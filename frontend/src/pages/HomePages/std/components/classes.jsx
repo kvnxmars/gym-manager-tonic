@@ -1,10 +1,16 @@
 // Classes Section Component
 
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Search, QrCode, Heart, Settings, Home, Clock, Users } from "lucide-react";
-import QRCode from "react-qr-code";
-const ClassesSection = ({ classes }) => (
+//import React, { useEffect, useState } from "react";
+//import { useNavigate } from "react-router-dom";
+import { Heart } from "lucide-react";
+//import QRCode from "react-qr-code";
+const ClassesSection = ({ classes }) => {
+
+   if (!Array.isArray(classes)) {
+    return <p style={{ color: '#888', textAlign: 'center', padding: '20px 0' }}>
+      No classes available available or data is being loaded.
+    </p>;
+}
   <div style={{ marginBottom: '24px' }}>
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
       <h2 style={{ fontSize: '20px', fontWeight: '700', color: '#333', margin: '0' }}>Classes</h2>
@@ -57,5 +63,5 @@ const ClassesSection = ({ classes }) => (
       </p>
     )}
   </div>
-);
+};
 export default ClassesSection;

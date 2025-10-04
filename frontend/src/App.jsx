@@ -3,17 +3,23 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignIn from "./pages/Auth/LoginPage";
 import SignUp from "./pages/Auth/SignupPage";
 import Workout from './pages/Workout/WorkoutApp';
-import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
+//import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
 import StaffDashboard from "./pages/HomePages/StaffDashboard";
 import ClassBookings from "./pages/Class/ClassBooking";
 import ErrorBoundary from "./components/ErrorBoundary";
+//import Std from "./pages/HomePages/std/std";
+import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
+import LandingPage from "./pages/landingPage";
+import AdminSignUp from "./pages/AdminSignup";
 
 function App() {
   return (
     <Router>
       <ErrorBoundary>
       <Routes>
+        <Route path="/land" element={<LandingPage/> } />
         <Route path="/" element={<SignIn />} />
+        <Route path="/admin-login" element={<AdminSignUp/>} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/student-dashboard" element={<StudentDashboard />} />
         <Route path="/staff-dashboard" element={<StaffDashboard />} />
