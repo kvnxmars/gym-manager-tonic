@@ -1,6 +1,6 @@
 // src/components/BookingCard.jsx
 import React from 'react';
-import { formatTime } from '../utils/helpers';
+import { formatTime } from '../Utils/helper';
 
 const BookingCard = ({ booking, onCancel }) => {
   return (

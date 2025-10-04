@@ -1,23 +1,25 @@
 // src/screens/ClassesScreen.jsx
-import React, { useEffect } from 'react';
+
+import  { useEffect } from 'react';
 import AppLayout from '../components/AppLayout';
 import DateSelector from '../components/DateSelector';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorMessage from '../components/ErrorMessage';
 import EmptyState from '../components/EmptyState';
 import ClassCard from '../components/ClassCard';
-import { getTodayDateString } from '../utils/helpers';
+import { getTodayDateString } from '../Utils/helper';
 
 const ClassesScreen = ({
   loading,
   error,
-  classes,
+  classes = [] ,
   selectedDate,
   setSelectedDate,
   fetchClasses,
   onClassSelect,
   onNavChange,
 }) => {
+  const safeClasses = Array.isArray(classes) ? classes : [];
 
   useEffect(() => {
     // Re-fetch classes whenever the selectedDate changes
@@ -52,15 +54,20 @@ const ClassesScreen = ({
         />
       )}
 
+      
+    
+      
       <div className="classes-list">
-        {classes.map(classItem => (
-          <ClassCard
-            key={classItem.id}
-            classItem={classItem}
-            onBookClick={onClassSelect}
-          />
-        ))}
-      </div>
+  {safeClasses.map(classItem => (
+    <ClassCard
+      key={classItem._id}
+      classItem={classItem}
+      onBookClick={onClassSelect}
+    />
+  ))}
+ 
+</div>
+
     </AppLayout>
   );
 };
@@ -70,3 +77,5 @@ ClassesScreen.defaultProps = {
 };
 
 export default ClassesScreen;
+
+

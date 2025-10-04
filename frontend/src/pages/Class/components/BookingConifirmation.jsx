@@ -1,6 +1,6 @@
 // src/components/BookingConfirmation.jsx
 import React from 'react';
-import { formatTime, getAvailableSpots } from '../utils/helpers';
+import { formatTime, getAvailableSpots } from '../Utils/helper';
 
 const BookingConfirmation = ({ selectedClass, selectedDate, student }) => {
   if (!selectedClass) return <p>No class selected.</p>;
@@ -10,7 +10,13 @@ const BookingConfirmation = ({ selectedClass, selectedDate, student }) => {
       <div className="booking-class-card">
         <div className="class-icon large">{selectedClass.image}</div>
         <h2 className="class-name">{selectedClass.name}</h2>
-        <p className="class-instructor">with {selectedClass.instructor}</p>
+       {/*<p className="class-instructor">with {selectedClass.instructor}</p>*/}
+        <p className="class-instructor">
+             with {typeof selectedClass.instructor === 'string' 
+               ? selectedClass.instructor 
+              : selectedClass.instructor?.name || selectedClass.instructorDetails?.name || 'TBA'}
+          </p>
+       
 
         <div className="booking-details">
           <div className="booking-detail">

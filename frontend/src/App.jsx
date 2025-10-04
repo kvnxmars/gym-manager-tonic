@@ -7,6 +7,8 @@ import StudentDashboard from "./pages/HomePages/StudentDashboard"; // ✅
 import StaffDashboard from "./pages/HomePages/StaffDashboard"; // ✅
 import ClassBookings from "./pages/Class/ClassBooking"; // ✅
 
+
+
 function App() {
   return (
     <Router>
@@ -19,6 +21,7 @@ function App() {
         <Route path="/class-bookings" element={<ClassBookings />} /> {/* ✅ */}
       </Routes>
     </Router>
+
   );
 }
 const root = ReactDOM.createRoot(document.getElementById('root'));

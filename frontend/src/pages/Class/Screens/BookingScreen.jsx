@@ -1,7 +1,7 @@
 // src/screens/BookingScreen.jsx
 import React from 'react';
 import AppLayout from '../components/AppLayout';
-import BookingConfirmation from '../components/BookingConfirmation';
+import BookingConfirmation from '../components/BookingConifirmation';
 
 const BookingScreen = ({ selectedClass, selectedDate, student, loading, onConfirmBooking, onCancel }) => {
   const headerContent = (

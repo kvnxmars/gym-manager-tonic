@@ -1,17 +1,32 @@
  // src/ClassBookingsApp.jsx
 import React, { useState, useEffect, useCallback } from 'react';
-import '../styles/ClassBooking.css';
+import '../../styles/ClassBooking.css';
 
-// Import Services
-import { fetchClasses as apiFetchClasses, bookClass as apiBookClass, cancelBooking as apiCancelBooking, fetchMyBookings as apiFetchMyBookings } from './Services/api';
+// ClassBooking.jsx
+//import apiService from './Services/api.js';
+
+// Then, destructure the functions you need, either here:
+//const { fetchClasses, bookClass, cancelBooking, fetchMyBookings } = apiService;
+// src/ClassBookingsApp.jsx
+
+import apiService from './Services/api.js';
+
+// Rename the imported functions to distinguish them from your local handlers
+const {
+  fetchClasses: apiFetchClasses,
+  bookClass: apiBookClass,
+  cancelBooking: apiCancelBooking,
+  fetchMyBookings: apiFetchMyBookings
+} = apiService;
+
 
 // Import Screens
 import ClassesScreen from './Screens/ClassesScreen';
 import BookingScreen from './Screens/BookingScreen';
-import MyBookingsScreen from './Screens/MyBookingsScreen';
+import MyBookingsScreen from './Screens/MyBookingScreen';
 
 // Import Utils
-import { getTodayDateString } from './utils/helpers';
+import { getTodayDateString } from './Utils/helper.js';
 
 
 const ClassBookingsApp = () => {
@@ -38,8 +53,16 @@ const ClassBookingsApp = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await apiFetchClasses(date);
-      setClasses(data);
+
+      // Ensure the date is a string in YYYY-MM-DD format
+    const formattedDate = date.toISOString
+      ? date.toISOString().split('T')[0]
+      : date;
+
+     const data = await apiFetchClasses(formattedDate);
+     setClasses(data.classes || []);
+
+      
     } catch (err) {
       setError(err.message);
       setClasses([]);
@@ -125,8 +148,12 @@ const ClassBookingsApp = () => {
   useEffect(() => {
     // Initial fetch of today's classes
     fetchClasses(selectedDate);
-  }, [fetchClasses, selectedDate]);
-
+  }, [selectedDate, fetchClasses]);
+   
+   const handleDateChange = (newDate) => {
+    setSelectedDate(newDate);
+    // The useEffect above handles the fetchClasses call
+  };
 
   // --- Event Handlers for Navigation/Actions ---
 
@@ -185,8 +212,10 @@ const ClassBookingsApp = () => {
         return <ClassesScreen />;
     }
   };
-
-  return renderScreen();
+  
+   
+  
+  return renderScreen(); 
 };
 
 export default ClassBookingsApp;

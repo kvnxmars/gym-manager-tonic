@@ -572,7 +572,7 @@ const StudentDashboard = () => {
                       {classItem.name}
                     </h4>
                     <p style={{ fontSize: '14px', color: '#888', margin: '0 0 2px 0' }}>
-                      {classItem.time} • {classItem.instructor}
+                      {classItem.time} • {classItem.instructor.name}
                     </p>
                     <p style={{ fontSize: '12px', color: '#999', margin: '0' }}>
                       {classItem.enrolled}/{classItem.capacity} enrolled

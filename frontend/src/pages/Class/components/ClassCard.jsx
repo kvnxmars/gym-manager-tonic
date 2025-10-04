@@ -1,6 +1,6 @@
 // src/components/ClassCard.jsx
 import React from 'react';
-import { formatTime, getAvailableSpots, isClassFull } from '../utils/helpers';
+import { formatTime, getAvailableSpots, isClassFull } from '../Utils/helper';
 
 const ClassCard = ({ classItem, onBookClick }) => {
   const isFull = isClassFull(classItem.capacity, classItem.booked);
@@ -11,7 +11,12 @@ const ClassCard = ({ classItem, onBookClick }) => {
         <div className="class-icon">{classItem.image}</div>
         <div className="class-main-info">
           <h3 className="class-name">{classItem.name}</h3>
-          <p className="class-instructor">with {classItem.instructor}</p>
+          {/*<p className="class-instructor">with {classItem.instructor}</p>*/}
+           <p className="class-instructor">
+             with {typeof classItem.instructor === 'string' 
+               ? classItem.instructor 
+              : classItem.instructor?.name || classItem.instructorDetails?.name || 'TBA'}
+          </p>
           <div className="class-tags">
             <span className="class-tag">{classItem.type}</span>
             <span className="class-tag">{classItem.level}</span>
