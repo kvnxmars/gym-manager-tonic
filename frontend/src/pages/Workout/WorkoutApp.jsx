@@ -144,6 +144,11 @@ const WorkoutApp = () => {
             return;
         }
 
+        if (!currentTemplate.exercises || !Array.isArray(currentTemplate.exercises)) {
+            alert('Fill in some exercises.');
+            return;
+        }
+
         setLoading(true);
         setError(null);
 
@@ -156,6 +161,7 @@ const WorkoutApp = () => {
                     .filter(ex => ex.name && ex.name.trim() !== '')
                     .map(ex => ({
                         ...ex,
+                        id: ex.id || ex._id,
                         name: ex.name.trim(),
                         sets: ex.sets.map(set => ({
                             ...set,
@@ -167,18 +173,21 @@ const WorkoutApp = () => {
             };
 
             // Determine if new or existing
-            const isNew = !editingTemplate || editingTemplate._id?.startsWith('template_');
+            const isNew = !editingTemplate || 
+                          !editingTemplate._id ||
+                          !editingTemplate._id?.startsWith('template_');
 
             let result;
             if (isNew) {
                 result = await workoutApi.createTemplate(studentNumber, cleanedTemplate);
             } else {
                 result = await workoutApi.updateTemplate(
-                    studentNumber, 
-                    editingTemplate._id, 
-                    cleanedTemplate
+                    studentNumber,
+                    editingTemplate._id,
+                    templatePayload
                 );
             }
+            
 
             // Update local state
             if (result.template) {
@@ -201,7 +210,7 @@ const WorkoutApp = () => {
         } finally {
             setLoading(false);
         }
-    }, [currentTemplate, editingTemplate, studentNumber]);
+    }, [currentTemplate, editingTemplate, studentNumber, workoutApi]);
 
     const handleDeleteTemplate = useCallback(async (templateId) => {
         if (!templateId) {
@@ -393,7 +402,7 @@ const WorkoutApp = () => {
                 //date: new Date().toISOString().split('T')[0],
                 exercises: currentTemplate.exercises.map(exercise => ({
                     exerciseId: exercise._id,
-                    exerciseName: exercise.name,
+                    name: exercise.name,
                     //type: exercise.type || 'strength',
                     sets: exercise.sets.map(set => ({
                         setId: set._id,
@@ -430,7 +439,7 @@ const WorkoutApp = () => {
                 
                 // Save to memory as backup
                 const existingSessions = JSON.parse(
-                    window.sessionStorage?.getItem?.('workoutSessions') || '[]'
+                    localStorage?.getItem?.('workoutSessions') || '[]'
                 );
                 existingSessions.push(workoutSession);
                 window.sessionStorage?.setItem?.(

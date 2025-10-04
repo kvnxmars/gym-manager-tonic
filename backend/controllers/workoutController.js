@@ -257,9 +257,9 @@ class workoutController {
 
     static async deleteTemplate(req, res) {
         try {
-            const { _id: templateId } = req.params;
+            const { _id: templateId, studentNumber } = req.params;
 
-            const { studentNumber } = req.body;
+            //const {  } = req.body;
 
             console.log("Params:", req.params);
             console.log("Body", req.body);

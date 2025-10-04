@@ -23,6 +23,10 @@ const setSchema = new mongoose.Schema({
         type: Number,
         required: false,
         default: 0
+    },
+    type: {
+        type: String,
+        enum: ['warm up', 'superset']
     }
 
 });
@@ -35,7 +39,7 @@ const ExerciseSchema = new mongoose.Schema({
         //unique: true, 
         trim: true
     },
-    exerciseName: {
+    name: {
         type: String,
         required: [true, 'Exercise name is required'],
         trim: true,

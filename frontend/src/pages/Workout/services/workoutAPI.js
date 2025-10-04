@@ -57,10 +57,19 @@ export const workoutApi = {
     async updateTemplate(studentNumber, templateId, template) {
        try {
         //step 1: update template
+        if(!templateId) {
+            throw new Error("templateId is required");
+        }
+
+        //valide template has exercises array
+        if (!template.exercises || !Array.isArray(template.exercises)) {
+            throw new Error("Template must have an exercise array");
+        }
+        
+        console.log("Updating templateId:", templateId); //debug
         const templatePayload = {
             studentNumber,
             name: template.name.trim(),
-        
 
         };
         const templateRes = await fetch (`${API_URL}/templates/${templateId}`, {
@@ -75,8 +84,14 @@ export const workoutApi = {
 
         //update exercises
         for (const ex of template.exercises) {
+
+            if (!ex.id) {
+                console.warn("Skipping exercise without id:", ex);
+                continue;
+            }
             const exercisePayload = {
-                exerciseName: ex.name.trim()
+                exerciseName: ex.name.trim(),
+                sets: ex.sets || []
             };
 
             const exerciseRes = await fetch(`${API_URL}/templates/${templateId}/${ex.id}`, {
@@ -90,25 +105,29 @@ export const workoutApi = {
             }
 
             //update sets for this exercise
-            for (const set of exercise.sets) {
-                const setPayload = {
-                    weight: set.weight || "",
-                    reps: set.reps || ""
-                };
+            if (ex.sets && Array.isArray(ex.sets)) {
+                for (const [index, set] of ex.sets.entries()) {
+                    const setPayload = {
+                        weight: set.weight || "",
+                        reps: set.reps || ""
+                    };
 
-                const setRes = await fetch(`${API_URL}/templates/${templateId}/${ex.id}/${setIndex}}`, {
-                    method: "PUT",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(setPayload),
-                });
+                    const setRes = await fetch(`${API_URL}/templates/${templateId}/${ex.id}/${index}}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(setPayload),
+                    });
 
-                 if (!setRes.ok) {
-                    throw new Error(`Failed to update set ${setIndex}: ${await setRes.text()}`);
+                    if (!setRes.ok) {
+                        throw new Error(`Failed to update set ${index}: ${await setRes.text()}`);
+                    }
                 }
 
             }
         }
-        return {message : "Template successfully updated."};
+        //fetch and return template
+        const updatedTemplate = await this.getTemplateById(templateId);
+        return {template: updatedTemplate, message : "Template successfully updated."};
     }catch (error) {
         console.error("Error updating template", error);
         throw error;
@@ -117,7 +136,7 @@ export const workoutApi = {
 
     async deleteTemplate(studentNumber, templateId) {
         try {
-            const response = await fetch(`${API_URL}/templates/${templateId}`, {
+            const response = await fetch(`${API_URL}/templates/${studentNumber}/${templateId}`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ studentNumber })
