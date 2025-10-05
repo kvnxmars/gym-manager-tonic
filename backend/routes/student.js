@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const StudentProfile = require("../models/Student");
+//const StudentProfile = require("../models/Student");
 const QRCode = require("qrcode"); // ✅ required for QR
+const StudentController = require("../controllers/studentController");
 
 // CREATE profile
 router.post("/", async (req, res) => {
@@ -28,6 +29,7 @@ router.get("/", async (req, res) => {
 });
 
 // READ profile + QR
+router.get("/:studentNumber", StudentController.getStudentInfo);
 router.get("/:studentNumber/qrcode", async (req, res) => {
   try {
     const studentNumber = req.params.studentNumber;

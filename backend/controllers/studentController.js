@@ -48,14 +48,21 @@ static async getCheckIns (req, res) {
 static async getStudentInfo (req, res) {
   try {
     //extract user ID from url 
-    const {studentNumber} = req.params.studentNumber;
+    const {studentNumber} = req.params;
+
+    console.log("Student number received:", studentNumber);
 
     // Validate studentNumber
-    if (!studentNumber || isNaN(Number(studentNumber)) || studentNumber.length < 6) {
+    if (!studentNumber || studentNumber.length < 6) {
+      
       return res.status(400).json({ message: "Invalid student number" });
     }
+
     //use mongoose to find the user
-    const student = await User.findOne({studentNumber: studentNumber});
+    const student = await User.findOne({
+      studentNumber: studentNumber,
+      role: "student"
+    });
 
     //check if the user exists
     if(!student) {
@@ -64,7 +71,7 @@ static async getStudentInfo (req, res) {
 
     //if the user is found, send info as json
     res.status(200).json({
-      message: "user retrieved successfully",
+      message: "Student retrieved successfully",
       user: student,
     });
 

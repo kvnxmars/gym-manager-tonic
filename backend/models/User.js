@@ -4,8 +4,9 @@ const userSchema = new mongoose.Schema({
   // For students only
   studentNumber: {
     type: String,
+    //unique: true,
     sparse: true, // Allows null for non-students
-    unique: true,
+    required: function() { return this.role === 'student'; }
   },
   
   firstName: {
@@ -45,6 +46,13 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+
+  membershipStatus: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active'
+  },
 });
+
 
 module.exports = mongoose.model("User", userSchema);
