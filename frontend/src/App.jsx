@@ -10,7 +10,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 //import Std from "./pages/HomePages/std/std";
 import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
 import LandingPage from "./pages/landingPage";
-import AdminSignUp from "./pages/AdminSignup";
+//import AdminSignUp from "./pages/AdminSignup";
 import ProfileApp from "./pages/profileApp/profileApp";
 
 

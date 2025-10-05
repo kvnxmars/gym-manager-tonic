@@ -376,3 +376,4 @@ class workoutController {
        
     };
 }
+module.exports = workoutController;
