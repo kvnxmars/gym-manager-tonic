@@ -40,6 +40,8 @@ function ProtectedRoute({ children, allowedRole }) {
   return children;
 }*/
 
+
+
 function App() {
   return (
     <Router>
@@ -101,6 +103,7 @@ function App() {
       </Routes>
       </ErrorBoundary>
     </Router>
+
   );
 }
 

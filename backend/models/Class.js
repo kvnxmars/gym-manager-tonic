@@ -86,6 +86,29 @@ const classSchema = new mongoose.Schema({
         }
     },
 
+    // CRITICAL: Add the bookedStudents field for population
+    
+bookedStudents: [{ 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Student' // This tells Mongoose to look up in the 'Student' collection
+}],
+
+// Helper fields to track current booking status (as seen in your controller logic)
+booked: { 
+    type: Number, 
+    default: 0 
+},
+spaceLeft: { 
+    type: Number, 
+    default: 0 
+},
+status: {
+    type: String,
+    enum: ['active', 'cancelled', 'completed'],
+    default: 'active'
+},
+
+
     //schedule details
     schedule: {
         days: [{
@@ -112,7 +135,26 @@ const classSchema = new mongoose.Schema({
         }
     }
 
+
     
     });
+    // Add a pre-save hook to automatically update booked/spaceLeft counts
+    /*
+classSchema.pre('save', function(next) {
+    // Ensure bookedStudents is an array before checking length
+    const bookedCount = Array.isArray(this.bookedStudents) ? this.bookedStudents.length : 0;
+    
+    // Update the 'booked' and 'spaceLeft' properties
+    this.booked = bookedCount;
+    this.spaceLeft = this.capacity - bookedCount;
+    
+    next();
+    
+});
+*/
+    
+
+    
+
 
     module.exports = mongoose.models.Class || mongoose.model('Class', classSchema); // Create Class model

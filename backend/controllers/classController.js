@@ -10,6 +10,7 @@ const Class = require("../models/Class");
 class ClassController {
 
     //GET api/classes/campuses - Get all campuses
+    /*
     static async getCampuses(req, res) {
         try {
             // Campus management removed; return empty list to keep API stable
@@ -23,8 +24,10 @@ class ClassController {
              });
         }
     }
+    */
 
     //POST api/classes/create - Create a new class
+    
     static async createClass(req, res) {
         try {
             const {
@@ -155,48 +158,106 @@ class ClassController {
              });
         }
     }
+    
+        
+
+   
 
     //GET api/classes - all classes despite campus
-   /* static async getAllClasses(req, res) {
-        try {
-            const { date } = req.query;
-            let filter = {};
+    
+// New code in classController.js
 
-            if (date) {
-                const searchDate = new Date(date);
-                const nextDay = new Date(searchDate);
-                nextDay.setDate(nextDay.getDate() + 1);
-                filter.date = { 
-                    $gte: searchDate, 
-                    $lt: nextDay 
-                };
-            }
+static async getAllClasses(req, res) {
+    
+    try {
+        const { date} = req.query;
 
-           
-            let filter = { status: 'active' };
-            //const classId = req.params;
-            const classes = await Class.find(filter)
-            //.sort({ date: 1, time: 1 })
-            .populate('bookedStudents', 'studentNumber name.first name.last');
+        // Base filter
+        let filter = { status: 'active' };
 
-            res.json({ classes });
-        } catch (err) {
-            console.error("Error fetching classes:", err);
-            res.status(500).json({ 
-                message: "Server error fetching classes",
-                error: err.message
-             });
-            
+        if (date) {
+            // ... (date filtering logic)
+            const searchDate = new Date(date);
+            const nextDay = new Date(searchDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+
+            filter.date = {
+                $gte: searchDate,
+                $lt: nextDay
+            };
         }
 
-    
-    } */
+       // if (campus) {
+           // filter.campus = campus;
+        //}
 
-    //GET api/classes - all classes
-    static async getAllClasses(req, res) {
+        // Fetch classes from your database
+        // NOTE: Ensure ClassModel is properly defined/imported in classController.js
+        // If not using ClassModel, replace it with your actual class fetching method.
+        //const classes = await Class.find(filter);
+        const classes = await Class.find({});
+
+        // FIX: Return the classes inside a 'classes' property
+        return res.status(200).json({ classes: classes }); // <--- FIXED
+        // This will return: { "classes": [...] }
+
+    } catch (error) {
+        console.error('Error fetching classes:', error);
+        return res.status(500).json({ message: 'Server error fetching classes', error: error.message });
+    }
+}
+    
+   
+    // === Other Methods (Included for completeness/context) ===
+
+    //POST api/classes/create - Create a new class
+    static async createClass(req, res) {
         try {
-            const { date } = req.query;
-            let filter = {};
+            // ... your class creation logic ...
+            const newClass = await Class.create(req.body); // Placeholder
+            
+            res.status(201).json({ message: "Class created successfully.", class: newClass });
+        } catch (err) {
+            console.error("Error creating class:", err);
+            res.status(500).json({ 
+                message: "Server error creating class",
+                error: err.message
+             });
+        }
+    }
+    
+    //PUT api/classes/update/:classId - Admin updates class details
+    static async updateClass(req, res) {
+        try {
+            const { classId } = req.params;
+            const updatedClass = await Class.findOneAndUpdate({ classId: classId }, req.body, { new: true });
+            
+            if (!updatedClass) {
+                 return res.status(404).json({ message: "Class not found for update." });
+            }
+
+            res.json({ message: "Class updated successfully.", updatedClass });
+        } catch (err) {
+            console.error("Error updating class:", err);
+            res.status(500).json({ 
+                message: "Server error updating class",
+                error: err.message
+             });
+        }
+    }
+
+    
+    //GET /api/classes/campus/:campusName - Get classes by campus
+    /*
+    static async getClassesByCampus(req, res) {
+        try {
+            const { campusName } = req.params; // Campus name from URL parameter
+            const { date } = req.query; // Optional date filter
+
+            let filter = {
+                campus: campusName,
+                status: 'active'
+            };
 
             if (date) {
                 const searchDate = new Date(date);
@@ -242,6 +303,7 @@ class ClassController {
             return res.status(500).json({ message: 'Server error', error: err.message });
         }
     }
+        */
 
     //GET api/classes/student/:studentId - Get classes booked by a student
     static async getStudentClasses(req, res) {

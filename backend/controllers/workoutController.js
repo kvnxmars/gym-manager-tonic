@@ -333,7 +333,7 @@ class workoutController {
     //===========================SUMMARY ROUTES====================//
     //=============================================================//
 
-    //
+    
 // This function will calculate and return the student's workout stats
     static async getWorkoutStats(req, res) {
         try {
@@ -373,7 +373,6 @@ class workoutController {
             console.error("Error fetching workout stats:", err);
             res.status(500).json({ message: "Server error", error: err.message });
         }
+       
     };
 }
-
-module.exports = workoutController;

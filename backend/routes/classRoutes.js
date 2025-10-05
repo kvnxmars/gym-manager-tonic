@@ -1,3 +1,5 @@
+
+
 const express = require('express');
 const router = express.Router();
 const classController = require('../controllers/classController');
@@ -24,3 +26,5 @@ router.post('/book', classController.bookClass);
 router.post('/cancel', classController.cancelBooking);
 
 module.exports = router;
+
+

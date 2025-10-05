@@ -5,6 +5,7 @@ const workoutController = require("../controllers/workoutController");
 
 // POST /api/workouts → log a workout
 
+
 router.post("/", async (req, res) => {
   try {
     const workout = new Workout(req.body);
