@@ -35,43 +35,6 @@ const equipmentRoutes = require("./routes/equipment");
 const reportRoutes = require("./routes/reports");
 
 
-
-/*app.post("/api/login", async (req, res) => {
-  try {
-    const { studentNumber, password } = req.body;
-
-    if (!studentNumber || !password) {
-      return res.status(400).json({ message: "All fields are required" });
-    }
-
-    const student = await Student.findOne({ studentNumber });
-    if (!student) return res.status(401).json({ message: "Invalid credentials" });
-
-    const isMatch = await bcrypt.compare(password, student.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
-
-    // ✅ Create JWT
-    const token = jwt.sign({ id: student._id, role: "student" }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    return res.status(200).json({
-      message: "Login successful!",
-      token,
-      student: {
-        id: student._id,
-        studentNumber: student.studentNumber,
-        name: student.name,
-        email: student.email,
-        membershipStatus: student.membershipStatus,
-      },
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "An error occurred during login." });
-  }
-});*/
-
 // Use routes
 app.use("/api/admin", adminRoutes); // Admin routes (checkins, qr check-in, etc.)
 app.use("/api/auth", authRoutes); // Auth routes
@@ -84,8 +47,6 @@ app.use("/api/templates", templateRoutes); // Workout template routes
 app.use("/api/booking", bookingRoutes); // Booking routes
 app.use("/api/equipment", equipmentRoutes);
 app.use("/api/reports", reportRoutes);
-// Campus routes intentionally disabled; campus management removed from the application
-// app.use("/api/campus", campusRoutes);
 
 
 // Health check

@@ -1,31 +1,14 @@
 //controllers/classController.js
 //const campusData =  '../../data/campusData'; // Static campus data
-const Student = require("../models/Student");
+const User = require("../models/User");
 const Booking = require("../models/Booking");
-const { saslprep } = require("@mongodb-js/saslprep");
 const Class = require("../models/Class");
 
 //====CLASS MANAGEMENT ROUTES====//
 
 class ClassController {
 
-    //GET api/classes/campuses - Get all campuses
-    /*
-    static async getCampuses(req, res) {
-        try {
-            // Campus management removed; return empty list to keep API stable
-            res.json({ campuses: [] });
-        }
-        catch (err) {
-            console.error("Error fetching campuses:", err);
-            res.status(500).json({ 
-                message: "Server error fetching campuses",
-                error: err.message
-             });
-        }
-    }
-    */
-
+    
     //POST api/classes/create - Create a new class
     
     static async createClass(req, res) {
@@ -159,9 +142,6 @@ class ClassController {
         }
     }
     
-        
-
-   
 
     //GET api/classes - all classes despite campus
     
@@ -187,14 +167,7 @@ static async getAllClasses(req, res) {
             };
         }
 
-       // if (campus) {
-           // filter.campus = campus;
-        //}
-
-        // Fetch classes from your database
-        // NOTE: Ensure ClassModel is properly defined/imported in classController.js
-        // If not using ClassModel, replace it with your actual class fetching method.
-        //const classes = await Class.find(filter);
+       
         const classes = await Class.find({});
 
         // FIX: Return the classes inside a 'classes' property
@@ -208,23 +181,7 @@ static async getAllClasses(req, res) {
 }
     
    
-    // === Other Methods (Included for completeness/context) ===
-
-    //POST api/classes/create - Create a new class
-    static async createClass(req, res) {
-        try {
-            // ... your class creation logic ...
-            const newClass = await Class.create(req.body); // Placeholder
-            
-            res.status(201).json({ message: "Class created successfully.", class: newClass });
-        } catch (err) {
-            console.error("Error creating class:", err);
-            res.status(500).json({ 
-                message: "Server error creating class",
-                error: err.message
-             });
-        }
-    }
+    
     
     //PUT api/classes/update/:classId - Admin updates class details
     static async updateClass(req, res) {
@@ -247,109 +204,68 @@ static async getAllClasses(req, res) {
     }
 
     
-    //GET /api/classes/campus/:campusName - Get classes by campus
-    /*
-    static async getClassesByCampus(req, res) {
-        try {
-            const { campusName } = req.params; // Campus name from URL parameter
-            const { date } = req.query; // Optional date filter
-
-            let filter = {
-                campus: campusName,
-                status: 'active'
-            };
-
-            if (date) {
-                const searchDate = new Date(date);
-
-                //check for valid date
-                if (isNaN(searchDate.getTime())) {
-                    return res.status(400).json({ message: "Invalid date foremat "})
-                }
-                const nextDay = new Date(searchDate);
-                nextDay.setDate(nextDay.getDate() + 1);
-                filter.date = { 
-                    $gte: searchDate, 
-                    $lt: nextDay 
-                };
-            }
-
-            // Fetch classes only; no populate
-            const classes = await Class.find(filter)
-                .sort({ date: 1, time: 1 });
-
-            res.json({ classes });
-        } catch (err) {
-            console.error("Error fetching classes:", err);
-            res.status(500).json({ 
-                message: "Server error fetching classes",
-                error: err.message
-            });
-        }
-    }
-
-        
     
-    //GET /api/classes/campus/:campusName - Get classes by campus
-    static async getClassesByCampus(req, res) {
-        // Campus concept has been removed from the codebase. Keep this route available
-        // but respond with a 410 Gone status to indicate the endpoint is deprecated.
-        try {
-            return res.status(410).json({
-                message: 'Campus-based queries have been removed from the API.'
-            });
-        } catch (err) {
-            console.error("Error handling deprecated campus route:", err);
-            return res.status(500).json({ message: 'Server error', error: err.message });
-        }
-    }
-        */
 
-    //GET api/classes/student/:studentId - Get classes booked by a student
+    // GET api/classes/student/:studentNumber - Get student's bookings
     static async getStudentClasses(req, res) {
         try {
-            const { studentId } = req.params;
+            const { studentNumber } = req.params;
 
+            // Find all classes where this studentNumber is in bookedStudents
             const classes = await Class.find({ 
-                bookedStudents: studentId, 
+                bookedStudents: studentNumber,
                 status: 'active' 
-            }).populate('bookedStudents', 'studentNumber name.first name.last'); // Populate bookedStudents with studentNumber and name
+            });
 
-            //transform to match frontend expectations
+            // Transform to match frontend expectations
             const bookings = classes.map(cls => ({
-                bookingId: `${cls._id}_${studentId}`,
-                ...cls.toObject(), // Convert Mongoose document to plain object
-                bookingDate: cls.date,
+                bookingId: `${cls._id}_${studentNumber}`,
+                classId: cls._id,
+                className: cls.name,
+                instructor: cls.instructor,
+                date: cls.date,
+                time: cls.schedule?.time,
+                duration: cls.schedule?.duration,
+                location: cls.location,
                 status: 'booked'
             }));
 
             res.json({ bookings });
+
         } catch (err) {
             console.error("Error fetching student classes:", err);
             res.status(500).json({ 
-                message: "Server error fetching student classes",
+                message: "Server error fetching bookings",
                 error: err.message
-             });
+            });
         }
     }
+
+    
+
 
     // POST api/classes/book - Book a class
     static async bookClass(req, res) {
         try {
-            const { studentId, classId, date } = req.body;
+            const { studentNumber, classId, date } = req.body;
             
             // Validate required fields
-            if (!studentId || !classId || !date) {
+            if (!studentNumber || !classId || !date) {
                 return res.status(400).json({
                     message: "Student ID, Class ID, and Date are required to book a class."
                 });
             }
 
             //find student
-            const student = await Student.findById(studentId);
+            const student = await User.findOne({studentNumber: studentNumber});
             if (!student) {
                 return res.status(404).json({ message: "Student not found." });
             }
+
+            if (student.role !== 'student') {
+                return res.status(403).json({ message: "Only students can book classes" });
+            }
+
 
             //find class
             const cls = await Class.findById(classId);
@@ -363,14 +279,16 @@ static async getAllClasses(req, res) {
             }
 
             //check if student already booked
-            if (cls.bookedStudents.includes(studentId)) {
+            if (cls.bookedStudents.includes(studentNumber)) {
                 return res.status(400).json({ 
                     message: "Student has already booked this class." 
                 });
             }
 
             //add student to class
-            cls.bookedStudents.push(studentId);
+            cls.bookedStudents.push(studentNumber);
+            cls.booked = cls.bookedStudents.length;
+            cls.spaceLeft = cls.capacity - cls.booked;
             await cls.save(); // Save the updated class document
 
             //create booking record
@@ -382,11 +300,12 @@ static async getAllClasses(req, res) {
                     bookingId,
                     student: 
                     {
-                        id: student._id,
+                        //id: student._id,
                         studentNumber: student.studentNumber,
                         name: 
                         {
-                            first: student.name.first
+                            first: student.firstName,
+                            last: student.lastName
                         }
                 },
                 class: {
@@ -405,25 +324,34 @@ static async getAllClasses(req, res) {
                 
                 await booking.save();
                 bookingId = booking.bookingId; // Use the generated bookingId from the saved booking
+
+                res.status(200).json({
+                    message: "Class booked successfully.",
+                    booking: booking,
+                    class: cls
+                });
             }
             catch (err) 
             {
                 console.error("Error creating booking record:", err);
                 //rollback student addition to class
-                cls.bookedStudents = cls.bookedStudents.filter(id => id.toString() !== studentId);
+                cls.bookedStudents = cls.bookedStudents.filter(
+                    num => num !== studentNumber
+                );
+
+                cls.booked = cls.bookedStudents.length;
+                cls.spaceLeft = cls.capacity - cls.booked;
                 await cls.save();
+
                 return res.status(500).json
                 ({ 
                     message: "Server error creating booking record",
                     error: err.message
                  });
-            }
+    
 
-            res.status(200).json({
-                message: "Class booked successfully.",
-                class: cls,
-                bookingId
-            });
+        }
+        
             }
             catch (err) 
             {   
@@ -435,82 +363,66 @@ static async getAllClasses(req, res) {
             }
 
         }
-    // DELETE api/classes/cancel - Cancel a class booking
+    // DELETE api/classes/cancel/:bookingId - Cancel booking
     static async cancelBooking(req, res) {
         try {
             const { bookingId } = req.params;
-            const { studentId } = req.body;
+            const { studentNumber } = req.body;
 
-            // try to find by bookingId first
-            let booking = await Booking.findOne({ bookingId });
-
-            if (booking) {
-                //update booking status
-                booking.booking.status = 'cancelled';
-                booking.cancellation = {
-                    cancelledAt: new Date(),
-                    reason: 'Cancelled by user'
-                };
-                await booking.save();
-
-                //remove student from class
-                const cls = await Class.findById(booking.class.id);
-                if (cls) {
-                    cls.bookedStudents = cls.bookedStudents.filter(
-                        id => id.toString() 
-                        !== booking.student.id.toString()
-                    );
-                    await cls.save();
-                }
-
-                return res.json({ 
-                    message: "Booking cancelled successfully.", 
-                    booking 
+            if (!studentNumber) {
+                return res.status(400).json({ 
+                    message: "Student number is required" 
                 });
             }
 
-            //fallback: try to parse (legacy) classId and studentId from bookingId
-            if(bookingId.includes('_')) {
-                const [classId, studentIdFromId] = bookingId.split('_');
+            // Find booking by bookingId
+            const booking = await Booking.findOne({ bookingId });
 
-                const cls = await Class.findById(classId);
-                if (!cls) {
-                    return res.status(404).json({ message: "Class not found." });
-                }
+            if (!booking) {
+                return res.status(404).json({ 
+                    message: "Booking not found" 
+                });
+            }
 
-                // Prefer the provided studentId (from body); fall back to the parsed value
-                const studentNumberToUse = studentId || studentIdFromId;
-                if (!studentNumberToUse) {
-                    return res.status(400).json({ message: "Student ID is required to cancel booking." });
-                }
+            // Verify the student owns this booking
+            if (booking.student.studentNumber !== studentNumber) {
+                return res.status(403).json({ 
+                    message: "You can only cancel your own bookings" 
+                });
+            }
 
-                //booking not found
-                if (!cls.bookedStudents.some(id => id.toString() === studentNumberToUse.toString())) {
-                    return res.status(404).json({ message: "Booking not found for this student in the specified class." });
-                }
+            // Update booking status
+            booking.booking.status = 'cancelled';
+            booking.cancellation = {
+                cancelledAt: new Date(),
+                reason: 'Cancelled by user'
+            };
+            await booking.save();
 
-                // Remove the student from bookedStudents and save
+            // Remove student from class bookedStudents array
+            const cls = await Class.findById(booking.class.id);
+            if (cls) {
                 cls.bookedStudents = cls.bookedStudents.filter(
-                    id => id.toString() !== studentNumberToUse.toString()
+                    num => num !== studentNumber
                 );
+                cls.booked = cls.bookedStudents.length;
+                cls.spaceLeft = cls.capacity - cls.booked;
                 await cls.save();
+            }
 
-                return res.status(200).json({
-                    message: "Booking cancelled successfully.",
+            res.json({ 
+                message: "Booking cancelled successfully.", 
+                booking 
+            });
+
+        } catch (err) {
+            console.error("Error cancelling booking:", err);
+            res.status(500).json({ 
+                message: "Server error cancelling booking",
+                error: err.message
             });
         }
-        else {
-            return res.status(404).json({ message: "Booking not found." });
-        }
-    }catch (err) {
-        console.error("Error cancelling booking:", err);
-        res.status(500).json({ 
-            message: "Server error cancelling booking",
-            error: err.message
-         });
     }
-}
-
 // PUT api/classes/update/:classId - Update class details
     static async updateClass(req, res) {
         try {

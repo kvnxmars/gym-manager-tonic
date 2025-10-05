@@ -1,17 +1,12 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-//import { Button, Card, CardContent, Typography, TextField, Grid } from '@mui/material';
 import SignIn from "./pages/Auth/LoginPage";
 import SignUp from "./pages/Auth/SignupPage";
 import Workout from './pages/Workout/WorkoutApp';
-//import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
 import StaffDashboard from "./pages/HomePages/StaffDashboard";
 import ClassBookings from "./pages/Class/ClassBooking";
-import EquipmentManager from "./pages/Admin/EquipmentManager";
 import ErrorBoundary from "./components/ErrorBoundary";
-//import Std from "./pages/HomePages/std/std";
 import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
 import LandingPage from "./pages/landingPage";
-//import AdminSignUp from "./pages/AdminSignup";
 import ProfileApp from "./pages/profileApp/profileApp";
 
 
@@ -42,6 +37,7 @@ function ProtectedRoute({ children, allowedRole }) {
 }*/
 
 
+import EquipmentManager from "./pages/Admin/EquipmentManager";
 
 function App() {
   return (
@@ -52,10 +48,51 @@ function App() {
         <Route path="/" element={<LandingPage/> } />
         <Route path="/login" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/student-dashboard" element={<StudentDashboard />} />
-        <Route path="/staff-dashboard" element={<StaffDashboard />} />
-        <Route path="/workout" element={<Workout />} />
-        <Route path="/class-bookings" element={<ClassBookings />} />
+
+        {/**Protected Student Routes */}
+        <Route 
+        path="/student-dashboard" 
+        element={
+            <StudentDashboard /> 
+        }
+        />
+
+        <Route 
+          path="/workout" 
+          element= {<Workout />}
+         
+          />
+
+          <Route 
+          path="/class-bookings" 
+          element={
+          
+              <ClassBookings />
+          }
+          />
+
+          <Route 
+          path="/profile" 
+          element={
+          /*<ProtectedRoute allowedRole="student">*/
+              <ProfileApp />
+           /* </ProtectedRoute> */
+          }
+          />
+
+          {/**Protected admin routes */}
+          <Route 
+          path="/staff-dashboard" 
+          element={
+          /*<ProtectedRoute allowedRole="admin">*/
+              <StaffDashboard />
+           /* </ProtectedRoute> */
+          }
+          />
+          <Route path="/admin/equipment" element={<EquipmentManager />} />
+          
+        {/* Catch all - redirect to landing */}
+        {/*<Route path="*" element={<Navigate to="/" replace />} />*/}
       </Routes>
       </ErrorBoundary>
     </Router>

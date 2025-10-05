@@ -22,7 +22,7 @@ router.delete('/delete/:classId', classController.deleteClass); // DELETE /api/c
 router.get('/bookings/all', classController.getAllBookings); // GET /api/classes/bookings/all
 
 // Student booking actions
-router.post('/book', classController.bookClass);
+router.post('/book/:classId', classController.bookClass);
 router.post('/cancel', classController.cancelBooking);
 
 module.exports = router;
