@@ -1,10 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { Tabs, Tab, Box, Typography } from "@mui/material";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import {
-  LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer,
-} from "recharts";
+import {LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer} from "recharts";
 import "../../styles/StaffDashboard.css"; // Assuming this CSS file is used
 
 const API_URL = import.meta.env.VITE_API_URL;
