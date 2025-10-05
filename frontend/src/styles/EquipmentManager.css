@@ -1,0 +1,40 @@
+.equipment-page {
+  padding: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.equipment-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.equipment-form input,
+.equipment-form button {
+  padding: 8px;
+}
+
+.equipment-form button {
+  background: #6200ee;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.equipment-list {
+  list-style: none;
+  padding: 0;
+}
+
+.equipment-list li {
+  margin: 8px 0;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

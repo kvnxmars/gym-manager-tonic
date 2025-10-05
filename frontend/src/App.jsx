@@ -6,6 +6,7 @@ import Workout from './pages/Workout/WorkoutApp';
 //import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
 import StaffDashboard from "./pages/HomePages/StaffDashboard";
 import ClassBookings from "./pages/Class/ClassBooking";
+import EquipmentManager from "./pages/Admin/EquipmentManager";
 import ErrorBoundary from "./components/ErrorBoundary";
 //import Std from "./pages/HomePages/std/std";
 import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
@@ -51,55 +52,10 @@ function App() {
         <Route path="/" element={<LandingPage/> } />
         <Route path="/login" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-
-        {/**Protected Student Routes */}
-        <Route 
-        path="/student-dashboard" 
-        element={
-          
-            <StudentDashboard /> 
-          
-        }
-        />
-
-        <Route 
-          path="/workout" 
-          element= {<Workout />}
-         
-              
-            
-          
-          />
-
-          <Route 
-          path="/class-bookings" 
-          element={
-          
-              <ClassBookings />
-          }
-          />
-
-          <Route 
-          path="/profile" 
-          element={
-          /*<ProtectedRoute allowedRole="student">*/
-              <ProfileApp />
-           /* </ProtectedRoute> */
-          }
-          />
-
-          {/**Protected admin routes */}
-          <Route 
-          path="/staff-dashboard" 
-          element={
-          /*<ProtectedRoute allowedRole="admin">*/
-              <StaffDashboard />
-           /* </ProtectedRoute> */
-          }
-          />
-          
-        {/* Catch all - redirect to landing */}
-        {/*<Route path="*" element={<Navigate to="/" replace />} />*/}
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/staff-dashboard" element={<StaffDashboard />} />
+        <Route path="/workout" element={<Workout />} />
+        <Route path="/class-bookings" element={<ClassBookings />} />
       </Routes>
       </ErrorBoundary>
     </Router>
