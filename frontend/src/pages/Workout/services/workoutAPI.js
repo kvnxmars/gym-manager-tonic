@@ -1,87 +1,190 @@
-// API Configuration
-const API_URL = "http://localhost:5000/api/templates";
-const STUDENT_NUMBER = localStorage.getItem("studentNumber") || "";
+// ============================================================================
 
-class WorkoutTemplateAPI {
-  constructor() {
-    this.baseURL = API_URL;
-    this.studentNumber = STUDENT_NUMBER;
-  }
+const API_URL = import.meta.env.VITE_API_URL;
 
-  async fetchTemplates() {
-    const response = await fetch(`${this.baseURL}/${this.studentNumber}`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch templates');
+export const workoutApi = {
+    async fetchTemplates(studentNumber) {
+        try {
+            const response = await fetch(`${API_URL}/templates/${studentNumber}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch templates: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.templates || data || [];
+        } catch (error) {
+            console.error('Error fetching templates:', error);
+            throw error;
+        }
+    },
+
+    async createTemplate(studentNumber, template) {
+        try {
+            const payload = {
+                studentNumber,
+                name: template.name.trim(),
+                category: template.category || 'Custom',
+                exercises: template.exercises.map(ex => ({
+                    name: ex.name.trim(),
+                    type: ex.type || 'strength',
+                    sets: ex.sets.map(set => ({
+                        weight: set.weight || '',
+                        reps: set.reps || '',
+                        previous: set.previous || '',
+                        completed: false
+                    }))
+                }))
+            };
+
+            const response = await fetch(`${API_URL}/templates/create`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to create template: ${errorText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error creating template:', error);
+            throw error;
+        }
+    },
+
+
+    async updateTemplate(studentNumber, templateId, template) {
+       try {
+        //step 1: update template
+        if(!templateId) {
+            throw new Error("templateId is required");
+        }
+
+        //valide template has exercises array
+        if (!template.exercises || !Array.isArray(template.exercises)) {
+            throw new Error("Template must have an exercise array");
+        }
+        
+        console.log("Updating templateId:", templateId); //debug
+        const templatePayload = {
+            studentNumber,
+            name: template.name.trim(),
+
+        };
+        const templateRes = await fetch (`${API_URL}/templates/${templateId}`, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json" },
+            body: JSON.stringify(templatePayload),
+        });
+        
+        if (!templateRes.ok) {
+            throw new Error(`Failed to update: ${await templateRes.text()}`);
+        }
+
+        //update exercises
+        for (const ex of template.exercises) {
+
+            if (!ex.id) {
+                console.warn("Skipping exercise without id:", ex);
+                continue;
+            }
+            const exercisePayload = {
+                exerciseName: ex.name.trim(),
+                sets: ex.sets || []
+            };
+
+            const exerciseRes = await fetch(`${API_URL}/templates/${templateId}/${ex.id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json"},
+                body: JSON.stringify(exercisePayload),
+            });
+
+            if (!exerciseRes.ok) {
+                throw new Error(`Failed to update exercise ${ex.id}: ${await exerciseRes.text()}`);
+            }
+
+            //update sets for this exercise
+            if (ex.sets && Array.isArray(ex.sets)) {
+                for (const [index, set] of ex.sets.entries()) {
+                    const setPayload = {
+                        weight: set.weight || "",
+                        reps: set.reps || ""
+                    };
+
+                    const setRes = await fetch(`${API_URL}/templates/${templateId}/${ex.id}/${index}}`, {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(setPayload),
+                    });
+
+                    if (!setRes.ok) {
+                        throw new Error(`Failed to update set ${index}: ${await setRes.text()}`);
+                    }
+                }
+
+            }
+        }
+        //fetch and return template
+        const updatedTemplate = await this.getTemplateById(templateId);
+        return {template: updatedTemplate, message : "Template successfully updated."};
+    }catch (error) {
+        console.error("Error updating template", error);
+        throw error;
     }
-    const data = await response.json();
-    return data.templates || [];
-  }
+},
 
-  async createTemplate(templateData) {
-    const response = await fetch(`${this.baseURL}/create`, {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ 
-        ...templateData,
-        studentNumber: this.studentNumber 
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to create template');
+    async deleteTemplate(studentNumber, templateId) {
+        try {
+            const response = await fetch(`${API_URL}/templates/${studentNumber}/${templateId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ studentNumber })
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to delete template: ${errorText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error deleting template:', error);
+            throw error;
+        }
+    },
+
+    async saveWorkoutSession(workoutSession) {
+        try {
+            const response = await fetch(`${API_URL}/workouts/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(workoutSession)
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Failed to save workout: ${errorText}`);
+            }
+
+            return await response.json();
+        } catch (error) {
+            console.error('Error saving workout session:', error);
+            throw error;
+        }
+    },
+
+    async fetchWorkoutHistory(studentNumber) {
+        try {
+            const response = await fetch(`${API_URL}/workouts/${studentNumber}`);
+            if (!response.ok) {
+                throw new Error(`Failed to fetch workout history: ${response.status}`);
+            }
+            const data = await response.json();
+            return data.sessions || data || [];
+        } catch (error) {
+            console.error('Error fetching workout history:', error);
+            throw error;
+        }
     }
-    
-    const data = await response.json();
-    return data.template;
-  }
-
-  async updateTemplate(templateId, templateData) {
-    const response = await fetch(`${this.baseURL}/${templateId}`, {
-      method: 'PUT',
-      headers: { 
-        'Content-Type': 'application/json' 
-      },
-      body: JSON.stringify({ 
-        ...templateData,
-        studentNumber: this.studentNumber 
-      }),
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to update template');
-    }
-    
-    const data = await response.json();
-    return data.template;
-  }
-
-  async deleteTemplate(templateId) {
-    const response = await fetch(`${this.baseURL}/${templateId}`, {
-      method: 'DELETE',
-    });
-    
-    if (!response.ok) {
-      throw new Error('Failed to delete template');
-    }
-    
-    return true;
-  }
-
-  // Utility method to get student number (useful for localStorage keys)
-  getStudentNumber() {
-    return this.studentNumber;
-  }
-
-  // Method to update student number (useful when user changes)
-  setStudentNumber(newStudentNumber) {
-    this.studentNumber = newStudentNumber;
-  }
-}
-
-// Export singleton instance
-export const workoutTemplateAPI = new WorkoutTemplateAPI();
-
-// Export class for testing or multiple instances
-export { WorkoutTemplateAPI };
+};

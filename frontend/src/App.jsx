@@ -1,32 +1,103 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import ReactDOM from 'react-dom/client';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import SignIn from "./pages/Auth/LoginPage";
 import SignUp from "./pages/Auth/SignupPage";
-import Workout from './pages/Workout/components/WorkoutApp';
-import StudentDashboard from "./pages/HomePages/StudentDashboard"; // ✅
-import StaffDashboard from "./pages/HomePages/StaffDashboard"; // ✅
-import ClassBookings from "./pages/Class/ClassBooking"; // ✅
-import ProfileApp from "./pages/profileApp";
-//import ErrorBoundary from "./components/ErrorBoundary";
+import Workout from './pages/Workout/WorkoutApp';
+import StaffDashboard from "./pages/HomePages/StaffDashboard";
+import ClassBookings from "./pages/Class/ClassBooking";
+import ErrorBoundary from "./components/ErrorBoundary";
+import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
+import LandingPage from "./pages/landingPage";
+import ProfileApp from "./pages/profileApp/profileApp";
+
+
+/*// Protected Route Component
+function ProtectedRoute({ children, allowedRole }) {
+  const token = localStorage.getItem('token');
+  const studentStr = JSON.parse(localStorage.getItem('student') || '{}');
+  let student = {};
+  console.log("Raw student data: ", studentStr);
+  if(studentStr) {
+    try {
+      student = JSON.parse(studentStr);
+    } catch (e) {
+      console.error("Failed to parse student JSON:", studentStr, e);
+      localStorage.removeItem('student')
+    }
+  }
+
+  console.log("ProtectedRoute check:", {token, student, allowedRole })
+  
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  
+  
+  return children;
+}*/
+
+
+import EquipmentManager from "./pages/Admin/EquipmentManager";
 
 function App() {
   return (
     <Router>
-      
+      <ErrorBoundary>
       <Routes>
-        <Route path="/" element={<SignIn />} />
+        {/**Public Routes */}
+        <Route path="/" element={<LandingPage/> } />
+        <Route path="/login" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
-        <Route path="/student-dashboard" element={<StudentDashboard />} /> {/* ✅ */}
-        <Route path="/staff-dashboard" element={<StaffDashboard />} /> {/* ✅ */}
-        <Route path="/workout" element={<Workout />} /> 
-        <Route path="/class-bookings" element={<ClassBookings />} /> {/* ✅ */}
-        <Route path="/profile" element={<ProfileApp />} />
+
+        {/**Protected Student Routes */}
+        <Route 
+        path="/student-dashboard" 
+        element={
+            <StudentDashboard /> 
+        }
+        />
+
+        <Route 
+          path="/workout" 
+          element= {<Workout />}
+         
+          />
+
+          <Route 
+          path="/class-bookings" 
+          element={
+          
+              <ClassBookings />
+          }
+          />
+
+          <Route 
+          path="/profile" 
+          element={
+          /*<ProtectedRoute allowedRole="student">*/
+              <ProfileApp />
+           /* </ProtectedRoute> */
+          }
+          />
+
+          {/**Protected admin routes */}
+          <Route 
+          path="/staff-dashboard" 
+          element={
+          /*<ProtectedRoute allowedRole="admin">*/
+              <StaffDashboard />
+           /* </ProtectedRoute> */
+          }
+          />
+          <Route path="/admin/equipment" element={<EquipmentManager />} />
+          
+        {/* Catch all - redirect to landing */}
+        {/*<Route path="*" element={<Navigate to="/" replace />} />*/}
       </Routes>
-      
+      </ErrorBoundary>
     </Router>
+
   );
 }
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<App />);
 
 export default App;

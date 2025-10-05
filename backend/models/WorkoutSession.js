@@ -1,14 +1,16 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const ExerciseSchema = require('./Exercise');
 
 
 // Define the WorkoutSession schema
 const workoutSessionSchema = new Schema(
   {
     // Session Information
-    id: {
-      type: Schema.Types.ObjectId,
-      ref: "Student",
+    
+    sessionId: {
+      type: String,//Schema.Types.ObjectId,
+      //ref: "Student",
       //required: true,
       description: "Reference to the user who performed the workout",
     },
@@ -18,8 +20,8 @@ const workoutSessionSchema = new Schema(
       trim: true,
       description: "Denormalized for quick user identification",
     },
-    id: {
-      type: Schema.Types.ObjectId,
+    templateId: {
+      type: String,
       ref: "WorkoutTemplate",
       default: null,
       description: "Reference to workout_templates, null for ad-hoc workouts",
@@ -69,108 +71,7 @@ const workoutSessionSchema = new Schema(
     },
 
     // Workout Data
-    exercises: [
-      {
-        exerciseId: {
-          type: String,
-          required: true,
-          description: "Reference to exercise in workout_templates or exercises collection",
-        },
-        name: {
-          type: String,
-          required: true,
-          trim: true,
-          description: "Denormalized for display and historical accuracy",
-        },
-        startedAt: {
-          type: Date,
-          description: "When the exercise started",
-        },
-        finishedAt: {
-          type: Date,
-          description: "When the exercise ended",
-        },
-        sets: [
-          {
-            setId: {
-              type: String,
-              required: true,
-              description: "Unique identifier for the set",
-            },
-            order: {
-              type: Number,
-              required: true,
-              min: 1,
-              description: "Order of the set in the exercise",
-            },
-            type: {
-              type: String,
-              required: true,
-              enum: ["warmup", "working", "dropset", "failure"],
-              description: "Type of set",
-            },
-            performance: {
-              reps: {
-                type: Number,
-                min: 0,
-                description: "Number of reps performed",
-              },
-              weight: {
-                type: Number,
-                min: 0,
-                description: "Weight used (based on user units)",
-              },
-              time: {
-                type: Number,
-                min: 0,
-                default: null,
-                description: "Time for time-based exercises",
-              },
-              distance: {
-                type: Number,
-                min: 0,
-                default: null,
-                description: "Distance for distance-based exercises",
-              },
-              perceived_exertion: {
-                type: Number,
-                min: 1,
-                max: 10,
-                description: "RPE scale (1-10)",
-              }
-            },
-            timing: {
-              startedAt: {
-                type: Date,
-                description: "When the set started",
-              },
-              completedAt: {
-                type: Date,
-                description: "When the set was completed",
-              },
-              restAfter: {
-                type: Number,
-                min: 0,
-                description: "Actual rest time after the set in seconds",
-              },
-            },
-            completed: {
-              type: Boolean,
-              default: true,
-              description: "Whether the set was completed",
-            },
-            skipped: {
-              type: Boolean,
-              default: false,
-              description: "Whether the set was skipped",
-            },
-            notes: {
-              type: String,
-              trim: true,
-              description: "User notes for the set",
-            },
-          },
-        ],
+    exercises: [ExerciseSchema],
         notes: {
           type: String,
           trim: true,
@@ -191,8 +92,8 @@ const workoutSessionSchema = new Schema(
             description: "Current best performance (e.g., 135x10)",
           },
         },
-      },
-    ],
+      
+  
 
     // Session Summary
     summary: {
@@ -265,7 +166,7 @@ const workoutSessionSchema = new Schema(
     // System Fields
     createdAt: {
       type: Date,
-      required: true,
+      //required: true,
       default: Date.now,
       description: "When the session was created",
     },

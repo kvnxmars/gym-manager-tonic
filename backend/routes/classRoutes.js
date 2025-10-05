@@ -1,29 +1,30 @@
+
+
 const express = require('express');
 const router = express.Router();
 const classController = require('../controllers/classController');
 const bookingController = require('../controllers/bookingController');
 
-//====CLASS ROUTES====//
+// No campus tracking anymore — generic class endpoints for the student app
 
-//General class routes (student and admin)
-router.get('/:campus', classController.getClassesByCampus); //get 
-router.get('/', classController.getAllClasses);
+// Public / student routes (specific routes before any param routes)
+router.get('/', classController.getAllClasses); // GET /api/classes
 router.get('/student/:studentId', bookingController.getStudentClasses);
 
-
-//Admin-specific routes
-router.post('/create', classController.createClass); // Admin creates a new class
-router.put('/update/:classId', classController.updateClass); // Admin updates class details
-router.delete('/delete/:classId', classController.deleteClass); // Admin deletes a class
-router.get('bookings/all', classController.getAllBookings); // Admin views all bookings
-
-//Booking-specific routes
+// Booking-specific routes
 router.get('/booking/:bookingId', bookingController.getBookingDetails);
 router.put('/booking/:bookingId/checkIn', bookingController.checkInStudent);
 
-//student specific routes
-router.get('/campus/:campusName', classController.getClassesByCampus);
-router.post('/book', classController.bookClass); // Student books a class
-router.post('/cancel', classController.cancelBooking); // Student cancels a booking
+// Admin routes
+router.post('/create', classController.createClass);          // POST /api/classes/create
+router.put('/update/:classId', classController.updateClass); // PUT /api/classes/update/:classId
+router.delete('/delete/:classId', classController.deleteClass); // DELETE /api/classes/delete/:classId
+router.get('/bookings/all', classController.getAllBookings); // GET /api/classes/bookings/all
+
+// Student booking actions
+router.post('/book/:classId', classController.bookClass);
+router.post('/cancel', classController.cancelBooking);
 
 module.exports = router;
+
+

@@ -3,8 +3,9 @@ const express = require("express");
 const router = express.Router();
 
 //models
-const Student = require("../models/Student");
+//const Student = require("../models/Student");
 const CheckIn = require("../models/CheckIns");
+const User = require("../models/User")
 
 // =========================
 // 🔹 READ
@@ -15,7 +16,7 @@ const CheckIn = require("../models/CheckIns");
 router.post("/checkin/:studentNumber", async (req, res) => {
   try {
     const { studentNumber } = req.body;
-    const student = await Student.findOne({ studentNumber });
+    const student = await User.findOne({ studentNumber });
     if (!student) return res.status(404).json({ message: "Student not found" });
 
     const active = await CheckIn.findOne({ studentId: student._id, checkOutTime: null });
@@ -40,7 +41,7 @@ router.post("/checkin/:studentNumber", async (req, res) => {
 router.post("/checkout/:studentNumber", async (req, res) => {
   try {
     const { studentNumber } = req.body;
-    const student = await Student.findOne({ studentNumber });
+    const student = await User.findOne({ studentNumber });
     if (!student) return res.status(404).json({ message: "Student not found" });
 
     const checkIn = await CheckIn.findOne({
@@ -67,7 +68,7 @@ router.post("/checkout/:studentNumber", async (req, res) => {
 router.get("/qr/:studentNumber", async (req, res) => {
   try {
     const {studentNumber} = req.params; //student number as request parameter
-    const student = await Student.findOne({studentNumber}).select('-password'); //find student by student number, do not show password
+    const student = await User.findOne({studentNumber}).select('-password'); //find student by student number, do not show password
 
     if (!student) {
       return res.status(404).json({message: "Student not found"}); //if student not found, return 404
@@ -76,7 +77,7 @@ router.get("/qr/:studentNumber", async (req, res) => {
 
   const qrData = JSON.stringify({
     studentNumber: student.studentNumber,
-    name: `${student.name?.first} ${student.name?.last}`,
+    name: `${student.firstName} ${student.lastName}`,
     email: student.email,
     timestamp: Date.now(),
     id: student._id

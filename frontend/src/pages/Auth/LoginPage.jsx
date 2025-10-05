@@ -1,41 +1,45 @@
-import React, { useState } from "react";
-import "../../styles/Auth.css"; // shared CSS
+import { useState } from "react";
+import "../../styles/Auth.css"; 
 import { Link, useNavigate } from "react-router-dom";
 
-// Backend API base URL (adjust if needed)
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL;
+
 
 export default function SignInPage() {
   const navigate = useNavigate();
 
-  // Form state for login
   const [formData, setFormData] = useState({
-    studentNumber: "",
+    identifier: "",
     password: "",
   });
 
-  // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Update form state
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle login submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      // Send POST request to backend /signin
+
+      //determine if input is email or student number
+      const isEmail = formData.identifier.includes("@");
+
+
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          email: isEmail ? formData.identifier: undefined,
+          studentNumber: !isEmail ? formData.identifier : undefined,
+          password: formData.password,
+        }),
       });
 
       const data = await res.json();
@@ -47,11 +51,36 @@ export default function SignInPage() {
 
       // Save token + student info in localStorage (so PWA can persist login)
       localStorage.setItem("token", data.token);
-      localStorage.setItem("student", JSON.stringify(data.student));
+      localStorage.setItem("userRole", data.role)
+      localStorage.getItem("student", JSON.stringify(data.user));
+      
 
-      // Redirect to dashboard (once created)
-      //alert("Login successful! 🎉");
+      //save profile info
+      if (data.role === "student" && data.user && typeof data.user === "object") {
+        localStorage.setItem("student", JSON.stringify(data.user));
+      } else {
+        localStorage.removeItem("student");
+      }
+
+      console.log("login successful: ", data);
+      console.log("Saved student:", data.user);
+      console.log("Role:", data.role);
+
+      // ✅ Navigate based on role
+      
+     if (data.role === "student")
+     {
+      console.log("Navigating to student-dashboard, token:", localStorage.getItem("token"));
       navigate("/student-dashboard");
+     } else if (data.role === "admin")
+     {
+      navigate("/staff-dashboard");
+     }
+     else {
+      console.warn("Unexpected role, reddirecting to root:", data.role);
+      //navigate("/");
+     }
+
     } catch (err) {
       setError(err.message);
     } finally {
@@ -65,20 +94,17 @@ export default function SignInPage() {
         <div className="auth-card-form">
           <h2 className="title">Fit@NWU Signin</h2>
 
-          {/* Signin form */}
           <form className="form" onSubmit={handleSubmit}>
-            {/* Student Number */}
             <input
               className="input"
               type="text"
-              name="studentNumber"
-              placeholder="Student Number"
-              value={formData.studentNumber}
+              name="identifier"
+              placeholder="Email or Student Number"
+              value={formData.identifier}
               onChange={handleChange}
               required
             />
 
-            {/* Password with emoji toggle */}
             <div className="input-container">
               <input
                 className="input"
@@ -97,16 +123,13 @@ export default function SignInPage() {
               </span>
             </div>
 
-            {/* Error message */}
             {error && <p className="error-text">{error}</p>}
 
-            {/* Submit button */}
             <button className="submit-btn" type="submit" disabled={loading}>
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>
 
-          {/* Switch to Signup */}
           <p className="switch-link">
             Don’t have an account? <Link to="/signup">Sign up</Link>
           </p>

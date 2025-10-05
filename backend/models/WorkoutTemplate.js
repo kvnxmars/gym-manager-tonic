@@ -4,6 +4,10 @@ const exerciseSchema = require('./Exercise'); // Should export a schema
 
 // WorkoutTemplate schema
 const WorkoutTemplateSchema = new mongoose.Schema({
+    templateId: {
+        type: String,
+        unique: true
+    },
     studentNumber: {
         type: String,
         required: true,
@@ -18,9 +22,14 @@ const WorkoutTemplateSchema = new mongoose.Schema({
         type: Date, 
         default: Date.now 
     },
-    updateAt: { 
+    updatedAt: { 
         type: Date, 
         default: Date.now 
+    }, 
+
+    isDefault: {
+        type: Boolean,
+        default: false
     }
 });
 

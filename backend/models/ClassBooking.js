@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const campusSchema = require('./Campus');
+//const campusSchema = require('./Campus');
 
 // Helper regex for class name validation (letters, numbers, spaces)
 const classNameRegex = /^[A-Za-z0-9 ]{2,50}$/;
@@ -15,9 +15,7 @@ const ClassBookingSchema = new mongoose.Schema({
     required: true 
 },
   campus:  {
-    type: String, 
-    required: true 
-},
+  // campus removed from booking record
   
   
   time: { 
@@ -40,6 +38,7 @@ const ClassBookingSchema = new mongoose.Schema({
   bookedAt: { 
     type: Date, 
     default: Date.now 
+}
 }
 });
 

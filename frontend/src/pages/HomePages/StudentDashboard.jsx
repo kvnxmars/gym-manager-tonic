@@ -5,7 +5,7 @@ import QRCode from "react-qr-code";
 import "../../styles/StudentDashboard.css";
 
 // Mock API calls - replace with your actual API
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const StudentDashboard = () => {
   const navigate = useNavigate();
@@ -572,7 +572,7 @@ const StudentDashboard = () => {
                       {classItem.name}
                     </h4>
                     <p style={{ fontSize: '14px', color: '#888', margin: '0 0 2px 0' }}>
-                      {classItem.time} • {classItem.instructor}
+                      {classItem.time} • {classItem.instructor.name}
                     </p>
                     <p style={{ fontSize: '12px', color: '#999', margin: '0' }}>
                       {classItem.enrolled}/{classItem.capacity} enrolled

@@ -1,120 +1,169 @@
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const Student = require("../models/Student");
-//const Staff = require("../models/Staff");
+const User = require("../models/User")
 
 const JWT_SECRET = process.env.JWT_SECRET || "tonic.key";
 
+class authController{
 // ----------------------
-// Student Signup
+// Signup
 // ----------------------
-exports.signup = async (req, res) => {
+static async signup(req, res) {
   try {
-    const { studentNumber, firstName, lastName, email, password } = req.body;
+    //debug log
+    console.log("Signup request body: ", req.body);
 
-    if (!studentNumber || !firstName || !lastName || !email || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    const { studentNumber, firstName, lastName, email, password, role } = req.body;
+
+    //check for email
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password required" });
     }
 
-    if (password.length < 6) {
-      return res.status(400).json({ message: "Password must be at least 6 characters" });
+    //check if user already exist
+    let existingUser;
+    if (studentNumber) {
+      existingUser = await User.findOne({
+        $or: [{ email }, { studentNumber }]
+      });
+    }else {
+      existingUser = await User.findOne( {email})
     }
 
-    const existing = await Student.findOne({ studentNumber });
-    if (existing) {
-      return res.status(409).json({ message: "Student with this number already exists" });
+    if (existingUser) {
+      return res.status(400).json({ message: "User already exists" });
     }
 
-    const hashed = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const student = new Student({
-      studentNumber,
-      name: { first: firstName, last: lastName },
-      email,
-      password: hashed,
+    //determind user role
+    const userRole = role === "admin" ? "admin" : "student";
+
+    //create role object
+    let newUser;
+
+    //create user based
+    if (userRole === "admin") {
+      // -------- ADMIN SIGNUP --------
+      newUser = new User({
+        email,
+        password: hashedPassword,
+        role: "admin"
+      });
+    }else {
+      if (!studentNumber || ! firstName || !lastName) {
+        return res.status(400).json({
+          message: "All fields required"
+        });
+      }
+
+      newUser = new User({
+        studentNumber,
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        role: "student"
+      })
+    }
+  
+    await newUser.save();
+
+    console.log("User created successfully:", { 
+      email, 
+      role: newUser.role 
     });
+  
+      
+   return res.status(201).json({ 
+    message: `${userRole === "admin" ? "Admin" : "Student"} registered successfully`, 
+    role: newUser.role
+  });
 
-    await student.save();
-    res.status(201).json({ message: "Student registered successfully" });
+  
   } catch (err) {
     console.error("Signup error:", err);
-    res.status(500).json({ message: "Server error during signup" });
+    res.status(500).json({ 
+      message: "Server error during signup", 
+      error: err.message
+    });
   }
-};
+}
 
 // ----------------------
-// Student Login
+//  Login
 // ----------------------
-exports.studentLogin = async (req, res) => {
+static async login(req, res){
   try {
-    const { studentNumber, password } = req.body;
+    console.log("Login request body: ", req.body); //debug log
 
-    if (!studentNumber || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    const { studentNumber, email, password } = req.body;
+
+    if (!password) {
+      return res.status(400).json({ message: "Password is required" });
     }
 
-    const student = await Student.findOne({ studentNumber });
-    if (!student) return res.status(401).json({ message: "Invalid credentials" });
+    if (!email && !studentNumber) {
+        return res.status(400).json({ message: "Email or student number is required" });
+      }
 
-    const isMatch = await bcrypt.compare(password, student.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    // ✅ Create JWT
-    const token = jwt.sign({ id: student._id, role: "student" }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    let user = null;
+    //let role = null;
 
-    return res.status(200).json({
-      message: "Login successful!",
-      token,
-      student: {
-        id: student._id,
-        studentNumber: student.studentNumber,
-        name: student.name,
-        email: student.email,
-        membershipStatus: student.membershipStatus,
-      },
-    });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "An error occurred during login." });
-  }
-};
+    // Strategy: Try to identify user type based on what was provided
+    if (email) {
+      // If email is provided, check Admin first
+      user = await User.findOne({ email });
+    }else if (studentNumber) {
+      user = await User.findOne({ studentNumber })
+    }
+      
 
-// ----------------------
-// Staff Login
-// ----------------------
-/*exports.staffLogin = async (req, res) => {
-  try {
-    const { staffNumber, password } = req.body;
-
-    if (!staffNumber || !password) {
-      return res.status(400).json({ message: "All fields are required" });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const staff = await Staff.findOne({ staffNumber });
-    if (!staff) return res.status(401).json({ message: "Invalid credentials" });
+    // Verify password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
-    const isMatch = await bcrypt.compare(password, staff.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
+    // Generate JWT token
+    const token = jwt.sign({ 
+      id: user._id, 
+      role: user.role 
+    }, 
+    JWT_SECRET, {
+       expiresIn: "1h" 
+      });
 
-    // ✅ Create JWT
-    const token = jwt.sign({ id: staff._id, role: "staff" }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
+    // Return appropriate user data based on role
+    const userData = user.rule === "admin"
+    ? {
+      id: user._id, 
+      email: user.email 
+      }
+    : {
+      studentNumber: user.studentNumber,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email
+    };
 
-    return res.status(200).json({
-      message: "Login successful!",
+    console.log("Login successful:", { email: user.email, role: user.role }); // DEBUG LOG
+
+    res.json({
+      message: "Login successful",
       token,
-      staff: {
-        id: staff._id,
-        staffNumber: staff.staffNumber,
-        name: staff.name,
-        email: staff.email,
-      },
+      role: user.role,
+      user: userData,
     });
-  } catch (error) {
-    console.error("Staff login error:", error);
-    res.status(500).json({ message: "An error occurred during login." });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error during login" });
   }
-};*/
+};
+}
+module.exports = authController;

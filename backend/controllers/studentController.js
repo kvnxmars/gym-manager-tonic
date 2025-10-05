@@ -1,40 +1,10 @@
 const bcrypt = require("bcryptjs");
-const Student = require("../models/Student");
 const CheckIn = require("../models/CheckIns");
+const User = require("../models/User");
 
-// Signup new student
-exports.signup = async (req, res) => {
-  try {
-    const { studentNumber, firstName, lastName, email, password } = req.body;
-
-    if (!studentNumber || !firstName || !lastName || !email || !password) {
-      return res.status(400).json({ message: "All fields are required." });
-    }
-
-    const existing = await Student.findOne({ studentNumber });
-    if (existing) {
-      return res.status(409).json({ message: "Student already exists." });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newStudent = new Student({
-      studentNumber,
-      name: { first: firstName, last: lastName },
-      email,
-      password: hashedPassword,
-    });
-
-    await newStudent.save();
-    res.status(201).json({ message: "Student registered successfully." });
-  } catch (err) {
-    console.error("Signup error:", err);
-    res.status(500).json({ message: "Server error during signup." });
-  }
-};
-
+class StudentController {
 // Get QR data
-exports.getQR = async (req, res) => {
+static async getQR (req, res) {
   try {
     const { studentNumber } = req.params;
     const student = await Student.findOne({ studentNumber });
@@ -56,10 +26,10 @@ exports.getQR = async (req, res) => {
 };
 
 // Get check-ins for a student
-exports.getCheckIns = async (req, res) => {
+static async getCheckIns (req, res) {
   try {
     const { studentNumber } = req.params;
-    const student = await Student.findOne({ studentNumber });
+    const student = await User.findOne({ studentNumber });
 
     if (!student) return res.status(404).json({ message: "Student not found." });
 
@@ -71,4 +41,113 @@ exports.getCheckIns = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Error fetching check-ins." });
   }
+}
+
+// GET 
+
+static async getStudentInfo (req, res) {
+  try {
+    //extract user ID from url 
+    const {studentNumber} = req.params.studentNumber;
+
+    // Validate studentNumber
+    if (!studentNumber || isNaN(Number(studentNumber)) || studentNumber.length < 6) {
+      return res.status(400).json({ message: "Invalid student number" });
+    }
+    //use mongoose to find the user
+    const student = await User.findOne({studentNumber: studentNumber});
+
+    //check if the user exists
+    if(!student) {
+      return res.status(404).json({ message: "user not found"});
+    }
+
+    //if the user is found, send info as json
+    res.status(200).json({
+      message: "user retrieved successfully",
+      user: student,
+    });
+
+
+  }catch (error) {
+    res.status(500).json({
+      message: "Server error while geyching user",
+      error: error.message,
+    });
+  }
 };
+
+static async getAllUsers( req, res) {
+  try {
+      const profiles = await User.find();
+      res.json(profiles);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+};
+
+//update student info
+static async updateStudentInfo (req, res) {
+  try {
+
+      const { studentNumber } = req.params;
+
+      const updatedProfile = await User.findOneAndUpdate(
+        { studentNumber },
+        { ...req.body, updatedAt: new Date() },
+        { new: true }
+      );
+
+      if (!updatedProfile) 
+        return res.status(404).json({ error: "Profile not found" });
+
+      res.json(updatedProfile);
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+};
+
+static async removeStudent (req, res) {
+  try {
+
+    const { studentNumber } = req.params;
+
+      const deletedProfile = await User.findOneAndDelete(
+        { studentNumber }
+      );
+      
+      if (!deletedProfile) 
+        return res.status(404).json({ error: "Profile not found" });
+
+      res.json({ message: "Profile deleted successfully"});
+    } catch (err) {
+      res.status(400).json({ error: err.message });
+    }
+};
+
+static async updatePassword (req, res) {
+  try {
+    const { studentNumber } = req.params;
+    const { oldPassword, newPassword } = req.body;
+
+    const student = await User.findOne({ studentNumber });
+    if (!student)
+      return res.status(404).json({ message: "User not found." });
+
+    // Check old password
+    const isMatch = await bcrypt.compare(oldPassword, student.password);
+    if (!isMatch)
+      return res.status(400).json({ message: "Incorrect old password." });
+
+    // Hash and update new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    student.password = hashedPassword;
+    await student.save();
+
+    res.json({ message: "Password updated successfully." });
+  } catch (error) {
+    res.status(500).json({ message: "Error updating password.", error: error.message });
+  }
+}
+};
+module.exports = StudentController;

@@ -1,29 +1,16 @@
 //controllers/classController.js
 //const campusData =  '../../data/campusData'; // Static campus data
-const Student = require("../models/Student");
+const User = require("../models/User");
 const Booking = require("../models/Booking");
-const { saslprep } = require("@mongodb-js/saslprep");
 const Class = require("../models/Class");
 
 //====CLASS MANAGEMENT ROUTES====//
 
 class ClassController {
 
-    //GET api/classes/campuses - Get all campuses
-    static async getCampuses(req, res) {
-        try {
-            res.json({ campuses });
-        }
-        catch (err) {
-            console.error("Error fetching campuses:", err);
-            res.status(500).json({ 
-                message: "Server error fetching campuses",
-                error: err.message
-             });
-        }
-    }
-
+    
     //POST api/classes/create - Create a new class
+    
     static async createClass(req, res) {
         try {
             const {
@@ -31,7 +18,6 @@ class ClassController {
                 name,
                 instructor,
                 capacity,
-                campus,
                 time,
                 duration,
                 date,
@@ -43,102 +29,104 @@ class ClassController {
 
             console.log('Received request body:', req.body);
 
-            //validate required fields
-            const requiredFields = [ name, instructor, capacity, campus, time, duration, date, category ];
-            console.log('Received fields:', requiredFields);
+            // campus has been deprecated/removed from classes — ignore any campus value sent by clients
 
+            // Determine whether a full schedule object was provided
+            const scheduleProvided = !!req.body.schedule;
 
-            const missingFields = requiredFields.filter(fieldName => {
-                const value = req.body[fieldName];
-                return !value || (typeof value === 'string' && value.trim() === '');
+            // Build list of required field NAMES (strings) depending on payload shape
+            const requiredNames = ['name', 'instructor', 'capacity', 'date', 'category'];
+            if (!scheduleProvided) {
+                // If no schedule object, time and duration are required
+                requiredNames.push('time', 'duration');
+            }
+
+            // Compute missing fields by looking up the keys on req.body
+            const missingFields = requiredNames.filter(key => {
+                const value = req.body[key];
+                return value === undefined || value === null || (typeof value === 'string' && value.trim() === '');
             });
+            console.log('Required field names:', requiredNames);
             console.log('Missing fields:', missingFields);
 
             if (missingFields.length > 0) {
-                return res.status(400).json({ message: `Missing required fields: ${missingFields.join(", ")}` 
-            });
+                return res.status(400).json({ message: `Missing required fields: ${missingFields.join(', ')}` });
+            }
 
-        }
+            // Normalize instructor - support both string and object formats
+            let instructorDetails;
+            if (typeof instructor === 'string') {
+                instructorDetails = {
+                    name: instructor,
+                    contact: '',
+                    specialty: 'Other',
+                    photo: ''
+                };
+            } else if (typeof instructor === 'object' && instructor.name) {
+                instructorDetails = {
+                    name: instructor.name,
+                    contact: instructor.contact || '',
+                    specialty: instructor.specialty || 'Other',
+                    photo: instructor.photo || ''
+                };
+            } else {
+                return res.status(400).json({ message: "Invalid instructor format. Provide either a string or object with 'name' property." });
+            }
 
-        //handle instructor - support both string and object formats
-        let instructorName;
-        let instructorDetails;
+            // Normalize category - support string or object
+            let categoryObj;
+            if (typeof category === 'string') {
+                categoryObj = { primary: category, level: 'Beginner', intensity: 'Low' };
+            } else if (typeof category === 'object') {
+                categoryObj = {
+                    primary: category.primary || 'General',
+                    level: category.level || 'Beginner',
+                    intensity: category.intensity || 'Low'
+                };
+            } else {
+                categoryObj = { primary: 'General', level: 'Beginner', intensity: 'Low' };
+            }
 
-        if (typeof instructor === 'string') {
-            instructorName = instructor;
-            instructorDetails = {
-                name: instructor,
-                contact: '',
-                specialty: 'Other',
+            // Build schedule object: prefer req.body.schedule but accept flattened fields
+            let scheduleObj = {};
+            if (scheduleProvided && typeof req.body.schedule === 'object') {
+                scheduleObj = {
+                    days: Array.isArray(req.body.schedule.days) ? req.body.schedule.days : (req.body.schedule.days ? [req.body.schedule.days] : []),
+                    type: req.body.schedule.type || (req.body.type || 'In-Person'),
+                    frequency: req.body.schedule.frequency || (req.body.frequency || 'Once'),
+                    time: req.body.schedule.time || time || '',
+                    duration: parseInt(req.body.schedule.duration || duration || 0)
+                };
+            } else {
+                scheduleObj = {
+                    days: Array.isArray(req.body.days) ? req.body.days : (req.body.days ? [req.body.days] : []),
+                    type: req.body.type || 'In-Person',
+                    frequency: req.body.frequency || 'Once',
+                    time: time || '',
+                    duration: parseInt(duration || 0)
+                };
+            }
 
-            };
+            //generate unique classId
+            const generateClassId = classId || `CLS-${Date.now()}`.slice(-8);
 
-        } else if (typeof instructor === 'object' && instructor.name) {
-            instructorName = instructor.name;
-            instructorDetails = {
-                name: instructor.name,
-                contact: instructor.contact || '',
-                specialty: instructor.specialty || 'Other'
-            };
-        } else {
-            return res.status(400).json({
-                message: "Invalid instructor format. Provide either a string or object with 'name' property."
-            });
-        }
-
-        // Handle category - support both string and object formats
-        let categoryObj;
-        if (typeof category === 'string') {
-            categoryObj = {
-                primary: category,
-                level: 'Beginner',
-                intensity: 'Low'
-            };
-        } else if (typeof category === 'object') {
-            categoryObj = {
-                primary: category.primary || 'General',
-                level: category.level || 'Beginner',
-                intensity: category.intensity || 'Low'
-            };
-        } else {
-            categoryObj = {
-                primary: 'General',
-                level: 'Beginner',
-                intensity: 'Low'
-            };
-        }
-
-        //generate unique classId
-        const generateClassId = classId || `CLS-${Date.now()}`.slice(-8);      
-    
-        const newClass = new Class({
-            classId: generateClassId,
-            name,
-            instructor,
-            capacity: parseInt(capacity),
-            booked: 0,
-            spaceLeft: parseInt(capacity),
-            campus,
-            time,
-            duration: parseInt(duration),
-            date: date ? new Date(date) : Date.now(),
-            description: description || '',
-            category: category || {
-                primary: 'General',
-                level: 'Beginner',
-                intensity: 'Low'
-            },
-            image,
-            bookedStudents: [],
-            instructorDetails: { name: instructor, contact: '', specialty: 'Other', photo: ''}
+            const newClass = new Class({
+                classId: generateClassId,
+                name,
+                description: description || '',
+                date: date ? new Date(date) : Date.now(),
+                capacity: parseInt(capacity),
+                category: categoryObj,
+                instructor: instructorDetails,
+                schedule: scheduleObj,
+                image: image || '',
+                booked: 0,
+                spaceLeft: parseInt(capacity),
+                bookedStudents: []
             });
 
             await newClass.save();
-            res.status(201).json({ 
-                message: "Class created successfully", 
-                class: newClass 
-            });
-        
+            res.status(201).json({ message: 'Class created successfully', class: newClass });
         }
         catch (err) {
             console.error("Error creating class:", err);
@@ -153,129 +141,136 @@ class ClassController {
              });
         }
     }
+    
 
     //GET api/classes - all classes despite campus
-    static async getAllClasses(req, res) {
-        try {
-            const { date, campus } = req.query;
-            let filter = { status: 'active' };
-
-            if (date) {
-                const searchDate = new Date(date);
-                const nextDay = new Date(searchDate);
-                nextDay.setDate(nextDay.getDate() + 1);
-                filter.date = { 
-                    $gte: searchDate, 
-                    $lt: nextDay 
-                };
-            }
-
-            if (campus) {
-                filter.campus = campus;
-            }
-
-            const classes = await Class.find(filter)
-            .sort({ date: 1, time: 1 })
-            .populate('bookedStudents', 'studentNumber name.first name.last');
-
-            res.json({ classes });
-        } catch (err) {
-            console.error("Error fetching classes:", err);
-            res.status(500).json({ 
-                message: "Server error fetching classes",
-                error: err.message
-             });
-            
-        }
-
     
-    }
-    
-    //GET /api/classes/campus/:campusName - Get classes by campus
-    static async getClassesByCampus(req, res) {
-        try {
-            const { campusName } = req.params; // Campus name from URL parameter
-            const { date } = req.query; // Optional date filter
+// New code in classController.js
 
-            let filter = {
-                campus: campusName,
-                status: 'active'
+static async getAllClasses(req, res) {
+    
+    try {
+        const { date} = req.query;
+
+        // Base filter
+        let filter = { status: 'active' };
+
+        if (date) {
+            // ... (date filtering logic)
+            const searchDate = new Date(date);
+            const nextDay = new Date(searchDate);
+            nextDay.setDate(nextDay.getDate() + 1);
+
+            filter.date = {
+                $gte: searchDate,
+                $lt: nextDay
             };
+        }
 
-            if (date) {
-                const searchDate = new Date(date);
-                const nextDay = new Date(searchDate);
-                nextDay.setDate(nextDay.getDate() + 1);
-                filter.date = { 
-                    $gte: searchDate, 
-                    $lt: nextDay 
-                };
+       
+        const classes = await Class.find({});
+
+        // FIX: Return the classes inside a 'classes' property
+        return res.status(200).json({ classes: classes }); // <--- FIXED
+        // This will return: { "classes": [...] }
+
+    } catch (error) {
+        console.error('Error fetching classes:', error);
+        return res.status(500).json({ message: 'Server error fetching classes', error: error.message });
+    }
+}
+    
+   
+    
+    
+    //PUT api/classes/update/:classId - Admin updates class details
+    static async updateClass(req, res) {
+        try {
+            const { classId } = req.params;
+            const updatedClass = await Class.findOneAndUpdate({ classId: classId }, req.body, { new: true });
+            
+            if (!updatedClass) {
+                 return res.status(404).json({ message: "Class not found for update." });
             }
 
-            const classes = await Class.find(filter)
-                .populate('bookedStudents', 'studentNumber name.first name.last') // Populate bookedStudents with studentNumber and name
-                .sort({ date: 1, time: 1 }); // Sort by date and time ascending
-
-            res.json({ classes }); // Send the classes as JSON response
+            res.json({ message: "Class updated successfully.", updatedClass });
         } catch (err) {
-            console.error("Error fetching classes by campus:", err);
+            console.error("Error updating class:", err);
             res.status(500).json({ 
-                message: "Server error fetching classes by campus",
+                message: "Server error updating class",
                 error: err.message
              });
         }
     }
 
-    //GET api/classes/student/:studentId - Get classes booked by a student
+    
+    
+
+    // GET api/classes/student/:studentNumber - Get student's bookings
     static async getStudentClasses(req, res) {
         try {
-            const { studentId } = req.params;
+            const { studentNumber } = req.params;
 
+            // Find all classes where this studentNumber is in bookedStudents
             const classes = await Class.find({ 
-                bookedStudents: studentId, 
+                bookedStudents: studentNumber,
                 status: 'active' 
-            }).populate('bookedStudents', 'studentNumber name.first name.last'); // Populate bookedStudents with studentNumber and name
+            });
 
-            //transform to match frontend expectations
+            // Transform to match frontend expectations
             const bookings = classes.map(cls => ({
-                bookingId: `${cls._id}_${studentId}`,
-                ...cls.toObject(), // Convert Mongoose document to plain object
-                bookingDate: cls.date,
+                bookingId: `${cls._id}_${studentNumber}`,
+                classId: cls._id,
+                className: cls.name,
+                instructor: cls.instructor,
+                date: cls.date,
+                time: cls.schedule?.time,
+                duration: cls.schedule?.duration,
+                location: cls.location,
                 status: 'booked'
             }));
 
             res.json({ bookings });
+
         } catch (err) {
             console.error("Error fetching student classes:", err);
             res.status(500).json({ 
-                message: "Server error fetching student classes",
+                message: "Server error fetching bookings",
                 error: err.message
-             });
+            });
         }
     }
+
+    
+
 
     // POST api/classes/book - Book a class
     static async bookClass(req, res) {
         try {
-            const { studentId, classId, date } = req.body;
+            const { studentNumber, classId, date } = req.body;
             
             // Validate required fields
-            if (!studentId || !classId || !date) {
+            if (!studentNumber || !classId || !date) {
                 return res.status(400).json({
                     message: "Student ID, Class ID, and Date are required to book a class."
                 });
             }
 
             //find student
-            const student = await Student.findById(studentId);
+            const student = await User.findOne({studentNumber: studentNumber});
             if (!student) {
                 return res.status(404).json({ message: "Student not found." });
             }
 
+            if (student.role !== 'student') {
+                return res.status(403).json({ message: "Only students can book classes" });
+            }
+
+
             //find class
             const cls = await Class.findById(classId);
             if (!cls || cls.status !== 'active') {
-                return res.status(404).json({ message: "Class not found or is not active." });
+                //return res.status(404).json({ message: "Class not found or is not active." });
             }
 
             //check if class is full 
@@ -284,14 +279,16 @@ class ClassController {
             }
 
             //check if student already booked
-            if (cls.bookedStudents.includes(studentId)) {
+            if (cls.bookedStudents.includes(studentNumber)) {
                 return res.status(400).json({ 
                     message: "Student has already booked this class." 
                 });
             }
 
             //add student to class
-            cls.bookedStudents.push(studentId);
+            cls.bookedStudents.push(studentNumber);
+            cls.booked = cls.bookedStudents.length;
+            cls.spaceLeft = cls.capacity - cls.booked;
             await cls.save(); // Save the updated class document
 
             //create booking record
@@ -303,11 +300,12 @@ class ClassController {
                     bookingId,
                     student: 
                     {
-                        id: student._id,
+                        //id: student._id,
                         studentNumber: student.studentNumber,
                         name: 
                         {
-                            first: student.name.first
+                            first: student.firstName,
+                            last: student.lastName
                         }
                 },
                 class: {
@@ -315,8 +313,7 @@ class ClassController {
                     name: cls.name,
                     instructor: cls.instructor,
                     date: cls.date,
-                    duration: cls.duration,
-                    campus: cls.campus
+                    duration: (cls.schedule && cls.schedule.duration) ? cls.schedule.duration : cls.duration
                 },
 
                 booking: {
@@ -327,25 +324,34 @@ class ClassController {
                 
                 await booking.save();
                 bookingId = booking.bookingId; // Use the generated bookingId from the saved booking
+
+                res.status(200).json({
+                    message: "Class booked successfully.",
+                    booking: booking,
+                    class: cls
+                });
             }
             catch (err) 
             {
                 console.error("Error creating booking record:", err);
                 //rollback student addition to class
-                cls.bookedStudents = cls.bookedStudents.filter(id => id.toString() !== studentId);
+                cls.bookedStudents = cls.bookedStudents.filter(
+                    num => num !== studentNumber
+                );
+
+                cls.booked = cls.bookedStudents.length;
+                cls.spaceLeft = cls.capacity - cls.booked;
                 await cls.save();
+
                 return res.status(500).json
                 ({ 
                     message: "Server error creating booking record",
                     error: err.message
                  });
-            }
+    
 
-            res.status(200).json({
-                message: "Class booked successfully.",
-                class: cls,
-                bookingId
-            });
+        }
+        
             }
             catch (err) 
             {   
@@ -357,81 +363,66 @@ class ClassController {
             }
 
         }
-    // DELETE api/classes/cancel - Cancel a class booking
+    // DELETE api/classes/cancel/:bookingId - Cancel booking
     static async cancelBooking(req, res) {
         try {
             const { bookingId } = req.params;
-            const { studentId } = req.body;
+            const { studentNumber } = req.body;
 
-            // try to find by bookingId first
-            let booking = await Booking.findOne({ bookingId });
-
-            if (booking) {
-                //update booking status
-                booking.booking.status = 'cancelled';
-                booking.cancellation = {
-                    cancelledAt: new Date(),
-                    reason: 'Cancelled by user'
-                };
-                await booking.save();
-
-                //remove student from class
-                const cls = await Class.findById(booking.class.id);
-                if (cls) {
-                    cls.bookedStudents = cls.bookedStudents.filter(
-                        id => id.toString() 
-                        !== booking.student.id.toString()
-                    );
-                    await cls.save();
-                }
-
-                return res.json({ 
-                    message: "Booking cancelled successfully.", 
-                    booking 
+            if (!studentNumber) {
+                return res.status(400).json({ 
+                    message: "Student number is required" 
                 });
             }
 
-            //fallback: try to parse (legacy) classId and studentId from bookingId
-            if(bookingId.includes('_')) {
-                const [classId, studentIdFromId] = bookingId.split('_');
+            // Find booking by bookingId
+            const booking = await Booking.findOne({ bookingId });
 
-                const cls = await Class.findById(classId);
-                if (!cls) {
-                    return res.status(404).json({ message: "Class not found." });
-                }
+            if (!booking) {
+                return res.status(404).json({ 
+                    message: "Booking not found" 
+                });
+            }
 
-                const studentNumberToUse = studentnumberFromId || studentId;
-                if (!studentNumberToUse) {
-                    return res.status(400).json({ message: "Student ID is required to cancel booking." });
-                }
+            // Verify the student owns this booking
+            if (booking.student.studentNumber !== studentNumber) {
+                return res.status(403).json({ 
+                    message: "You can only cancel your own bookings" 
+                });
+            }
 
-                //booking not found
-                if (!cls.bookedStudents.includes(studentNumberToUse)) {
-                    return res.status(404).json({ message: "Booking not found for this student in the specified class." });
-                }
+            // Update booking status
+            booking.booking.status = 'cancelled';
+            booking.cancellation = {
+                cancelledAt: new Date(),
+                reason: 'Cancelled by user'
+            };
+            await booking.save();
 
-                //save booking record
+            // Remove student from class bookedStudents array
+            const cls = await Class.findById(booking.class.id);
+            if (cls) {
                 cls.bookedStudents = cls.bookedStudents.filter(
-                    id => id.toString() !== studentNumberToUse.toString()
+                    num => num !== studentNumber
                 );
+                cls.booked = cls.bookedStudents.length;
+                cls.spaceLeft = cls.capacity - cls.booked;
                 await cls.save();
+            }
 
-                return res.status(200).json({
-                    message: "Booking cancelled successfully.",
+            res.json({ 
+                message: "Booking cancelled successfully.", 
+                booking 
+            });
+
+        } catch (err) {
+            console.error("Error cancelling booking:", err);
+            res.status(500).json({ 
+                message: "Server error cancelling booking",
+                error: err.message
             });
         }
-        else {
-            return res.status(404).json({ message: "Booking not found." });
-        }
-    }catch (err) {
-        console.error("Error cancelling booking:", err);
-        res.status(500).json({ 
-            message: "Server error cancelling booking",
-            error: err.message
-         });
     }
-}
-
 // PUT api/classes/update/:classId - Update class details
     static async updateClass(req, res) {
         try {
@@ -497,7 +488,8 @@ class ClassController {
         try {
             const bookings = await Booking.find()
                 .populate('student.id', 'studentNumber name.first')
-                .populate('class.id', 'name isntructor campus')
+                // 'campus' field removed from class model; also fix instructor spelling
+                .populate('class.id', 'name instructor')
                 .sort({ 'booking.bookedAt': -1 });
 
             res.json({ bookings });
