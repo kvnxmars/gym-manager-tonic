@@ -1,22 +1,22 @@
 // routes/studentProfiles.js
 const express = require("express");
 const router = express.Router();
-const studentCont = require("../controllers/studentController");
+const StudentController = require("../controllers/studentController");
 
 
 // READ all profiles
-router.get("/", studentCont.getAllInfo);
+router.get("/info", StudentController.getAllUsers);
 
 // READ profile by student number
-router.get("/:studentNumber", studentCont.getStudentInfo);
+router.get("/:studentNumber", StudentController.getStudentInfo);
   
 
 // UPDATE profile
-router.put("/:studentNumber", studentCont.updateStudentInfo);
-router.put("/password/:studentNumber", studentCont.updatePassword); //update password
+router.put("/:studentNumber", StudentController.updateStudentInfo);
+router.put("/password/:studentNumber", StudentController.updatePassword); //update password
 
 
 // DELETE profile
-router.delete("/:studentNumber", studentCont.removeStudent);
+router.delete("/:studentNumber", StudentController.removeStudent);
 
 module.exports = router;

@@ -15,7 +15,7 @@ export default function SignupPage() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: "student", // default role
+    role: localStorage.getItem("selectedRole") || "student", // get role from local storage
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -59,7 +59,7 @@ export default function SignupPage() {
       if (!res.ok) throw new Error(data.message || "Signup failed");
 
       alert(`Signup successful as ${data.role}! Please sign in.`);
-      navigate("/");
+      navigate("/login");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -157,7 +157,7 @@ export default function SignupPage() {
           </form>
 
           <p className="switch-link">
-            Already have an account? <Link to="/">Sign in</Link>
+            Already have an account? <Link to="/login">Sign in</Link>
           </p>
         </div>
       </div>

@@ -1,4 +1,5 @@
-import React, { useState, useNavigate } from 'react';
+import { useState,  } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dumbbell, Users, UserCircle } from 'lucide-react';
 
 export default function FitNWULanding() {
@@ -6,6 +7,8 @@ export default function FitNWULanding() {
   const [adminClicks, setAdminClicks] = useState(0);
   const [showAdminOption, setShowAdminOption] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
+
+  const navigate = useNavigate();
 
   const handleLogoClick = () => {
     const newCount = adminClicks + 1;
@@ -18,13 +21,20 @@ export default function FitNWULanding() {
 
   const handleRoleSelect = (role) => {
     setSelectedRole(role);
+
+    localStorage.setItem("selectedRole", role);
+
     console.log(`Navigating to ${role} signup page`);
     
+    //navigate to login with roll
     if (role === "student") {
-      Navigate("/student-login");
+      navigate("/signup");
+      
     }else if (role === "admin") {
-      navigate('/admin-signup');
+      navigate('/signup');
     }
+
+    
   };
 
   const styles = {
@@ -230,6 +240,7 @@ export default function FitNWULanding() {
               style={styles.signInLink}
               onMouseEnter={(e) => e.target.style.color = 'white'}
               onMouseLeave={(e) => e.target.style.color = '#bfdbfe'}
+              onClick={() => navigate('/login')}
             >
               Sign In
             </button>

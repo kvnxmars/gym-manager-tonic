@@ -1,11 +1,10 @@
 const bcrypt = require("bcryptjs");
-const Student = require("../models/Student");
 const CheckIn = require("../models/CheckIns");
 const User = require("../models/User");
 
-
+class StudentController {
 // Get QR data
-exports.getQR = async (req, res) => {
+static async getQR (req, res) {
   try {
     const { studentNumber } = req.params;
     const student = await Student.findOne({ studentNumber });
@@ -27,7 +26,7 @@ exports.getQR = async (req, res) => {
 };
 
 // Get check-ins for a student
-exports.getCheckIns = async (req, res) => {
+static async getCheckIns (req, res) {
   try {
     const { studentNumber } = req.params;
     const student = await User.findOne({ studentNumber });
@@ -42,17 +41,21 @@ exports.getCheckIns = async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: "Error fetching check-ins." });
   }
-};
+}
 
 // GET 
 
-exports.getStudentInfo = async (req, res) => {
+static async getStudentInfo (req, res) {
   try {
     //extract user ID from url 
-    const {studentNumber} = req.params;
+    const {studentNumber} = req.params.studentNumber;
 
+    // Validate studentNumber
+    if (!studentNumber || isNaN(Number(studentNumber)) || studentNumber.length < 6) {
+      return res.status(400).json({ message: "Invalid student number" });
+    }
     //use mongoose to find the user
-    const student = await User.findOne(studentNumber);
+    const student = await User.findOne({studentNumber: studentNumber});
 
     //check if the user exists
     if(!student) {
@@ -74,7 +77,7 @@ exports.getStudentInfo = async (req, res) => {
   }
 };
 
-exports.getAllUsers = async (req, res) => {
+static async getAllUsers( req, res) {
   try {
       const profiles = await User.find();
       res.json(profiles);
@@ -84,7 +87,7 @@ exports.getAllUsers = async (req, res) => {
 };
 
 //update student info
-exports.updateStudentInfo = async (req, res) => {
+static async updateStudentInfo (req, res) {
   try {
 
       const { studentNumber } = req.params;
@@ -104,7 +107,7 @@ exports.updateStudentInfo = async (req, res) => {
     }
 };
 
-exports.removeStudent = async (req, res) => {
+static async removeStudent (req, res) {
   try {
 
     const { studentNumber } = req.params;
@@ -122,7 +125,7 @@ exports.removeStudent = async (req, res) => {
     }
 };
 
-exports.updatePassword = async (req, res) => {
+static async updatePassword (req, res) {
   try {
     const { studentNumber } = req.params;
     const { oldPassword, newPassword } = req.body;
@@ -145,4 +148,6 @@ exports.updatePassword = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Error updating password.", error: error.message });
   }
+}
 };
+module.exports = StudentController;

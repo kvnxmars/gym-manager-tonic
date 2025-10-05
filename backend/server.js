@@ -38,9 +38,6 @@ const adminAuth = require("./routes/adminAuth");
 const adminRoutes = require("./routes/adminRoutes");
 
 
-
-
-
 // Use routes
 app.use("/api/admin", adminRoutes); // Admin routes (checkins, qr check-in, etc.)
 app.use("/api/auth", authRoutes); // Auth routes
