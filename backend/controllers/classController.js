@@ -200,6 +200,11 @@ class ClassController {
 
             if (date) {
                 const searchDate = new Date(date);
+
+                //check for valid date
+                if (isNaN(searchDate.getTime())) {
+                    return res.status(400).json({ message: "Invalid date foremat "})
+                }
                 const nextDay = new Date(searchDate);
                 nextDay.setDate(nextDay.getDate() + 1);
                 filter.date = { 

@@ -32,7 +32,7 @@ const StudentDashboard = () => {
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [workoutStats, setWorkoutStats] = useState(null);
   
-  const API_URL = "http://localhost:5000/api";
+  const API_URL = import.meta.env.VITE_API_URL;
   useEffect(() => {
     const fetchData = async () => {
       try {

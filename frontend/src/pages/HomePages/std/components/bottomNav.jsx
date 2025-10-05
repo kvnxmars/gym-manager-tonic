@@ -70,7 +70,10 @@ const BottomNav = ({ navigate }) => (
       <Users size={20} />
       <span>Classes</span>
     </button>
-    <button style={{
+        
+    <button 
+      onClick={() => navigate("/profile")}
+      style={{
       background: 'none',
       border: 'none',
       display: 'flex',

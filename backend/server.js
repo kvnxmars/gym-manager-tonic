@@ -13,8 +13,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB connection
-const connectionstring =
-  "mongodb+srv://dbGenericUser:tonic-mongoose@fitnwu-cluster.nbdlox7.mongodb.net/fitnwu";
+const connectionstring = process.env.MONGO_URI;
 
 mongoose
   .connect(connectionstring, { useNewUrlParser: true, useUnifiedTopology: true })

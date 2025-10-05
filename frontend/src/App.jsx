@@ -11,7 +11,7 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
 import LandingPage from "./pages/landingPage";
 import AdminSignUp from "./pages/AdminSignup";
-import ProfileApp from "./pages/profileApp";
+import ProfileApp from "./pages/profileApp/profileApp";
 
 function App() {
   return (

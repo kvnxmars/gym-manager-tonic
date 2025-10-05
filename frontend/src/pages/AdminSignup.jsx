@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 function AdminSignup() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -7,7 +9,7 @@ function AdminSignup() {
 
   const handleSignup = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/admin/auth/signup", {
+      const res = await fetch(`${API_URL}/admin/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),

@@ -3,7 +3,7 @@ import axios from "axios";
 import "../../styles/dashboard.css";
 import { Html5QrcodeScanner } from "html5-qrcode";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const specialtyOptions = [
   "Yoga",
