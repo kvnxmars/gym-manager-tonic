@@ -345,6 +345,24 @@ export default function StaffDashboard() {
 
   useEffect(() => { fetchData(); }, []);
 
+
+ const handleCheckout = async (studentNumber) => {
+  try {
+    const res = await fetch(`${API_URL}/api/attendance/checkout/${studentNumber}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ studentNumber }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Checkout failed");
+    alert(`✅ ${data.message} (${data.duration} mins inside)`);
+  } catch (err) {
+    alert("❌ " + err.message);
+  }
+};
+
+
+
   // QR Scanner
   useEffect(() => {
     if (!showScanner) return;
@@ -501,14 +519,46 @@ export default function StaffDashboard() {
         <h2>Gym Occupancy</h2>
         <p>{occupancy} students currently inside</p>
 
-        <h2>Active Students</h2>
-        {activeStudents.length ? (
-          <ul>
-            {activeStudents.map((s) => (
-              <li key={s._id}>{s.studentId?.name?.first} {s.studentId?.name?.last}</li>
-            ))}
-          </ul>
-        ) : <p>No active students.</p>}
+       <h2>Active Students</h2>
+            {activeStudents.length ? (
+              <ul>
+                {activeStudents.map((s) => (
+                  <li
+                    key={s._id}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "8px",
+                      padding: "8px",
+                      background: "#f3e8ff",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <span>
+                      {s.studentId?.name?.first} {s.studentId?.name?.last}
+                    </span>
+
+                    <button
+                      onClick={() => handleCheckout(s.studentId?.studentNumber)}
+                      style={{
+                        backgroundColor: "#7e22ce",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "6px 12px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      Check Out
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No active students.</p>
+            )}
+
 
         <h2>QR Scanner</h2>
         {showScanner ? <div id="staff-reader" style={{ width: "100%" }}></div> :
