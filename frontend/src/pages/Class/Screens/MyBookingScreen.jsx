@@ -1,5 +1,6 @@
 // src/screens/MyBookingsScreen.jsx
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
+import { Router } from 'react-router-dom';
 import AppLayout from '../components/AppLayout';
 import LoadingSpinner from '../components/LoadingSpinner';
 import EmptyState from '../components/EmptyState';
@@ -51,7 +52,7 @@ const MyBookingsScreen = ({
       <div className="bookings-list">
         {myBookings.map(booking => (
           <BookingCard
-            key={booking.bookingId}
+            key={booking._id}
             booking={booking}
             onCancel={cancelBooking}
           />

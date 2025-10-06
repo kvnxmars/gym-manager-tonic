@@ -3,10 +3,10 @@ import { User } from 'lucide-react';
 // Profile Header Component
 const ProfileHeader = ({ student }) => {const profileStyles = {
     card: {
-      background: 'linear-gradient(to bottom right, #9333ea, #6b21a8)',
+      background: 'linear-gradient(to bottom right, #c7a9e3ff, #a78dbcff)',
       borderRadius: '16px',
       padding: '24px',
-      boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+      boxShadow: '0 10px 15px -3px rgba(95, 34, 34, 0.1)',
       marginBottom: '24px',
     },
     header: {
@@ -18,7 +18,7 @@ const ProfileHeader = ({ student }) => {const profileStyles = {
     avatar: {
       width: '80px',
       height: '80px',
-      backgroundColor: '#d8b4fe',
+      backgroundColor: '#c3a5e1ff',
       borderRadius: '50%',
       display: 'flex',
       alignItems: 'center',
@@ -59,22 +59,24 @@ const ProfileHeader = ({ student }) => {const profileStyles = {
     },
   };
 
+   if (!student) {
+    return <div style={profileStyles.profileCard}>Loading profile...</div>;
+  }
+  
   return (
-    <div style={profileStyles.card}>
-      <div style={profileStyles.header}>
+    <div style={profileStyles.profileCard}>
+      <div style={profileStyles.profileHeader}>
         <div style={profileStyles.avatar}>
           <User style={{ width: '40px', height: '40px', color: '#6b21a8' }} />
         </div>
-        <div style={profileStyles.info}>
-          <h1 style={profileStyles.name}>{student.name}</h1>
-          <p style={profileStyles.detail}>Student #{student.studentNumber}</p>
-          <p style={profileStyles.detail}>{student.email}</p>
+        <div style={profileStyles.profileInfo}>
+          <h1 style={profileStyles.profileName}>{student.firstName }</h1>
+          <p style={profileStyles.profileDetail}>Student #{student.studentNumber}</p>
+          <p style={profileStyles.profileDetail}>{student.email}</p>
         </div>
       </div>
-      <div style={profileStyles.checkInCard}>
-        <span style={profileStyles.checkInLabel}>Total Check-ins</span>
-        <span style={profileStyles.checkInValue}>{student.checkIns}</span>
-      </div>
+      
+  
     </div>
   );
 };

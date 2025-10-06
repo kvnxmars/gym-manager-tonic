@@ -5,7 +5,7 @@ import Workout from './pages/Workout/WorkoutApp';
 import StaffDashboard from "./pages/HomePages/StaffDashboard";
 import ClassBookings from "./pages/Class/ClassBooking";
 import ErrorBoundary from "./components/ErrorBoundary";
-import StudentDashboard from "./pages/HomePages/std/StudentDashboard";
+import StudentDashboard from "./pages/HomePages/StudentDashboard";
 import LandingPage from "./pages/landingPage";
 import ProfileApp from "./pages/profileApp/profileApp";
 

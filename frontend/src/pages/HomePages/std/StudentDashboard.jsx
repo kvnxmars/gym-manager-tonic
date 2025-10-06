@@ -26,9 +26,6 @@ const StudentDashboard = () => {
   const [error, setError] = useState(null);
   const [showQR, setShowQR] = useState(false);
   const [classes, setClasses] = useState([]);
-  const [workoutName, setWorkoutName] = useState("");
-  const [workoutTemplates, setWorkoutTemplates] = useState([]);
-  const [showTemplateModal, setShowTemplateModal] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [workoutStats, setWorkoutStats] = useState(null);
   
@@ -128,7 +125,7 @@ const StudentDashboard = () => {
 
   const fetchClasses = async () => {
     try {
-      const response = await fetch(`${API_URL}/classes`);
+      const response = await fetch(`${API_URL}/classes/${studentNumber}`);
       
       if (response.ok) {
         const data = await response.json();
@@ -139,83 +136,6 @@ const StudentDashboard = () => {
     }
   };
 
-  const handleAddWorkout = async () => {
-    if (!workoutName.trim() || !student) return;
-    
-    try {
-      const response = await fetch(`${API_URL}/templates/create`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          studentNumber: student.studentNumber,
-          name: workoutName.trim(),
-          exercises: []
-        })
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setWorkoutTemplates([...workoutTemplates, data.template]);
-        setWorkoutName("");
-        setShowTemplateModal(false);
-        alert("Workout template created successfully!");
-      } else {
-        const error = await response.json();
-        alert(`Error: ${error.error || 'Failed to create template'}`);
-      }
-    } catch (err) {
-      console.error("Error adding workout:", err);
-      alert("Failed to create workout template. Please try again.");
-    }
-  };
-
-  const handleEditTemplate = async () => {
-    if (!editingTemplate || !editingTemplate.name.trim()) return;
-
-    try {
-      const response = await fetch(`${API_URL}/templates/${templateId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: editingTemplate.name.trim() })
-      });
-
-      if (response.ok) {
-        const updatedTemplate = await response.json();
-        setWorkoutTemplates(workoutTemplates.map(t =>
-          t._id === updatedTemplate.template._id ? updatedTemplate.template : t
-        ));
-        setEditingTemplate(null);
-        setShowTemplateModal(false);
-        alert("Workout template updated successfully!");
-      } else {
-        const error = await response.json();
-        alert(`Error: ${error.error || 'Failed to update template'}`);
-      }
-    } catch (err) {
-      console.error("Error updating template:", err);
-      alert("Failed to update workout template. Please try again.");
-    }
-  };
-
-  const handleDeleteTemplate = async (templateId) => {
-    if (!window.confirm("Are you sure you want to delete this template?")) return;
-
-    try {
-      const response = await fetch(`${API_URL}/templates/${templateId}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        setWorkoutTemplates(workoutTemplates.filter(t => t._id !== templateId));
-        alert("Template deleted successfully!");
-      } else {
-        alert("Failed to delete template");
-      }
-    } catch (error) {
-      console.error("Delete error:", error);
-      alert("Failed to delete template. Please try again.");
-    }
-  };
   
   const openEditModal = (template) => {
     setEditingTemplate({ ...template });
@@ -356,28 +276,21 @@ const StudentDashboard = () => {
 
       <div style={{ padding: '0 20px' }}>
         <StatsCards workoutStats={workoutStats} />
-        <StartWorkoutSection />
-        <ClassesSection classes={classes} />
-        <WorkoutsGrid />
-        <WorkoutTemplates 
-          templates={workoutTemplates}
-          
-          
-          onAdd={() => { setShowTemplateModal(true); setEditingTemplate(null); }}
-          onEdit={openEditModal}
-          onDelete={handleDeleteTemplate}
+         <ClassesSection
+          classes={classes}
+          onBookClass={() => navigate('/classes')}
+          onViewBookings={() => navigate('/my-bookings')}
         />
-        <RecentCheckins checkins={checkins} />
+        
+       
+
+        <WorkoutsGrid
+          workouts={templates} // Assuming templates as workouts; adjust if separate endpoint
+          onSelectWorkout={(workout) => navigate(`/workout/${workout.id}`)}
+        />
+
       </div>
 
-      <TemplateModal
-        show={showTemplateModal}
-        editingTemplate={editingTemplate}
-        workoutName={workoutName}
-        onClose={handleModalClose}
-        onSave={handleTemplateSave}
-        onChange={handleTemplateInputChange}
-      />
 
       <BottomNav navigate={navigate} />
 

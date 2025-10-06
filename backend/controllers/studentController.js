@@ -72,7 +72,7 @@ static async getStudentInfo (req, res) {
     //if the user is found, send info as json
     res.status(200).json({
       message: "Student retrieved successfully",
-      user: student,
+      student,
     });
 
 

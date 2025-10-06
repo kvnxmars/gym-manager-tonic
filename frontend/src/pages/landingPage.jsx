@@ -45,7 +45,8 @@ export default function FitNWULanding() {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '20px',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      overflowY: 'auto'
     },
     wrapper: {
       width: '100%',

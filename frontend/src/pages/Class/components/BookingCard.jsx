@@ -1,5 +1,5 @@
 // src/components/BookingCard.jsx
-import React from 'react';
+
 import { formatTime } from '../Utils/helper';
 
 const BookingCard = ({ booking, onCancel }) => {
@@ -8,8 +8,8 @@ const BookingCard = ({ booking, onCancel }) => {
       <div className="booking-header">
         <div className="class-icon">{booking.image}</div>
         <div className="booking-main-info">
-          <h3 className="class-name">{booking.name}</h3>
-          <p className="class-instructor">with {booking.instructor}</p>
+          <h3 className="class-name">{booking.class.name}</h3>
+          <p className="class-instructor">with {booking.class.instructor}</p>
           <p className="booking-date">
             {new Date(booking.bookingDate).toLocaleDateString()} at {formatTime(booking.time)}
           </p>
@@ -20,13 +20,13 @@ const BookingCard = ({ booking, onCancel }) => {
       </div>
 
       <div className="booking-details">
-        <div className="booking-location">📍 {booking.location}</div>
-        <div className="booking-duration">🕐 {booking.duration} minutes</div>
+        <div className="booking-location">📍 {booking.location || booking.confirmedAt?.toLocaleString() || 'TBD'}</div>
+        <div className="booking-duration">🕐 {booking.class.duration} minutes</div>
       </div>
 
       <button
         className="cancel-button"
-        onClick={() => onCancel(booking.bookingId)}
+        onClick={() => onCancel(booking._id)}
         // The disabled state should be managed by the parent component (MyBookingsScreen)
       >
         Cancel Booking

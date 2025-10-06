@@ -89,7 +89,7 @@ const classSchema = new mongoose.Schema({
     // CRITICAL: Add the bookedStudents field for population
     
 bookedStudents: [{ 
-    type: mongoose.Schema.Types.ObjectId, 
+    type: String, 
     ref: 'Student' // This tells Mongoose to look up in the 'Student' collection
 }],
 

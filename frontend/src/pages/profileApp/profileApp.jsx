@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
-import { User, Calendar, TrendingUp, Dumbbell, Clock, Flame, Loader2 } from 'lucide-react';
+import { User, Calendar, TrendingUp, Dumbbell, Clock, Flame, Loader2, Home, HouseHeart } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import ProfileHeader from './components/Header';
 
 const API_URL = import.meta.env.VITE_API_URL;
 // API Configuration - Edit these URLs later
@@ -13,7 +15,9 @@ const apiService = {
       if (!response.ok) throw new Error('Failed to fetch profile');
 
       const data = await response.json();
-      return data || [];
+      console.log("Data:", data);
+      return data.user || {};
+      
 
     } catch (error) {
       console.error('API Error:', error);
@@ -28,7 +32,7 @@ const apiService = {
 
   async fetchWorkoutStats(studentNumber) {
     try {
-      const response = await fetch(`${API_URL}/student/stats/${studentNumber}`);
+      const response = await fetch(`${API_URL}/workouts/stats/${studentNumber}`);
       if (!response.ok) throw new Error('Failed to fetch stats');
       return await response.json();
     } catch (error) {
@@ -120,6 +124,7 @@ const styles = {
   container: {
     height: '100vh',
     background: 'linear-gradient(to bottom, #f3e8ff, #e9d5ff)',
+    overflowY: 'auto'
 
   },
   appWrapper: {
@@ -145,7 +150,7 @@ const styles = {
     paddingBottom: '120px',
   },
   profileCard: {
-    background: 'linear-gradient(to bottom right, #9333ea, #6b21a8)',
+    background: 'linear-gradient(to bottom right, #9333ea, #b49bc9ff)',
     borderRadius: '16px',
     padding: '24px',
     boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
@@ -388,25 +393,7 @@ const LoadingSpinner = () => (
   </div>
 );
 
-// Profile Header Component
-const ProfileHeader = ({ student }) => (
-  <div style={styles.profileCard}>
-    <div style={styles.profileHeader}>
-      <div style={styles.avatar}>
-        <User style={{ width: '40px', height: '40px', color: '#6b21a8' }} />
-      </div>
-      <div style={styles.profileInfo}>
-        <h1 style={styles.profileName}>{student.name}</h1>
-        <p style={styles.profileDetail}>Student #{student.studentNumber}</p>
-        <p style={styles.profileDetail}>{student.email}</p>
-      </div>
-    </div>
-    <div style={styles.checkInCard}>
-      <span style={styles.checkInLabel}>Total Check-ins</span>
-      <span style={styles.checkInValue}>{student.checkIns}</span>
-    </div>
-  </div>
-);
+
 
 // Stats Card Component
 const StatsCard = ({ icon: Icon, label, value, color }) => (
@@ -438,20 +425,26 @@ const WorkoutSession = ({ session }) => {
     >
       <div style={styles.workoutHeader}>
         <div>
-          <h3 style={styles.workoutTitle}>{session.type}</h3>
+          <h3 style={styles.workoutTitle}>{session.templateName}</h3>
           <p style={styles.workoutDate}>
             <Calendar style={{ width: '16px', height: '16px' }} />
-            {session.date}
+            {session.timing?.finishedAt 
+            ? new Date(session.timing.finishedAt).toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric', 
+                year: 'numeric' 
+              })
+            : 'Date unavailable'}
           </p>
         </div>
         <div style={styles.workoutBadge}>
-          {session.duration} min
+          {(session.timing?.duration) || 0} sec
         </div>
       </div>
-      <div style={styles.workoutStatsGrid}>
-        <div style={styles.workoutStat}>
+      <div style={styles.statsGrid}>
+        <div style={styles.stat}>
           <p style={styles.workoutStatLabel}>Exercises</p>
-          <p style={styles.workoutStatValue}>
+          <p style={styles.workoutStatValue}>{session.summary?.completedSets || 0}
             {Array.isArray(session.exercises)
             ?session.exercises.length
             :session.exercises
@@ -460,11 +453,11 @@ const WorkoutSession = ({ session }) => {
         <div style={styles.workoutStat}>
           <p style={styles.workoutStatLabel}>Sets</p>
           <p style={styles.workoutStatValue}>
-            {Array.isArray(session.sets) ?session.sets.length : session.sets}</p>
+            {Array.isArray(session.sets) ?session.sets.length : session.summary?.sets}</p>
         </div>
         <div style={styles.workoutStat}>
-          <p style={styles.workoutStatLabel}>Calories</p>
-          <p style={styles.workoutStatValue}>{session.calories}</p>
+          <p style={styles.workoutStatLabel}>Volume</p>
+          <p style={styles.workoutStatValue}>{session.summary?.totalVolume || 0}</p>
         </div>
       </div>
     </div>
@@ -479,20 +472,68 @@ export default function NWUGymTracker() {
   const [stats, setStats] = useState(null);
   const [workoutSessions, setWorkoutSessions] = useState([]);
   const [passwordBtnHover, setPasswordBtnHover] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAllData = async () => {
       setLoading(true);
+      //setError(null);
       try {
-        const [profileData, statsData, sessionsData] = await Promise.all([
-          apiService.fetchStudentProfile(),
-          apiService.fetchWorkoutStats(),
-          apiService.fetchWorkoutSessions()
+
+        const rawStudent = localStorage.getItem("student");
+
+        if (!rawStudent) {
+          console.error("No student data found.");
+          //navigate("/");
+          return;
+        }
+
+        let storedStudent = null;
+
+        try {
+          storedStudent = JSON.parse(rawStudent);
+        } catch (parseErr) {
+          console.error("Failed to parse student data: ", parseErr);
+        }
+        console.log("Session student", storedStudent);
+        
+        if (!storedStudent) {
+          console.error("No student data found. Please log in.");
+          
+          setLoading(false);
+          return;
+        }
+
+        setStudent(storedStudent);
+        
+        const [profileData, statsData, sessionsData] = await Promise.allSettled([
+          apiService.fetchStudentProfile(storedStudent.studentNumber),
+          apiService.fetchWorkoutStats(storedStudent.studentNumber),
+          apiService.fetchWorkoutSessions(storedStudent.studentNumber)
         ]);
         
-        setStudent(profileData);
-        setStats(statsData);
-        setWorkoutSessions(sessionsData);
+        // Handle profile data
+      if (profileData.status === 'fulfilled') {
+        setStudent(profileData.value);
+      } else {
+        console.error('Failed to fetch profile:', profileResult.reason);
+      }
+
+        // Handle stats data
+      if (statsData.status === 'fulfilled') {
+        setStats(statsData.value);
+      } else {
+        console.error('Failed to fetch stats:', statsData.reason);
+      }
+
+      // Handle sessions data
+      if (sessionsData.status === 'fulfilled') {
+        setWorkoutSessions(sessionsData.value);
+      } else {
+        console.error('Failed to fetch sessions:', sessionsData.reason);
+      }
+
+        
       } catch (error) {
         console.error('Error fetching data:', error);
       } finally {
@@ -539,24 +580,14 @@ export default function NWUGymTracker() {
                   value={stats.totalWorkouts}
                   color="#a855f7"
                 />
-                <StatsCard 
-                  icon={TrendingUp}
-                  label="Weekly Avg"
-                  value={stats.weeklyAverage}
-                  color="#3b82f6"
-                />
+                
                 <StatsCard 
                   icon={Clock}
-                  label="Total Hours"
-                  value={stats.totalHours}
+                  label="Total Weight"
+                  value={stats.totalWeight}
                   color="#22c55e"
                 />
-                <StatsCard 
-                  icon={Flame}
-                  label="Calories"
-                  value={`${(stats.caloriesBurned / 1000).toFixed(1)}k`}
-                  color="#f97316"
-                />
+                
               </div>
 
               <div>
@@ -587,8 +618,9 @@ export default function NWUGymTracker() {
             </>
           )}
         </div>
-
+          
         <div style={styles.bottomNav}>
+          
           <button 
             onClick={() => setActiveTab('profile')}
             style={{
@@ -596,19 +628,19 @@ export default function NWUGymTracker() {
               ...(activeTab === 'profile' ? styles.navButtonActive : styles.navButtonInactive)
             }}
           >
-            <User style={{ width: '24px', height: '24px', color: 'white' }} />
+            <Home style={{ width: '24px', height: '24px', color: 'white' }} />
           </button>
           <button 
-            onClick={() => setActiveTab('calendar')}
+            onClick={() => navigate("/student-dashboard")}
             style={{
               ...styles.navButton,
               ...(activeTab === 'calendar' ? styles.navButtonActive : styles.navButtonInactive)
             }}
           >
-            <Calendar style={{ width: '24px', height: '24px', color: 'white' }} />
+            <HouseHeart style={{ width: '24px', height: '24px', color: 'white' }} />
           </button>
           <button 
-            onClick={() => setActiveTab('workouts')}
+            onClick={() => navigate("/student-dashboard")}
             style={{
               ...styles.navButton,
               ...(activeTab === 'workouts' ? styles.navButtonActive : styles.navButtonInactive)
@@ -617,7 +649,7 @@ export default function NWUGymTracker() {
             <Dumbbell style={{ width: '24px', height: '24px', color: 'white' }} />
           </button>
           <button 
-            onClick={() => setActiveTab('stats')}
+            onClick={() => navigate("/workout")}
             style={{
               ...styles.navButton,
               ...(activeTab === 'stats' ? styles.navButtonActive : styles.navButtonInactive)

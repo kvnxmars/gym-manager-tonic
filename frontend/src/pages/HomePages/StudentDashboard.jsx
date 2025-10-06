@@ -310,7 +310,7 @@ const StudentDashboard = () => {
             color: '#333', 
             margin: '0 0 4px 0' 
           }}>
-            Welcome, {student?.name?.first}
+            Welcome, {student?.firstName}
           </h1>
           <p style={{ 
             fontSize: '14px', 

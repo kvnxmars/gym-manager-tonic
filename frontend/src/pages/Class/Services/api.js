@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 // API Service
 
@@ -11,13 +11,15 @@ const apiService = {
     return await response.json();
   },
   
-  bookClass: async (classId, studentId, date) => {
+  bookClass: async (classId, studentNumber, date) => {
     const response = await fetch(`${API_BASE_URL}/classes/book`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ classId, studentId, date })
+      body: JSON.stringify({ classId, studentNumber, date })
     });
-    if (!response.ok) throw new Error('Failed to book class');
+    if 
+      (!response.ok) throw new Error('Failed to book class');
+    
     return await response.json();
   },
   
@@ -29,8 +31,8 @@ const apiService = {
     return await response.json();
   },
   
-  fetchMyBookings: async (studentId) => {
-    const response = await fetch(`${API_BASE_URL}/classes/student/${studentId}`);
+  fetchMyBookings: async (studentNumber) => {
+    const response = await fetch(`${API_BASE_URL}/classes/student/${studentNumber}`);
     if (!response.ok) throw new Error('Failed to fetch bookings');
     return await response.json();
   }

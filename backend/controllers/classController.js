@@ -3,6 +3,7 @@
 const User = require("../models/User");
 const Booking = require("../models/Booking");
 const Class = require("../models/Class");
+const { findOne } = require("../models/WorkoutSession");
 
 //====CLASS MANAGEMENT ROUTES====//
 
@@ -211,11 +212,34 @@ static async getAllClasses(req, res) {
         try {
             const { studentNumber } = req.params;
 
+            //validation
+            if (!studentNumber) {
+                return res.status(400).json({ message: "Student number is required" });
+            }
+
+            const student = await User.findOne({ studentNumber: studentNumber});
+
+            console.log("Looking for student:", student.studentNumber);
+
+            if (!student) {
+                return res.status(404).json({
+                    message: "Student not found",
+                    bookings: []
+                });
+            }
+
+            console.log("Why? The problem might be here.")
+
             // Find all classes where this studentNumber is in bookedStudents
             const classes = await Class.find({ 
-                bookedStudents: studentNumber,
+                bookedStudents: student._id,
                 status: 'active' 
             });
+
+            // If you have auth middleware that sets req.user
+            if (req.user.studentNumber !== studentNumber && req.user.role !== 'admin') {
+                return res.status(403).json({ message: "Unauthorized" });
+            }
 
             // Transform to match frontend expectations
             const bookings = classes.map(cls => ({
@@ -260,7 +284,9 @@ static async getAllClasses(req, res) {
             const student = await User.findOne({studentNumber: studentNumber});
             if (!student) {
                 return res.status(404).json({ message: "Student not found." });
+                
             }
+            console.log("loser: ", student.studentNumber);
 
             if (student.role !== 'student') {
                 return res.status(403).json({ message: "Only students can book classes" });
@@ -300,13 +326,13 @@ static async getAllClasses(req, res) {
                     bookingId,
                     student: 
                     {
-                        //id: student._id,
-                        studentNumber: student.studentNumber,
-                        name: 
-                        {
+                        id: student._id,
+                        studentNumber: student?.studentNumber,
+                        name: {
                             first: student.firstName,
-                            last: student.lastName
                         }
+                        
+                        //lastName: student?.lastName
                 },
                 class: {
                     id: classId,
@@ -369,14 +395,29 @@ static async getAllClasses(req, res) {
             const { bookingId } = req.params;
             const { studentNumber } = req.body;
 
+             console.log("=== CANCEL BOOKING DEBUG ===");
+            console.log("Received booking id:", bookingId);
+            console.log("Received studentNumber");
+
+
             if (!studentNumber) {
                 return res.status(400).json({ 
                     message: "Student number is required" 
                 });
             }
 
+            // Check what's actually in the database
+        const allBookings = await Booking.find({});
+        console.log("All bookings in DB:", allBookings.map(b => ({
+            _id: b._id,
+            bookingId: b.bookingId,
+            studentNumber: b.student.studentNumber
+        })));
+
+
             // Find booking by bookingId
-            const booking = await Booking.findOne({ bookingId });
+            const booking = await Booking.findOne({ bookingId: bookingId });
+            console.log("Query result:", booking);
 
             if (!booking) {
                 return res.status(404).json({ 
@@ -395,7 +436,7 @@ static async getAllClasses(req, res) {
             booking.booking.status = 'cancelled';
             booking.cancellation = {
                 cancelledAt: new Date(),
-                reason: 'Cancelled by user'
+                
             };
             await booking.save();
 

@@ -76,14 +76,14 @@ const WorkoutSession = ({ session }) => {
     >
       <div style={workoutStyles.header}>
         <div>
-          <h3 style={workoutStyles.title}>{session.type}</h3>
+          <h3 style={workoutStyles.title}>{session.templateName}</h3>
           <p style={workoutStyles.date}>
             <Calendar style={{ width: '16px', height: '16px' }} />
-            {session.date}
+            {session.timing.finishedAt}
           </p>
         </div>
         <div style={workoutStyles.badge}>
-          {session.duration} min
+          {session.time.duration} min
         </div>
       </div>
       <div style={workoutStyles.statsGrid}>
@@ -93,11 +93,11 @@ const WorkoutSession = ({ session }) => {
         </div>
         <div style={workoutStyles.stat}>
           <p style={workoutStyles.statLabel}>Sets</p>
-          <p style={workoutStyles.statValue}>{session.sets}</p>
+          <p style={workoutStyles.statValue}>{session.exercises.sets}</p>
         </div>
         <div style={workoutStyles.stat}>
-          <p style={workoutStyles.statLabel}>Calories</p>
-          <p style={workoutStyles.statValue}>{session.calories}</p>
+          <p style={workoutStyles.statLabel}>Total Exercises</p>
+          <p style={workoutStyles.statValue}>{session.summary.totalExercises}</p>
         </div>
       </div>
     </div>

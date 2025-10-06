@@ -29,18 +29,6 @@ const StatsCards = ({ workoutStats }) => {
           textAlign: 'center',
           border: '1px solid #eee'
         }}>
-          <div style={{ fontSize: '24px', fontWeight: '700', color: '#34C759' }}>
-            {workoutStats.weeklyWorkouts}
-          </div>
-          <div style={{ fontSize: '12px', color: '#888' }}>This Week</div>
-        </div>
-        <div style={{
-          background: 'white',
-          borderRadius: '12px',
-          padding: '16px',
-          textAlign: 'center',
-          border: '1px solid #eee'
-        }}>
           <div style={{ fontSize: '24px', fontWeight: '700', color: '#AF52DE' }}>
             {workoutStats.totalTemplates}
           </div>

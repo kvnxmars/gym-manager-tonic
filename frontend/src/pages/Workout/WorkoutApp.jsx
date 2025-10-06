@@ -4,6 +4,7 @@ import { workoutApi } from './services/workoutAPI';
 import StartScreen from './components/StartScreen';
 import WorkoutScreen from './components/WorkoutScreen';
 import '../../styles/WorkoutApp.css';
+
 //import WorkoutTemplate from '../../../../backend/models/WorkoutTemplate';
 //import WorkoutSession from '../../../../backend/models/WorkoutSession';
 
@@ -650,6 +651,8 @@ const WorkoutApp = () => {
             setError={setError}
         />
     );
+
+    
 };
 
 export default WorkoutApp;

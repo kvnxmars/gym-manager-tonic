@@ -1,9 +1,7 @@
 // Header Component
 
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Search, QrCode, Heart, Settings, Home, Clock, Users } from "lucide-react";
-import QRCode from "react-qr-code";
+import { QrCode } from "lucide-react";
+
 const DashboardHeader = ({ student, showQR, setShowQR }) => (
   <div style={{ 
     padding: '20px 20px 16px', 
@@ -14,10 +12,10 @@ const DashboardHeader = ({ student, showQR, setShowQR }) => (
   }}>
     <div>
       <h1 style={{ fontSize: '24px', fontWeight: '700', color: '#333', margin: '0 0 4px 0' }}>
-        Welcome, {student?.name?.first}
+        Welcome, {student?.firstName}
       </h1>
       <p style={{ fontSize: '14px', color: '#888', margin: '0' }}>
-        {student?.name?.last}
+        {student?.lastName}
       </p>
     </div>
     
@@ -50,7 +48,7 @@ const DashboardHeader = ({ student, showQR, setShowQR }) => (
         fontSize: '16px',
         fontWeight: '600'
       }}>
-        {student?.name?.first?.charAt(0)}{student?.name?.last?.charAt(0)}
+        {student?.firstName?.charAt(0)}{student?.lastName?.charAt(0)}
       </div>
     </div>
   </div>

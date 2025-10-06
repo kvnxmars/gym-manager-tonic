@@ -92,13 +92,7 @@ const bookingSchema = new mongoose.Schema({
             type: Date,
             default: null
         },
-        reason: {
-            type: String,
-            enum: ['personal', 'sick', 'emergency', 'other'],
-            default: null,
-            trim: true,
-            maxlength: 500
-        }
+        
     },
 
     // Attendance Tracking

@@ -33,7 +33,7 @@ const BookingScreen = ({ selectedClass, selectedDate, student, loading, onConfir
         <button
           className="confirm-booking-button"
           onClick={onConfirmBooking}
-          disabled={loading || !selectedClass}
+          //onClick={() => alert("Button works!")}
         >
           {loading ? 'Booking...' : 'Confirm Booking'}
         </button>

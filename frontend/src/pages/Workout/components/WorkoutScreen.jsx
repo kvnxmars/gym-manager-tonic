@@ -1,6 +1,8 @@
 import { memo } from 'react';
 import ExerciseCard from './ExerciseCard';
 import TimerControls from './TimerControls';
+import BottomNav from "../../HomePages/std/components/bottomNav";
+import { useNavigate } from 'react-router-dom';
 
 const WorkoutScreen = memo(({ 
     currentTemplate,
@@ -99,12 +101,7 @@ const WorkoutScreen = memo(({
                 )}
             </div>
             
-            <div className="bottom-nav">
-                <button className="nav-item">👤</button>
-                <button className="nav-item">📈</button>
-                <button className="nav-item">📋</button>
-                <button className="nav-item">⚙️</button>
-            </div>
+           
         </div>
     );
 });
