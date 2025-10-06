@@ -45,7 +45,7 @@ function App() {
       <ErrorBoundary>
       <Routes>
         {/**Public Routes */}
-        <Route path="/" element={<LandingPage/> } />
+        <Route path="/" element={<LandingPage /> } />
         <Route path="/login" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
 

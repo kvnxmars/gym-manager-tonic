@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
   studentNumber: {
     type: String,
     sparse: true, // Allows null for non-students
-    unique: true,
+    //unique: true,
   },
   
   firstName: {
